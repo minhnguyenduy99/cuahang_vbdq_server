@@ -1,0 +1,8 @@
+{
+  "admin": {
+    "host": "127.0.0.1",
+    "user": "root",
+    "password": "localhost123",
+    "database": "cuahang_vbdq"
+  }
+}

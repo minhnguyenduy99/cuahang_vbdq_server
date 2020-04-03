@@ -1,11 +1,12 @@
 import { shallowEqual } from "shallow-equal-object";
+import ISerializable from "./ISerializable";
 
 
 export interface ValueObjectProps {
   [index: string]: any;
 }
 
-export default abstract class ValueObject<T extends ValueObjectProps> {
+export default abstract class ValueObject<T extends ValueObjectProps> implements ISerializable {
   protected props: T;
 
   protected constructor (props: T) {
@@ -21,6 +22,8 @@ export default abstract class ValueObject<T extends ValueObjectProps> {
     }
     return shallowEqual(this.props, vo.props)
   }
+
+  public abstract serialize(): any;
 
   abstract getValue(): any;
 }

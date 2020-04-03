@@ -2,13 +2,19 @@
 import express from "express";
 import bodyParser from "body-parser";
 import session from "express-session";
+import "reflect-metadata";
 
 import { IDatabaseService } from "@core"
 
 // import middlewares
-
+import HttpException from "./middlewares/http-exception";
 
 // import custom controllers
+import NhanVienController from "./controllers/NhanVienController";
+import SanPhamController from "./controllers/SanPhamController";
+
+// import services
+import { DatabaseService, DbConfigObjectConnection, repo } from "@services/db-access-manager";
 
 
 const DEFAULT_RELATIVE_CONNECTION_PATH = "/config/db-connection.json";
@@ -35,15 +41,23 @@ export default class App {
   }
 
   public async startService() {
-    // await this.dbService.start();
+    await this.dbService.start();
   }
 
-  public getDBService() {
+  public getDatabaseService() {
     return this.dbService;
   }
 
   protected initializeDBService() {
-
+    this.dbService = new DatabaseService();
+    this.dbService.addConnection(new DbConfigObjectConnection("test_connection", {
+      connectionName: "admin",
+      filePath: {
+        isAbsolute: false,
+        value: DEFAULT_RELATIVE_CONNECTION_PATH
+      }
+    }))
+    this.dbService.setDefaultConnection("test_connection");
   }
 
   protected initializeMiddlewares(): void {
@@ -57,8 +71,16 @@ export default class App {
   }
 
   protected initializeControllers(): void {
+    const nhanvienRepo = this.dbService.createRepository(repo.NhanVienRepository);
+    const taikhoanRepo = this.dbService.createRepository(repo.TaiKhoanRepository);
+    const nhacungcapRepo = this.dbService.createRepository(repo.NhaCungCapRepository);
+    const sanphamRepo = this.dbService.createRepository(repo.SanPhamRepository);
+
+    this.app.use(new NhanVienController(nhanvienRepo, taikhoanRepo, nhacungcapRepo, "/nhanvien").getRouter());
+    this.app.use(new SanPhamController(sanphamRepo, nhacungcapRepo, "/sanpham").getRouter());
   }
 
   protected initializeErrorHandles() {
+    this.app.use(HttpException);
   }
 }

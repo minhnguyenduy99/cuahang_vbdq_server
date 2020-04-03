@@ -19,8 +19,8 @@ export default class DbConnectionString extends BaseKnexConnection {
 
   async connect(): Promise<boolean> {
     try {
-    this.connector = Knex(this.connectionString);
-    return true;
+      this.connector = Knex(this.connectionString);
+      return true;
     } catch (err) {
       console.log(`[ConnectionError] ${err}`);
       return false;

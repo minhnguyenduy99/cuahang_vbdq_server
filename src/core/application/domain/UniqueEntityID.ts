@@ -1,12 +1,13 @@
 
 import uniqid from "uniqid";
 import ValueObject from "./ValueObject";
+import { SuccessResult } from "../Result";
 
-export interface UniqueEntityIDProps {
+export interface UniqueEntityIDProp {
   id: string;
 }
 
-export default class UniqueEntityID extends ValueObject<UniqueEntityIDProps> {
+export default class UniqueEntityID extends ValueObject<UniqueEntityIDProp> {
 
   private constructor(id?: string) {
     let props = { id: id ? id : uniqid() }
@@ -17,8 +18,12 @@ export default class UniqueEntityID extends ValueObject<UniqueEntityIDProps> {
     return this.props.id;
   }
 
-  public static create(id?: string): UniqueEntityID {
-    return new UniqueEntityID(id);
+  public static create(id?: string) {
+    return SuccessResult.ok(new UniqueEntityID(id));
+  }
+
+  public serialize() {
+    return this.props.id;
   }
 }
 

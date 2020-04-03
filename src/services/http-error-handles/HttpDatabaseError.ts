@@ -7,7 +7,7 @@ export class HttpDatabaseError extends BaseHttpError {
   readonly type: string;
 
   public constructor(appDBError: IDatabaseError, code: number = HTTP_ERROR_CODE.bad_request) {
-    super(appDBError.message, code);
+    super("DATABASE_ERROR", code);
     this.type = appDBError.type;
   }
 

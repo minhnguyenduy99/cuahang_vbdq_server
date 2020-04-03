@@ -22,11 +22,11 @@ export default class DatabaseService implements core.IDatabaseService {
   }
 
   public createRepository<T extends core.IDatabaseRepository>(
-    type: new (connection: BaseKnexConnection, table: string) => T, table: string): T {
+    type: new (connection: BaseKnexConnection) => T): T {
     if (!this.currentConnection) {
       throw new Error("The default connection has not been set");
     }
-    return new type(this.currentConnection, table);
+    return new type(this.currentConnection);
   }
 
   public addConnection(connection: BaseKnexConnection) {

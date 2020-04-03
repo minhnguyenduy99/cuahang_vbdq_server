@@ -11,22 +11,10 @@ const DATABASE_ERROR_KEY: DatabaseErrorReference = {
 
 export class KnexDatabaseError extends DatabaseError {
 
-  public readonly field: string;
-  public readonly value: string;
+  readonly name: string;
 
   public constructor(appModule: string, dbInteralError: any) {
-    super(appModule || "Unknown", dbInteralError.code, dbInteralError.sqlMessage);
+    super("KNEX_DATABASE_ERROR");
+    this.name = dbInteralError.code;
   }
-
-  // private extractFieldAndValue(sqlMessage: string): { field: string, value: string } {
-  //   if (!sqlMessage) {
-  //     throw new Error("Message cannot be null");
-  //   }
-  //   const extractStrs = sqlMessage.match(/'\S*'/g).map(val => val.slice(1, val.length - 1));
-
-  //   return {
-  //     field: extractStrs[0],
-  //     value: extractStrs[1]
-  //   }
-  // }
 }

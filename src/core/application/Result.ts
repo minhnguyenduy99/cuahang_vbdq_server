@@ -48,6 +48,15 @@ export class Result<T, E> {
   public static combineSame<T, E>(results: Result<T, E>[]): Result<T[], E> {
     return this.combine(results);
   }
+
+  public static getObjectValue<T>(resultObj: any) {
+    let obj = {}
+    Object.keys(resultObj).forEach(key => {
+      Object.defineProperty(obj, key, resultObj[key].getValue());
+    })
+
+    return obj as T;
+  }
 }
 
 export class SuccessResult<T> extends Result<T, null> {
@@ -56,7 +65,7 @@ export class SuccessResult<T> extends Result<T, null> {
     super(true, undefined, value)
   }
 
-  public static ok<T>(value: T): SuccessResult<T> {
+  public static ok<T>(value?: T): SuccessResult<T> {
     return new SuccessResult(value);
   }
 

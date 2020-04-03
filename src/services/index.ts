@@ -1,2 +1,2 @@
-export * from "./db-access-manager";
-export * from "./http-error-handles";
+export * from "./db-access-manager/index";
+export * from "./http-error-handles/index";

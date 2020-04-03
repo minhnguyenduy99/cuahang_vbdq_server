@@ -1,10 +1,10 @@
 import "module-alias/register";
-import App from "./src/app";
 import dotenv from "dotenv";
+import App from "./src/app";
 
 
 (async function startServer() {
-// accept enviroment variables configuration
+
   dotenv.config();
 
   const host = process.env.HOST || "localhost";
