@@ -16,6 +16,10 @@ export default class TaiKhoanRepository implements ITaiKhoanRepository {
     this.tableName = "TAIKHOAN";
     this.mapper = new TaiKhoanMapper()
   }
+  
+  execute(context: any) {
+    throw new Error("Method not implemented.");
+  }
 
   async taiKhoanExists(tenTaiKhoan: string): Promise<Result<boolean, IDatabaseError>> {
     try {

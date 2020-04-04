@@ -17,6 +17,10 @@ export default class NhaCungCapRepository implements INhaCungCapRepository {
     this.connection = connection;
     this.tableName = "NHACUNGCAP";
   }
+  
+  execute(context: any) {
+    throw new Error("Method not implemented.");
+  }
 
   async nhaCungCapExists(tenNhaCungCap: string) {
     try {

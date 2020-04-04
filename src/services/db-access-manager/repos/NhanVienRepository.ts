@@ -17,6 +17,10 @@ export default class NhanVienRepository implements INhanVienRepository {
     this.tableName = "NHANVIEN";
     this.mapper = new NhanVienMapper();
   }
+  
+  execute(context: any) {
+    throw new Error("Method not implemented.");
+  }
 
   async createNhanVien(nhanvien: NhanVien): Promise<Result<void, IDatabaseError>> {
     try {

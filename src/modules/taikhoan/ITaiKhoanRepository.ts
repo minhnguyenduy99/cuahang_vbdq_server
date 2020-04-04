@@ -1,7 +1,7 @@
 import { IDatabaseRepository, Result, IDatabaseError } from "@core";
 import { TaiKhoan, } from "./TaiKhoan";
 
-export default interface ITaiKhoanRepository extends IDatabaseRepository {
+export default interface ITaiKhoanRepository extends IDatabaseRepository<any> {
   
   createTaiKhoan(taikhoan: TaiKhoan): Promise<Result<void, IDatabaseError>>;
 

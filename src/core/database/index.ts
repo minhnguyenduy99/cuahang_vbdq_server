@@ -4,3 +4,4 @@ export { default as MissingRequiredFieldsError } from "./MissingRequiredFieldsEr
 export { default as IDatabaseRepository } from './IDatabaseRepository';
 export { default as IDatabaseService } from './IDatabaseService';
 export { default as IDbConnection } from './IDbConnection';
+export { default as LimitResult } from "./LimitResult";

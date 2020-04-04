@@ -2,7 +2,7 @@ import { Result, IDatabaseError, UniqueEntityID, IDatabaseRepository } from "@co
 import { NhanVien, NhanVienDTO } from "./NhanVien";
 
 
-export default interface INhanVienRepository extends IDatabaseRepository {
+export default interface INhanVienRepository extends IDatabaseRepository<any> {
 
   getNhanVienById(id: UniqueEntityID): Promise<Result<NhanVienDTO, IDatabaseError>>;
 

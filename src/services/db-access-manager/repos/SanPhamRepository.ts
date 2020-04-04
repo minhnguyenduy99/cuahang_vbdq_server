@@ -1,9 +1,11 @@
 import knex from "knex";
 import { ISanPhamRepository, SanPham, SanPhamDTO } from "@modules/sanpham";
 import SanPhamMapper from "@mappers/SanPhamMapper";
-import { Result, IDatabaseError, IDbConnection, FailResult, SuccessResult } from "@core";
+import { Result, IDatabaseError, IDbConnection, FailResult, SuccessResult, LimitResult } from "@core";
 import { KnexDatabaseError } from "../DatabaseError";
 
+
+const MAXIMUM_RESULT_PER_QUERY = 15;
 
 export default class SanPhamRepository implements ISanPhamRepository {
 
@@ -13,8 +15,28 @@ export default class SanPhamRepository implements ISanPhamRepository {
 
   constructor(connection: IDbConnection<knex>) {
     this.connection = connection;
-    this.mapper = new SanPhamMapper();
     this.tableName = "SANPHAM";
+    this.mapper = new SanPhamMapper();
+  }
+
+  public execute(context: knex<any, any[]>) {
+    throw new Error("Method not implemented.");
+  }
+
+  async searchSanPham(tenSP: string, loaiSP: string, 
+    limit: LimitResult = { from: 0, count: MAXIMUM_RESULT_PER_QUERY}): 
+    Promise<Result<SanPhamDTO[], IDatabaseError>> {
+
+    try {
+      const searchSanPhamProcedure = "SearchSanPham";
+      const searchResult = await this.connection.getConnector()
+        .raw(`CALL ${searchSanPhamProcedure}(?, ?, ?, ?)`, [tenSP, loaiSP, limit.count, limit.from]);
+      const sanphamData = (searchResult[0][0] as Array<any>)
+        .map(sanpham => this.mapper.toDTOFromPersistence(sanpham).getValue());
+      return SuccessResult.ok(sanphamData);
+    } catch (err) {
+      return FailResult.fail(new KnexDatabaseError("SanPham", err));
+    }
   }
   
   async createSanPham(sanpham: SanPham): Promise<Result<void, IDatabaseError>> {

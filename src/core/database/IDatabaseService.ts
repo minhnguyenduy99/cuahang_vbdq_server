@@ -5,7 +5,7 @@ import IDbConnection from "./IDbConnection";
 
 export default interface IDatabaseService extends IService{
 
-  createRepository<T extends IDatabaseRepository>(
+  createRepository<T extends IDatabaseRepository<any>>(
     type: new (connection: IDbConnection<any>) => T) : T;
 
   addConnection(connection: IDbConnection<any>): void;

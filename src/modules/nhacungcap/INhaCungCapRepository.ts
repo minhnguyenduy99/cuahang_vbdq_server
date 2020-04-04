@@ -3,7 +3,7 @@ import { NhaCungCap, NhaCungCapDTO } from "./NhaCungCap";
 
 
 
-export default interface INhaCungCapRepository extends IDatabaseRepository {
+export default interface INhaCungCapRepository extends IDatabaseRepository<any> {
 
   createNhaCungCap(nhacungcap: NhaCungCap): Promise<Result<void, IDatabaseError>>;
 

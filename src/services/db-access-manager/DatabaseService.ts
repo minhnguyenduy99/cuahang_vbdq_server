@@ -21,7 +21,7 @@ export default class DatabaseService implements core.IDatabaseService {
     throw new Error("DatabaseService.end() is not implemented");
   }
 
-  public createRepository<T extends core.IDatabaseRepository>(
+  public createRepository<T extends core.IDatabaseRepository<any>>(
     type: new (connection: BaseKnexConnection) => T): T {
     if (!this.currentConnection) {
       throw new Error("The default connection has not been set");
