@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/server.js",
   "scripts": {
-    "build": "npm run lint && tsc --build tsconfig.json",
+    "build": "tsc --build tsconfig.json",
     "prestart": "npm run build",
     "start": "node .",
     "start:watch": "nodemon --config ./nodemon.json",
