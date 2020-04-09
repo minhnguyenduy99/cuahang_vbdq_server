@@ -3,6 +3,7 @@ export const HTTP_ERROR_CODE = {
   bad_request: 400,
   resource_not_found: 404,
   unauthorized: 401,
+  unauthenticated: 401,
   server_error: 500
 }
 

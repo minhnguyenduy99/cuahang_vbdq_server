@@ -1,32 +1,36 @@
-import uniqid from "uniqid";
-import { IsString, IsOptional, IsNumber, MaxLength, IsIn } from "class-validator";
-import { Expose, Exclude } from "class-transformer";
+import { IsString, IsOptional, IsNumber, MaxLength, IsIn, IsEmpty } from "class-validator";
+import { Expose, Transform } from "class-transformer";
 import CreateType from "../entity-create-type";
 
 export default class TaiKhoanProps {
 
-  @IsString()
-  @Expose()
-  @IsOptional({ groups: [CreateType.getGroups().createNew] })
+  @IsEmpty({ groups: [CreateType.getGroups().createNew] })
+  @IsString({ groups: CreateType.getAllGroupsExcept("createNew") })
+  @Expose({ groups: CreateType.getAllGroups() })
   id: string;
 
-  @IsString()
-  @Expose({ name: "ten_tk" })
-  @MaxLength(20)
+  @IsString({ groups: CreateType.getAllGroups() })
+  @Expose({ name: "ten_tk", groups: CreateType.getAllGroupsExcept("toAppRespone") })
+  @MaxLength(20, { groups: CreateType.getAllGroups() })
   tenTaiKhoan: string;
 
-  @IsString()
-  @Expose({ name: "mat_khau"})
-  @MaxLength(20)
-  @Exclude({ toPlainOnly: true })
+  @IsString({ groups: CreateType.getAllGroups() })
+  @MaxLength(20, { groups: [CreateType.getGroups().createNew] })
+  @Expose({ name: "mat_khau", groups: CreateType.getAllGroupsExcept("toAppRespone") })
   matKhau: string;
 
-  @Expose({ name: "anh_dai_dien" })
+  @Expose({ name: "anh_dai_dien", groups: CreateType.getAllGroups() })
   @IsOptional({ groups: [CreateType.getGroups().createNew] })
   anhDaiDien: string;
 
-  @IsNumber({ allowNaN: false, allowInfinity: false })
-  @Expose({ name: "loai_tk" })
-  @IsIn([0, 1, 2])
+  @IsNumber({ allowNaN: false, allowInfinity: false }, { groups: CreateType.getAllGroups() })
+  @Transform((val) => {
+    if (typeof val === "string") {
+      return parseInt(val)
+    }
+    return val
+  })
+  @Expose({ name: "loai_tk", groups: CreateType.getAllGroups() })
+  // @IsIn([0, 1, 2], { groups: CreateType.getAllGroups() })
   loaiTK: number;
 }

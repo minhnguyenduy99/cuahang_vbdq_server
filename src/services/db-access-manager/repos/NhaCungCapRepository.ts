@@ -1,7 +1,7 @@
-import { INhaCungCapRepository, NhaCungCap } from "@modules/nhacungcap";
+import { INhaCungCapRepository, NhaCungCap, NhaCungCapDTO } from "@modules/nhacungcap";
 import knex from "knex";
 import NhaCungCapMapper from "@mappers/NhaCungCapMapper";
-import { IDbConnection, FailResult, SuccessResult } from "@core";
+import { IDbConnection, FailResult, SuccessResult, LimitResult, Result, IDatabaseError } from "@core";
 import { KnexDatabaseError } from "../DatabaseError";
 
 
@@ -16,6 +16,19 @@ export default class NhaCungCapRepository implements INhaCungCapRepository {
     this.mapper = new NhaCungCapMapper();
     this.connection = connection;
     this.tableName = "NHACUNGCAP";
+  }
+
+  async searchNhaCungCap(ten: string): Promise<Result<NhaCungCapDTO[], IDatabaseError>> {
+    try {
+      const searchNhaCungCap = "SearchNhaCungCapByName";
+      const searchResult = await this.connection.getConnector()
+        .raw(`CALL ${searchNhaCungCap}(?)`, [ten]);
+      const nhacungcapData = (searchResult[0][0] as Array<any>)
+        .map(nhaCungCap => this.mapper.toDTOFromPersistence(nhaCungCap).getValue());
+      return SuccessResult.ok(nhacungcapData);
+    } catch (err) {
+      return FailResult.fail(new KnexDatabaseError("NhaCungCap", err));
+    }
   }
   
   execute(context: any) {

@@ -22,6 +22,27 @@ export default class NhanVienRepository implements INhanVienRepository {
     throw new Error("Method not implemented.");
   }
 
+  async deleteNhanVien(nhanvienId: string) {
+    try {
+      await this.connection.getConnector().table(this.tableName).delete().where({
+        id: nhanvienId
+      })
+      return SuccessResult.ok(null);
+    } catch (err) {
+      return FailResult.fail(new KnexDatabaseError("NhanVien", err));
+    }
+  }
+
+  async persist(nhanvien: NhanVien): Promise<Result<void, IDatabaseError>> {
+    try {
+      const persistence = this.mapper.toPersistenceFormat(nhanvien);
+      await this.connection.getConnector().table(this.tableName).update(persistence);
+      return SuccessResult.ok(null);
+    } catch (err) {
+      return FailResult.fail(new KnexDatabaseError("NhanVien", err));
+    }
+  }
+
   async createNhanVien(nhanvien: NhanVien): Promise<Result<void, IDatabaseError>> {
     try {
       const persistence = this.mapper.toPersistenceFormat(nhanvien);
@@ -34,10 +55,10 @@ export default class NhanVienRepository implements INhanVienRepository {
     }
   }
   
-  async getNhanVienById(id: UniqueEntityID): Promise<Result<NhanVienDTO, IDatabaseError>> {
+  async getNhanVienById(id: string): Promise<Result<NhanVienDTO, IDatabaseError>> {
     try {
       const result = await this.connection.getConnector().select("*").from(this.tableName).where({
-        id: id.getValue()
+        id: id
       }).limit(1);
       if (result.length === 0) {
         return SuccessResult.ok(null);

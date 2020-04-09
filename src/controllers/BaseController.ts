@@ -33,7 +33,7 @@ export default abstract class BaseController {
   protected async executeQuery<T>(request: T, query: IQuery<T>) {
     const executeResult = await query.execute(request);
     if (executeResult.isFailure) {
-      return FailResult.fail(ErrorFactory.databaseError(executeResult.error));
+      return FailResult.fail(ErrorFactory.error(executeResult.error));
     }
     return SuccessResult.ok(executeResult.getValue());
   }

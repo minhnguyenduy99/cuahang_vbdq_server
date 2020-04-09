@@ -1,5 +1,5 @@
 import IMapper from "./IMapper.interface";
-import { Result, IDatabaseError, FailResult, DatabaseError, MissingRequiredFieldsError, SuccessResult } from "@core";
+import { Result, IDatabaseError, FailResult, DatabaseError, SuccessResult } from "@core";
 import { TaiKhoan, TaiKhoanDTO } from "@modules/taikhoan";
 
 export default class TaiKhoanMapper implements IMapper<TaiKhoan> {
@@ -23,6 +23,9 @@ export default class TaiKhoanMapper implements IMapper<TaiKhoan> {
   }
 
   toDTOFromPersistence(data: any) {
+    if (!data) {
+      return SuccessResult.ok(null);
+    }
     return SuccessResult.ok({
       id: data.id,
       ten_tk: data.ten_dang_nhap,
@@ -33,7 +36,7 @@ export default class TaiKhoanMapper implements IMapper<TaiKhoan> {
   }
   
   toPersistenceFormat(taikhoan: TaiKhoan) {
-    const dto = taikhoan.serialize();
+    const dto = taikhoan.serialize("TO_PERSISTENCE");
     return {
       id: dto.id,
       ten_dang_nhap: dto.ten_tk,

@@ -1,3 +1,4 @@
+import { Result } from "./Result";
 
 export default interface IUseCase<IRequest, IRespone> {
 

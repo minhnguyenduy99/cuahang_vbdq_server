@@ -1,17 +1,19 @@
 import IMapper from "./IMapper.interface";
 import * as nv from "@modules/nhanvien";
-import { Result, IDatabaseError, FailResult, DatabaseError, MissingRequiredFieldsError, SuccessResult } from "@core";
-import { NhanVien, NhanVienDTO } from "@modules/nhanvien";
+import { Result, IDatabaseError, SuccessResult } from "@core";
+import { NhanVienDTO } from "@modules/nhanvien";
+import CreateType from "@create_type";
 
 export default class NhanVienMapper implements IMapper<nv.NhanVien> {
   
   toDTO(nhanvien: nv.NhanVien) {
-    return nhanvien.serialize();
+    return nhanvien.serialize(CreateType.getGroups().toAppRespone);
   }
 
   toDTOFromPersistence(data: any): Result<NhanVienDTO, IDatabaseError> {
     const dto = {
       id: data.id,
+      tk_id: data.tk_id,
       idql: data.nv_quanly_id,
       ho_ten: data.ho_ten,
       ngay_sinh: data.ngay_sinh,
@@ -28,7 +30,7 @@ export default class NhanVienMapper implements IMapper<nv.NhanVien> {
   }
   
   toPersistenceFormat(nhanvien: nv.NhanVien) {
-    const dto = nhanvien.serialize();
+    const dto = nhanvien.serialize(CreateType.getGroups().toPersistence);
     return {
       id: dto.id,
       nv_quanly_id: dto.idql,
@@ -40,7 +42,7 @@ export default class NhanVienMapper implements IMapper<nv.NhanVien> {
       sdt: dto.sdt,
       dia_chi: dto.dia_chi,
       ghi_chu: dto.ghi_chu,
-      id_tk: nhanvien.taikhoanId
+      tk_id: nhanvien.taikhoanId
     }
   }
 }

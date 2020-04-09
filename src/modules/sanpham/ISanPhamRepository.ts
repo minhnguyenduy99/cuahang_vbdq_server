@@ -10,4 +10,6 @@ export default interface ISanPhamRepository extends IDatabaseRepository<any> {
   searchSanPham(tenSP: string, loaiSP: string, limit: LimitResult): Promise<Result<SanPhamDTO[], IDatabaseError>>;
 
   getSanPhamById(sanphamId: string): Promise<Result<SanPhamDTO, IDatabaseError>>;
+
+  persist(sanpham: SanPham): Promise<Result<void, IDatabaseError>>;
 }

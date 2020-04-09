@@ -1,5 +1,11 @@
-export { GetNhanVien, GetNhanVienDTO } from "./GetNhanVien/GetNhanVien";
+export { GetNhanVien, GetNhanVienDTO, GetNhanVienRequest } from "./GetNhanVien/GetNhanVien";
 export { TaoNhaCungCap, TaoNhaCungCapDTO } from "./TaoNhaCungCap/TaoNhaCungCap";
 export { default as NhaCungCapExistsError } from "./TaoNhaCungCap/NhaCungCapExistsError";
 export { TaoSanPham, TaoSanPhamDTO } from "./TaoSanPham/TaoSanPham";
-export { TimKiemSanPhamDTO, TimKiemSanPham } from "./TimKiemSanPham/TimKiemSanPham";
+export { TimKiemSanPham } from "./TimKiemSanPham/TimKiemSanPham";
+export { TKSPValidate, TimKiemSanPhamDTO } from "./TimKiemSanPham/TKSP-validate";
+export { TKNCCValidate, TimKiemNhaCCDTO } from "./TimKiemNhaCC/TKNCC-validate";
+export { TimKiemNhaCungCap } from "./TimKiemNhaCC/TimKiemNhaCC";
+export { TaoKhachHangDTO, TaoKhachHang } from "./TaoKhachHang/TaoKhachHang";
+export { TimKiemKhachHang, TimKiemKhachHangDTO } from "./TimKiemKhachHang/TimKiemKhachHang";
+export { TaoPhieuBanHang } from "./TaoPhieuBanHang/TaoPhieuBanHang";

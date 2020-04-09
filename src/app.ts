@@ -1,8 +1,11 @@
 // import built-in modules
+import path from "path";
 import express from "express";
 import bodyParser from "body-parser";
+import formData from "express-form-data";
 import session from "express-session";
 import "reflect-metadata";
+import morgan from "morgan";
 
 import { IDatabaseService } from "@core"
 
@@ -12,9 +15,14 @@ import HttpException from "./middlewares/http-exception";
 // import custom controllers
 import NhanVienController from "./controllers/NhanVienController";
 import SanPhamController from "./controllers/SanPhamController";
+import PhieuBanHangController from "./controllers/PhieuBanHangController";
+import LoginController from "./controllers/LoginController";
 
 // import services
 import { DatabaseService, DbConfigObjectConnection, repo } from "@services/db-access-manager";
+import KhachHangController from "./controllers/KhachHangController";
+import { ImageLoader } from "./services";
+
 
 
 const DEFAULT_RELATIVE_CONNECTION_PATH = "/config/db-connection.json";
@@ -22,12 +30,14 @@ const DEFAULT_RELATIVE_CONNECTION_PATH = "/config/db-connection.json";
 export default class App {
 
   private app: express.Application;
+
   private dbService: IDatabaseService;
+  private imageLoaderService: ImageLoader;
 
   constructor() {
     this.app = express();
 
-    this.initializeDBService();
+    this.initializeService();
 
     this.initializeMiddlewares();
     this.initializeControllers();
@@ -40,12 +50,17 @@ export default class App {
     })
   }
 
+
   public async startService() {
-    await this.dbService.start();
+    await Promise.all([
+      this.dbService.start(),
+      this.imageLoaderService.start()
+    ]);
   }
 
-  public getDatabaseService() {
-    return this.dbService;
+  protected initializeService() {
+    this.imageLoaderService = new ImageLoader();
+    this.initializeDBService();
   }
 
   protected initializeDBService() {
@@ -61,12 +76,22 @@ export default class App {
   }
 
   protected initializeMiddlewares(): void {
+    this.app.use(morgan("dev"));
+    // Body parser middlewares
+    this.app.use(formData.parse({
+      autoClean: true,
+      autoFiles: true,
+      uploadDir: "tmp"
+    }))
+    this.app.use(formData.union());
     this.app.use(bodyParser.json());
     this.app.use(bodyParser.urlencoded({ extended: true }));
     // this.app.use(cookieParser());
     this.app.use(session({
+      saveUninitialized: false,
+      resave: false,
       secret: "relife_server_secret",
-      name: "relife_server"
+      name: "relife_server_id"
     }))
   }
 
@@ -75,9 +100,15 @@ export default class App {
     const taikhoanRepo = this.dbService.createRepository(repo.TaiKhoanRepository);
     const nhacungcapRepo = this.dbService.createRepository(repo.NhaCungCapRepository);
     const sanphamRepo = this.dbService.createRepository(repo.SanPhamRepository);
+    const khachhangRepo = this.dbService.createRepository(repo.KhachHangRepository);
+    const phieuMHRepo = this.dbService.createRepository(repo.PhieuBHRepository);
+    const ctphieuMHRepo = this.dbService.createRepository(repo.CTPhieuBHRepository);
 
-    this.app.use(new NhanVienController(nhanvienRepo, taikhoanRepo, nhacungcapRepo, "/nhanvien").getRouter());
-    this.app.use(new SanPhamController(sanphamRepo, nhacungcapRepo, "/sanpham").getRouter());
+    this.app.use(new NhanVienController(nhanvienRepo, taikhoanRepo, nhacungcapRepo, this.imageLoaderService, "/nhanvien").getRouter());
+    this.app.use(new SanPhamController(sanphamRepo, nhacungcapRepo, this.imageLoaderService,  "/sanpham").getRouter());
+    this.app.use(new KhachHangController(khachhangRepo, "/khachhang").getRouter());
+    this.app.use(new PhieuBanHangController("/phieubanhang", nhanvienRepo, khachhangRepo, phieuMHRepo, ctphieuMHRepo, sanphamRepo).getRouter());
+    this.app.use(new LoginController("/login", taikhoanRepo).getRouter());
   }
 
   protected initializeErrorHandles() {

@@ -1,14 +1,14 @@
 
-
-class EntityCreateType {
+class TransformationType {
 
   private groups = {
     createNew: "CREATE_NEW",
     loadFromPersistence: "LOAD_FROM_PERSISTENCE",
+    toPersistence: "TO_PERSISTENCE",
+    toAppRespone: "TO_APP_RESPONE"
   }
 
   private allGroupsValues = Object.values(this.groups);
-  private allGroupKeys = Object.keys(this.groups);
 
   constructor() {
     Object.freeze(this.groups);
@@ -18,17 +18,22 @@ class EntityCreateType {
     return this.groups;
   }
 
-  getAllGroups() {
+  getAllGroupKeys() {
     return Object.keys(this.groups);
   }
 
-  getAllGroupsExcept(excludeGroup: string) {
-    const allGroups = this.getAllGroups();
-    const excludeGroupIndex = allGroups.indexOf(excludeGroup);
+  getAllGroups() {
+    return this.allGroupsValues;
+  }
+
+  getAllGroupsExcept(excludeGroupKey: string) {
+    const allGroupKey = this.getAllGroupKeys();
+    const excludeGroupIndex = allGroupKey.indexOf(excludeGroupKey);
+    const allGroups = Object.values(this.groups);
     allGroups.splice(excludeGroupIndex, 1);
     return allGroups
   }
 }
 
-const CreateType = new EntityCreateType();
+const CreateType = new TransformationType();
 export default CreateType;

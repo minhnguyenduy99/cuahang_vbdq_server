@@ -1,4 +1,4 @@
-import { IDatabaseRepository, IDatabaseError, Result } from "@core";
+import { IDatabaseRepository, IDatabaseError, Result, LimitResult } from "@core";
 import { NhaCungCap, NhaCungCapDTO } from "./NhaCungCap";
 
 
@@ -10,4 +10,6 @@ export default interface INhaCungCapRepository extends IDatabaseRepository<any> 
   nhaCungCapExists(tenNhaCungCap: string): Promise<Result<boolean, IDatabaseError>>;
 
   getNhaCungCapById(id: string): Promise<Result<NhaCungCapDTO, IDatabaseError>>;
+
+  searchNhaCungCap(ten: string): Promise<Result<NhaCungCapDTO[], IDatabaseError>>;
 }

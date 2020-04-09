@@ -1,6 +1,6 @@
 import { UniqueEntityID } from ".";
 
-export interface IDomainEvent {
+export default interface IDomainEvent {
   dateTimeOccurred: Date;
   getAggregateId (): UniqueEntityID;
 }

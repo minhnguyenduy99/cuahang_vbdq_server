@@ -20,6 +20,10 @@ class HttpErrorFactory {
     return this.internalServerError();
   }
 
+  public resourceNotFound(msg?: string) {
+    return new BaseHttpError(msg || "Resource not found", HTTP_ERROR_CODE.resource_not_found);
+  }
+
   public invalidFieldError(validationFails: ValidationError[]) {
     return new HttpInvalidFieldError(this.convertErrorType(validationFails), HTTP_ERROR_CODE.bad_request);
   }
@@ -29,11 +33,15 @@ class HttpErrorFactory {
   }
 
   public databaseError(dbError: IDatabaseError) {
-    return new HttpDatabaseError(dbError);
+    return new HttpDatabaseError(dbError, HTTP_ERROR_CODE.server_error);
   }
 
-  public unauthenticated(appErr: IAppError) {
+  public unauthorized(appErr: IAppError) {
     return new BaseHttpError(appErr.message, HTTP_ERROR_CODE.bad_request);
+  }
+
+  public unauthenticated(message?: string) {
+    return new BaseHttpError(message || "Unauthenticated", HTTP_ERROR_CODE.unauthenticated);
   }
 
   public general(dbError: IAppError, code: number = HTTP_ERROR_CODE.bad_request) {
@@ -43,6 +51,7 @@ class HttpErrorFactory {
   private convertErrorType(errors: ValidationError[]): InvalidFieldErrorInfo[] {
     const errorInfos: InvalidFieldErrorInfo[] = errors.map(err => {
       return {
+        target: err.target,
         field: err.property,
         value: err.value,
         constraints: Object.values(err.constraints)

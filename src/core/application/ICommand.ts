@@ -10,7 +10,5 @@ export default interface ICommand<IRequest> extends IUseCase<IRequest, Result<vo
   
   commit(): Promise<Result<any, IDatabaseError>>;
 
-  rollback(): Promise<void>;
-
-  getData(): Entity<any>;
+  getData(): Entity<any> | Entity<any>[];
 }

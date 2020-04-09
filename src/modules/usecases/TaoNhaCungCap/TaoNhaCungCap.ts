@@ -54,7 +54,7 @@ export class TaoNhaCungCap implements ICommand<TaoNhaCungCapDTO> {
       return FailResult.fail(commitResult.error);
     }
     this.commited = true;
-    return SuccessResult.ok(this.data.serialize());
+    return SuccessResult.ok(this.data.serialize(CreateType.getGroups().toAppRespone));
   }
 
   rollback(): Promise<void> {

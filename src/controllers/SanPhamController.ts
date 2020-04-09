@@ -3,18 +3,24 @@ import BaseController from "./BaseController";
 
 import { TaoSanPham, TimKiemSanPham } from "@modules/usecases";
 import { ISanPhamRepository} from "@modules/sanpham";
-import { INhaCungCapRepository } from "@modules/nhacungcap"
+import { INhaCungCapRepository } from "@modules/nhacungcap";
+import { SanPhamService, DomainService } from "@modules/services";
 
+import { ImageLoader } from "@services/image-loader";
 
 export default class SanPhamController extends BaseController {
-  
-  private sanphamRepo: ISanPhamRepository;
-  private nhaccRepo: INhaCungCapRepository;
 
-  constructor(sanphamRepo: ISanPhamRepository, nhaccRepo: INhaCungCapRepository, route: string) {
+  private sanphamService: SanPhamService;
+
+  constructor(
+    private sanphamRepo: ISanPhamRepository, 
+    private nhaccRepo: INhaCungCapRepository, 
+    private imageLoader: ImageLoader,
+    route: string) {
     super(route);
     this.sanphamRepo = sanphamRepo;
     this.nhaccRepo = nhaccRepo;
+    this.sanphamService = DomainService.getService(SanPhamService, this.sanphamRepo);
   }
   
   protected initializeRoutes(): void {
@@ -28,6 +34,10 @@ export default class SanPhamController extends BaseController {
       if (createSanPhamResult.isFailure) {
         return next(createSanPhamResult.error);
       }
+      let newSanPham = createSanPhamResult.getValue();
+      const source = await this.imageLoader.upload(req.body.anh);
+      this.sanphamService.updateAnhSanPham(newSanPham.idsp, source);
+      newSanPham.anh_dai_dien = source;
       res.status(201).json(createSanPhamResult.getValue());
     }
   }
@@ -35,6 +45,7 @@ export default class SanPhamController extends BaseController {
   private searchSanPham(): RequestHandler {
     return async (req, res, next) => {
       const { ten_sp, loai_sp, so_luong, from } = req.query;
+      
       const parseRequest = {
         ten_sp: ten_sp,
         loai_sp: loai_sp,

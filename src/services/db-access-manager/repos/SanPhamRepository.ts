@@ -23,10 +23,8 @@ export default class SanPhamRepository implements ISanPhamRepository {
     throw new Error("Method not implemented.");
   }
 
-  async searchSanPham(tenSP: string, loaiSP: string, 
-    limit: LimitResult = { from: 0, count: MAXIMUM_RESULT_PER_QUERY}): 
-    Promise<Result<SanPhamDTO[], IDatabaseError>> {
-
+  async searchSanPham(tenSP: string, loaiSP: string, limit: LimitResult)
+    : Promise<Result<SanPhamDTO[], IDatabaseError>> {
     try {
       const searchSanPhamProcedure = "SearchSanPham";
       const searchResult = await this.connection.getConnector()
@@ -54,7 +52,19 @@ export default class SanPhamRepository implements ISanPhamRepository {
       const sanPham = await this.connection.getConnector().select("*").from(this.tableName).where({
         id: sanphamId
       }).limit(1);
-      return SuccessResult.ok(sanPham[0]);
+      return SuccessResult.ok(this.mapper.toDTOFromPersistence(sanPham[0]).getValue());
+    } catch (err) {
+      return FailResult.fail(new KnexDatabaseError("SanPham", err));
+    }
+  }
+
+  async persist(sanpham: SanPham): Promise<Result<void, IDatabaseError>> {
+    try {
+      const persistence = this.mapper.toPersistenceFormat(sanpham);
+      await this.connection.getConnector().table(this.tableName).update(persistence).where({ 
+        id: persistence.id
+      });
+      return SuccessResult.ok(null);
     } catch (err) {
       return FailResult.fail(new KnexDatabaseError("SanPham", err));
     }

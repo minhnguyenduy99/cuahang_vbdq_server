@@ -1,8 +1,9 @@
+import uniqid from "uniqid";
+import bcrypt from "bcrypt";
 import { Entity, SuccessResult, FailResult } from "@core";
 import TaiKhoanProps from "./TaiKhoanProps";
 import { plainToClass, classToPlain } from "class-transformer";
 import { validate } from "class-validator";
-
 
 export interface TaiKhoanDTO {
   id: string;
@@ -14,8 +15,17 @@ export interface TaiKhoanDTO {
 
 export class TaiKhoan extends Entity<TaiKhoanProps> {
 
+  private _isPasswordHash: boolean;
+
   private constructor(taikhoanProps: TaiKhoanProps) {
     super(taikhoanProps);
+    if (!taikhoanProps.id) {
+      taikhoanProps.id = uniqid()
+      this._isPasswordHash = false;
+      this._encryptPassword();
+    } else {
+      this._isPasswordHash = true;
+    }
   }
 
   get id() {
@@ -38,13 +48,28 @@ export class TaiKhoan extends Entity<TaiKhoanProps> {
     return this.props.loaiTK;
   }
 
+  async isMatKhauValid(matkhau: string) {
+    const compare = await bcrypt.compare(matkhau, this.props.matKhau);
+    return compare;
+  }
 
-  serialize() {
-    return classToPlain(this.props) as TaiKhoanDTO;
+  serialize(type?: string) {
+    return classToPlain(this.props, { groups: [type] }) as TaiKhoanDTO;
+  }
+
+  updateAnhDaiDien(imageUrl: string) {
+    this.props.anhDaiDien = imageUrl;
+  }
+
+  private _encryptPassword() {
+    const salt = bcrypt.genSaltSync();
+    const encryptedMatKhau = bcrypt.hashSync(this.props.matKhau, salt);
+    this.props.matKhau = encryptedMatKhau;
+    this._isPasswordHash = true;
   }
 
   static async create(data: any, createType?: string) {
-    const taiKhoanProps = plainToClass(TaiKhoanProps, data);
+    const taiKhoanProps = plainToClass(TaiKhoanProps, data, { groups: [createType] });
     const errors = await validate(taiKhoanProps, { groups: [createType]});
     if (errors.length === 0) {
       return SuccessResult.ok(new TaiKhoan(taiKhoanProps));

@@ -1,13 +1,10 @@
 import { IQuery, IDatabaseError, Result, FailResult, SuccessResult } from "@core";
 import { ISanPhamRepository, SanPhamDTO } from "@modules/sanpham";
 import { INhaCungCapRepository } from "@modules/nhacungcap";
-import { ValidationError } from "class-validator";
-export interface TimKiemSanPhamDTO {
-  ten_sp?: string;
-  loai_sp?: string;
-  from: number;
-  so_luong: number;
-}
+import { ValidationError, validate } from "class-validator";
+import { plainToClass } from "class-transformer";
+import { TKSPValidate, TimKiemSanPhamDTO } from "./TKSP-validate";
+
 
 export class TimKiemSanPham implements IQuery<TimKiemSanPhamDTO> {
   
@@ -19,21 +16,22 @@ export class TimKiemSanPham implements IQuery<TimKiemSanPhamDTO> {
     this.nhaCCRepo = nhaCCRepo;
   }
   
-  async execute(request: TimKiemSanPhamDTO): Promise<Result<SanPhamDTO[], IDatabaseError | ValidationError>> {
-    const validateRequest = this.validateRequest(request);
+  async execute(request: TimKiemSanPhamDTO): Promise<Result<SanPhamDTO[], IDatabaseError | ValidationError[]>> {
+    const validateRequest = await this.validate(request);
     if (validateRequest.isFailure) {
       return FailResult.fail(validateRequest.error);
     }
-    const { ten_sp, so_luong, loai_sp, from } = validateRequest.getValue();
-    const searchSanPham = await this.sanphamRepo.searchSanPham(ten_sp, loai_sp, { from: from, count: so_luong });
+    const { tenSP, loaiSP, count, from } = validateRequest.getValue();
+    const searchSanPham = await this.sanphamRepo.searchSanPham(tenSP, loaiSP, { count, from });
     return searchSanPham;
   }
 
-  private validateRequest(request: TimKiemSanPhamDTO) {
-    if (!request || request.from < 0 || request.so_luong <= 0) {
-      return FailResult.fail(new ValidationError());
+  public async validate(request: TimKiemSanPhamDTO): Promise<Result<TKSPValidate, ValidationError[]>> {
+    let convertData = await plainToClass(TKSPValidate, request); 
+    let errors = await validate(convertData);
+    if (errors.length > 0) {
+      return FailResult.fail(errors);
     }
-    return SuccessResult.ok(request);
+    return SuccessResult.ok(convertData);
   }
-
 }

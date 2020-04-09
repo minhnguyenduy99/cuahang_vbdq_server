@@ -42,8 +42,8 @@ export class NhaCungCap extends Entity<NhaCungCapProps> {
     return this.props.tongGiaTriNhap;
   }  
 
-  serialize() {
-    return classToPlain(this.props) as NhaCungCapDTO;
+  serialize(type?: string) {
+    return classToPlain(this.props, { groups: [type] }) as NhaCungCapDTO;
   }
 
   static async create(data: NhaCungCapDTO, createType: string) {

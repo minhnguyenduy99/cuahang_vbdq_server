@@ -8,12 +8,13 @@ export interface IAppError {
   getErrorInfo(): any;
 }
 
-export abstract class BaseAppError implements IAppError {
+export class BaseAppError extends Error implements IAppError {
   readonly domain: string;
   readonly module: string;
   readonly message: string;
 
   constructor(domain: string, appModule: string, message?: string) {
+    super(message);
     this.domain = domain;
     this.module = appModule;
     this.message = `[${this.domain}][${this.module}] ${message}`

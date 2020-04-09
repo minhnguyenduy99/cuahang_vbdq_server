@@ -14,11 +14,13 @@
       "*": [
         "node_modules/*"
       ],
+      "@": [""],
       "@core": ["src/core/index.ts"],
       "@modules/*": ["src/modules/*/index.ts"],
       "@services/*": ["src/services/*/index.ts"],
       "@mappers/*": ["src/mappers/*"],
-      "@config/*": ["src/config/*"]
+      "@config/*": ["src/config/*"],
+      "@create_type": ["src/modules/entity-create-type.ts"]
     }
   },
   "include": [

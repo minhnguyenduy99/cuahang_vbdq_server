@@ -1,9 +1,10 @@
 import uniqid from "uniqid";
-import { Entity, SuccessResult, FailResult } from "@core";
+import { Entity, SuccessResult, FailResult, InvalidEntity, DomainEvents, AggrerateRoot } from "@core";
 import { classToPlain, plainToClass } from "class-transformer";
 import { validate } from "class-validator";
 import NhanVienProps from "./NhanVienProps";
 import { TaiKhoanDTO, TaiKhoan } from "@modules/taikhoan";
+import NhanVienCreated from "./NhanVienCreated";
 
 export interface NhanVienDTO {
   id: string;
@@ -17,23 +18,34 @@ export interface NhanVienDTO {
   sdt: string;
   dia_chi: string;
   ghi_chu: string;
-  tai_khoan: TaiKhoanDTO;
+  tk_id: string;
 }
 
-export class NhanVien extends Entity<NhanVienProps> {
+export class NhanVien extends AggrerateRoot<NhanVienProps> {
 
-  private taiKhoan: TaiKhoan;
+  private _taiKhoan: TaiKhoan;
 
-  private constructor(props: NhanVienProps, taikhoan: TaiKhoan) {
+  private constructor(props: NhanVienProps, taikhoan?: TaiKhoan) {
     super(props);
     if (!this.props.id) {
       this.props.id = uniqid();
     }
-    this.taiKhoan = taikhoan;
+    if (!taikhoan) {
+      return;
+    }
+    if (!this.isTaiKhoanMatch(taikhoan)) {
+      throw new InvalidEntity("NhanVien", "TaiKhoan", "taikhoan id does not match");
+    }
+    this._taiKhoan = taikhoan;
     this.props.taiKhoanId = this.taiKhoan.id;
+    this.addDomainEvent(new NhanVienCreated(this));
   }
 
-  get id() {
+  private isTaiKhoanMatch(taikhoan: TaiKhoan) {
+    return this.props.taiKhoanId === taikhoan.id;
+  }
+
+  get Id() {
     return this.props.id;
   }
 
@@ -81,16 +93,19 @@ export class NhanVien extends Entity<NhanVienProps> {
     return this.props.taiKhoanId;
   }
 
-  serialize() {
-    return classToPlain(this.props) as NhanVienDTO;
+  get taiKhoan() {
+    return this._taiKhoan;
   }
 
-  static async create(data: any, taiKhoan: TaiKhoan, createType?: string) {
-    const dataDTO = plainToClass(NhanVienProps, data, { groups: [createType] });
+  serialize(type: string) {
+    return classToPlain(this.props, { groups: [type] }) as NhanVienDTO;
+  }
+
+  static async create(data: any, createType: string, taikhoan?: TaiKhoan) {
+    const dataDTO = plainToClass(NhanVienProps, data, { groups: [createType], excludeExtraneousValues: true });
     const errors = await validate(dataDTO, { groups: [createType]});
     if (errors.length === 0) {
-      dataDTO.id = uniqid();
-      return SuccessResult.ok(new NhanVien(dataDTO, taiKhoan));
+      return SuccessResult.ok(new NhanVien(dataDTO, taikhoan));
     }
     return FailResult.fail(errors);
   }

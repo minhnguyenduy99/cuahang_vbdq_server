@@ -34,7 +34,7 @@ export class CreateTaiKhoan implements ICommand<CreateTaiKhoanDTO> {
   }
   
   async execute(request: CreateTaiKhoanDTO) {
-    const result = await TaiKhoan.create({ ...request, id: uniqid() }, CreateType.getGroups().createNew);
+    const result = await TaiKhoan.create(request, CreateType.getGroups().createNew);
     if (result.isFailure) {
       return FailResult.fail(result.error);
     }
@@ -64,5 +64,6 @@ export class CreateTaiKhoan implements ICommand<CreateTaiKhoanDTO> {
       return;
     }
     // do something to rollback the data
+    this.repo.deleteTaiKhoan(this.data.id);
   }
 }
