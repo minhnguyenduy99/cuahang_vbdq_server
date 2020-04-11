@@ -1,10 +1,11 @@
 import { ICommand, Result, IDatabaseError, Entity, FailResult, SuccessResult } from "@core";
 import { ISanPhamRepository, SanPhamDTO, SanPham } from "@modules/sanpham";
-import SoLuongSanPhamKhongDu from "../../../ctphieubanhang/SoLuongKhongDu";
+import SoLuongSanPhamKhongDu from "./SoLuongKhongDu";
 import CreateType from "@create_type";
 import { ValidationError } from "class-validator";
 import { ICTPhieuBHRepository, CTPhieuBanHang } from "@modules/ctphieubanhang";
 import { SanPhamService, DomainService } from "@modules/services";
+import SanPhamKhongTonTai from "./SanPhamKhongTonTai";
 
 export interface TaoCTPhieuDTO {
   sp_id: string;
@@ -60,8 +61,13 @@ export class TaoCTPhieu implements ICommand<TaoCTPhieuDTO[]> {
 
   private async createCTPhieu(ctphieuDTO: TaoCTPhieuDTO) {
     let getSanPham = await this.sanphamService.findSanPhamById(ctphieuDTO.sp_id);
-    if (getSanPham.isFailure) {
-      return FailResult.fail(getSanPham.error);
+    let sanpham = getSanPham.getValue();
+    
+    if (getSanPham.isFailure || !sanpham) {
+      return FailResult.fail(new SanPhamKhongTonTai(ctphieuDTO.sp_id));
+    }
+    if (sanpham.soLuong < ctphieuDTO.so_luong) {
+      return FailResult.fail(new SoLuongSanPhamKhongDu());
     }
     return CTPhieuBanHang.create(ctphieuDTO, CreateType.getGroups().createNew, getSanPham.getValue());
   }
@@ -71,11 +77,6 @@ export class TaoCTPhieu implements ICommand<TaoCTPhieuDTO[]> {
       return this.createCTPhieu(ctphieuDTO);
     }))
     
-    return Result.combineSame(createListCTPhieu);
-  }
-
-  private async retrieveSanPham(listSanPhamId: string[]) {
-    const getSanPham = await this.sanphamService.findSanPhamCollection(listSanPhamId);
-    return getSanPham;
+    return Result.combine(createListCTPhieu);
   }
 }

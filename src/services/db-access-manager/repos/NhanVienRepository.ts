@@ -17,6 +17,17 @@ export default class NhanVienRepository implements INhanVienRepository {
     this.tableName = "NHANVIEN";
     this.mapper = new NhanVienMapper();
   }
+
+  async getNhanVienByCMND(cmnd: string): Promise<Result<NhanVienDTO, IDatabaseError>> {
+    try {
+      const nhanvien = await this.connection.getConnector().select("*").from(this.tableName).where({
+        cmnd: cmnd
+      }).limit(1);
+      return SuccessResult.ok(this.mapper.toDTOFromPersistence(nhanvien[0]));
+    } catch (err) {
+      return FailResult.fail(new KnexDatabaseError("NhanVien", err));
+    }
+  }
   
   execute(context: any) {
     throw new Error("Method not implemented.");
@@ -63,7 +74,7 @@ export default class NhanVienRepository implements INhanVienRepository {
       if (result.length === 0) {
         return SuccessResult.ok(null);
       }
-      return this.mapper.toDTOFromPersistence(result[0]);
+      return SuccessResult.ok(this.mapper.toDTOFromPersistence(result[0]));
     } catch (err) {
       return FailResult.fail(new KnexDatabaseError("NhanVien", err));
     }

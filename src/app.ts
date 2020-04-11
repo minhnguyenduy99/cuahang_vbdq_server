@@ -104,11 +104,19 @@ export default class App {
     const phieuMHRepo = this.dbService.createRepository(repo.PhieuBHRepository);
     const ctphieuMHRepo = this.dbService.createRepository(repo.CTPhieuBHRepository);
 
+
     this.app.use(new NhanVienController(nhanvienRepo, taikhoanRepo, nhacungcapRepo, this.imageLoaderService, "/nhanvien").getRouter());
     this.app.use(new SanPhamController(sanphamRepo, nhacungcapRepo, this.imageLoaderService,  "/sanpham").getRouter());
     this.app.use(new KhachHangController(khachhangRepo, "/khachhang").getRouter());
     this.app.use(new PhieuBanHangController("/phieubanhang", nhanvienRepo, khachhangRepo, phieuMHRepo, ctphieuMHRepo, sanphamRepo).getRouter());
     this.app.use(new LoginController("/login", taikhoanRepo).getRouter());
+    this.app.get("/logout", (req, res, next) => {
+      req.session.destroy((err) => {
+        if (err) 
+          console.log(err);
+      });
+      res.status(200).json({ code: 200, message: "Logout successfully" });
+    })
   }
 
   protected initializeErrorHandles() {

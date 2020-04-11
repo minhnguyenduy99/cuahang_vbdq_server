@@ -8,12 +8,14 @@ import { GetNhanVienRequest } from "@modules/usecases";
 import { ErrorFactory } from "@services/http-error-handles";
 import authenticationChecking from "../middlewares/authentication-check";
 import { ImageLoader } from "@services/image-loader";
-import { TaiKhoanService, DomainService } from "@modules/services";
+import { TaiKhoanService, DomainService, NhaCungCapService } from "@modules/services";
+import normalizeFileField from "../middlewares/file-field-normalize";
 
 
 export default class NhanVienController extends BaseController {
 
   private taikhoanService: TaiKhoanService;
+  private nhacungcapService: NhaCungCapService;
 
   constructor(
     private nhanvienRepo: INhanVienRepository, 
@@ -26,6 +28,7 @@ export default class NhanVienController extends BaseController {
     this.taikhoanRepo = taikhoanRepo;
     this.nhaCCRepo = nhaCCRepo;
     this.taikhoanService = DomainService.getService(TaiKhoanService, this.taikhoanRepo);
+    this.nhacungcapService = DomainService.getService(NhaCungCapService, this.nhaCCRepo);
   }
   
   protected initializeRoutes(): void {
@@ -73,6 +76,10 @@ export default class NhanVienController extends BaseController {
       if (usecaseResult.isFailure) {
         return next(usecaseResult.error);
       }
+      let newNhaCungCap = usecaseResult.getValue();
+      const uploadUrl = await this.imageLoader.upload(req.body.anh);
+      await this.nhacungcapService.updateAnhDaiDien(newNhaCungCap.id, uploadUrl);
+      newNhaCungCap.anh_dai_dien = uploadUrl;
       res.status(201).json(usecaseResult.getValue());
     }
   }

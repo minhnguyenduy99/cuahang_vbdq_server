@@ -10,8 +10,8 @@ export default class NhanVienMapper implements IMapper<nv.NhanVien> {
     return nhanvien.serialize(CreateType.getGroups().toAppRespone);
   }
 
-  toDTOFromPersistence(data: any): Result<NhanVienDTO, IDatabaseError> {
-    const dto = {
+  toDTOFromPersistence(data: any): NhanVienDTO {
+    return {
       id: data.id,
       tk_id: data.tk_id,
       idql: data.nv_quanly_id,
@@ -25,8 +25,6 @@ export default class NhanVienMapper implements IMapper<nv.NhanVien> {
       dia_chi: data.dia_chi,
       ghi_chu: data.ghi_chu
     } as NhanVienDTO;
-
-    return SuccessResult.ok(dto);
   }
   
   toPersistenceFormat(nhanvien: nv.NhanVien) {

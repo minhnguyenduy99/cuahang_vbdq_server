@@ -12,4 +12,6 @@ export default interface INhaCungCapRepository extends IDatabaseRepository<any> 
   getNhaCungCapById(id: string): Promise<Result<NhaCungCapDTO, IDatabaseError>>;
 
   searchNhaCungCap(ten: string): Promise<Result<NhaCungCapDTO[], IDatabaseError>>;
+
+  persist(nhacungcap: NhaCungCap): Promise<Result<void, IDatabaseError>>;
 }

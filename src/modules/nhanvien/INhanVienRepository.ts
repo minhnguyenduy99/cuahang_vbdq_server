@@ -6,6 +6,8 @@ export default interface INhanVienRepository extends IDatabaseRepository<any> {
 
   getNhanVienById(id: string): Promise<Result<NhanVienDTO, IDatabaseError>>;
 
+  getNhanVienByCMND(cmnd: string): Promise<Result<NhanVienDTO, IDatabaseError>>;
+
   createNhanVien(nhanvien: NhanVien): Promise<Result<void, IDatabaseError>>;
 
   persist(nhanvien: NhanVien): Promise<Result<void, IDatabaseError>>;

@@ -9,7 +9,10 @@ export default class SanPhamMapper implements IMapper<SanPham> {
   }
 
   toDTOFromPersistence(data: any) {
-    return SuccessResult.ok({
+    if (!data) {
+      return { } as SanPhamDTO;
+    }
+    return {
       idsp: data.id,
       ten_sp: data.ten,
       loai_sp: data.loai_sp,
@@ -21,7 +24,7 @@ export default class SanPhamMapper implements IMapper<SanPham> {
       tieu_chuan: data.tieuchuan,
       ghi_chu: data.ghichu,
       nhacc_id: data.id_nhacc
-    } as SanPhamDTO);
+    } as SanPhamDTO;
   }
   
   toPersistenceFormat(sanPham: SanPham) {

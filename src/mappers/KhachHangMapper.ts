@@ -9,16 +9,14 @@ export default class KhachHangMapper implements IMapper<KhachHang> {
     return khachhang.serialize();
   }
 
-  toDTOFromPersistence(data: any): Result<KhachHangDTO, IDatabaseError> {
-    const dto = {
+  toDTOFromPersistence(data: any) {
+    return {
       id: data.id,
       ten_kh: data.ho_ten,
       cmnd: data.cmnd,
       tong_gia_tri_ban: data.tong_gia_tri_ban,
       tong_gia_tri_mua: data.tong_gia_tri_mua
     } as KhachHangDTO;
-
-    return SuccessResult.ok(dto);
   }
   
   toPersistenceFormat(khachhang: KhachHang) {

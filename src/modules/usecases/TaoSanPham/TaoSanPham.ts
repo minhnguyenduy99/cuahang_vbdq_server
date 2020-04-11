@@ -45,7 +45,7 @@ export class TaoSanPham implements ICommand<TaoSanPhamDTO> {
       return FailResult.fail(nhaCungCap.error);
     }
     // Kiểm tra sản phẩm
-    const createSanPhamResult = await SanPham.create(request, nhaCungCap.getValue(), CreateType.getGroups().createNew); 
+    const createSanPhamResult = await SanPham.create(request, CreateType.getGroups().createNew, nhaCungCap.getValue()); 
     if (createSanPhamResult.isFailure) {
       return FailResult.fail(createSanPhamResult.error);
     }

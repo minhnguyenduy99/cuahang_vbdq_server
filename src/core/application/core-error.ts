@@ -17,7 +17,7 @@ export class BaseAppError extends Error implements IAppError {
     super(message);
     this.domain = domain;
     this.module = appModule;
-    this.message = `[${this.domain}][${this.module}] ${message}`
+    this.message = message;
   }
 
   getErrorInfo() {
@@ -54,6 +54,16 @@ export class UseCaseError<T extends IUseCase<any, any>> implements IAppError {
       usecase: this.usecase,
       message: this.message
     }
+  }
+}
+
+export class DomainServiceError extends BaseAppError {
+
+  constructor(
+    private type: Function, 
+    message: string) {
+    
+    super("DomainService", type.name , message);
   }
 }
 

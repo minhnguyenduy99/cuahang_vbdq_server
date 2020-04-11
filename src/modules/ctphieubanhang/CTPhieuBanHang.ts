@@ -1,17 +1,15 @@
-import { Entity, SuccessResult, FailResult } from "@core";
+import { Entity, SuccessResult, FailResult, InvalidEntity } from "@core";
 import { CTPhieuBanHangDTO, CTPhieuBanHangProps } from "./CTPhieuBanHangProps";
 import { classToPlain, plainToClass } from "class-transformer";
 import { validate } from "class-validator";
 import { SanPham } from "../sanpham";
-import SoLuongSanPhamKhongDu from "./SoLuongKhongDu";
-import SanPhamKhongTonTai from "./SanPhamKhongTonTai";
 
 
 export default class CTPhieuBanHang extends Entity<CTPhieuBanHangProps> {
   
   private sanPham: SanPham;
 
-  private constructor(props: CTPhieuBanHangProps, sanpham?: SanPham) {
+  private constructor(props: CTPhieuBanHangProps, sanpham: SanPham) {
     super(props);
     if (!sanpham) {
       return;
@@ -19,12 +17,9 @@ export default class CTPhieuBanHang extends Entity<CTPhieuBanHangProps> {
     this.setSanPham(sanpham);
   }
 
-  setSanPham(sanPham: SanPham) {
-    if (!sanPham || sanPham.sanPhamId !== this.props.sanphamId) {
-      throw new SanPhamKhongTonTai(sanPham.sanPhamId);
-    }
-    if (this.props.soLuong > sanPham.soLuong) {
-      throw new SoLuongSanPhamKhongDu(sanPham.sanPhamId, this.soLuong);
+  private setSanPham(sanPham: SanPham) {
+    if (!this.isSanPhamValid(sanPham)) {
+      throw new InvalidEntity("SanPham", "CTPhieu", "[Internal] Sản phẩm không hợp lệ");
     }
     this.sanPham = sanPham;
     // Cập nhật giá trị của chi tiết phiếu
@@ -73,16 +68,12 @@ export default class CTPhieuBanHang extends Entity<CTPhieuBanHangProps> {
     return true;
   }
 
-  public static async create(data: any, createType: string, sanpham?: SanPham) {
+  public static async create(data: any, createType: string, sanpham: SanPham) {
     const convertData = plainToClass(CTPhieuBanHangProps, data, { groups: [createType] });
     const errors = await validate(convertData, { groups: [createType] });
     if (errors.length > 0) {
       return FailResult.fail(errors);
     }
-    try {
-      return SuccessResult.ok(new CTPhieuBanHang(convertData, sanpham));
-    } catch (err) {
-      return FailResult.fail(err);
-    }
+    return SuccessResult.ok(new CTPhieuBanHang(convertData, sanpham));
   }
 }

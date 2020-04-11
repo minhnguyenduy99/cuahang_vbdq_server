@@ -1,7 +1,8 @@
 import { IKhachHangRepository, KhachHang } from "../khachhang";
 import PhieuBanHangCreated from "../phieubanhang/PhieuBanHangCreated";
 import CreateType from "@create_type";
-import { IDomainService, Result, IDatabaseError } from "@core";
+import { IDomainService, Result, IDatabaseError, FailResult, UnknownAppError, SuccessResult } from "@core";
+import EntityNotFound from "./DomainService/EntityNotFound";
 
 
 export default class KhachHangService implements IDomainService {
@@ -22,8 +23,19 @@ export default class KhachHangService implements IDomainService {
   }
 
   async getKhachHangById(khachHangId: string) {
-    const khachhang = await this.khachhangRepo.findKhachHangById(khachHangId);
-    return KhachHang.create(khachhang.getValue(), CreateType.getGroups().loadFromPersistence)
+    const findKhachHang = await this.khachhangRepo.findKhachHangById(khachHangId);
+    let khachhangDTO = findKhachHang.getValue();
+    if (findKhachHang.isFailure) {
+      return FailResult.fail(findKhachHang.error);
+    }
+    if (!khachhangDTO) {
+      return FailResult.fail(new EntityNotFound(KhachHang));
+    }
+    const createKhachHang = await KhachHang.create(khachhangDTO, CreateType.getGroups().loadFromPersistence);
+    if (createKhachHang.isFailure) {
+      return FailResult.fail(new UnknownAppError());
+    }
+    return SuccessResult.ok(createKhachHang.getValue());
   }
 
   static create(repo: IKhachHangRepository) {

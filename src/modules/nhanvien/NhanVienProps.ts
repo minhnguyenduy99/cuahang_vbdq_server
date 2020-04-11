@@ -1,6 +1,7 @@
 import { Expose, Type, TransformClassToPlain, TransformPlainToClass } from "class-transformer";
-import { IsIn, IsNumber, IsPositive, IsDivisibleBy, IsString, IsOptional, Matches, IsNotEmpty, IsDateString, IsDate, IsDefined, IsEmpty } from "class-validator";
+import { IsIn, IsNumber, IsPositive, IsDivisibleBy, IsString, IsOptional, IsNotEmpty, IsDateString, IsDate, IsDefined, IsEmpty, Validate, ValidateIf } from "class-validator";
 import CreateType from "../entity-create-type";
+import { IsCMND, IsVNPhoneNumber, IsMoney } from "../helpers/custom-validator";
 
 export default class NhanVienProps {
 
@@ -18,10 +19,9 @@ export default class NhanVienProps {
   @Expose({ name: "chuc_vu"})
   chucvu: string;
 
-  @IsOptional({ groups: CreateType.getAllGroups() })
-  @IsNumber({ allowInfinity: false, allowNaN: false})
-  @IsPositive({ groups: CreateType.getAllGroups() })
-  @IsDivisibleBy(1000, { groups: CreateType.getAllGroups() })
+  @IsOptional({ groups: [CreateType.getGroups().createNew] })
+  @Validate(IsMoney, { groups: CreateType.getAllGroupsExcept("createNew") })
+  @ValidateIf((val) => val, { groups: [CreateType.getGroups().createNew] })
   @Expose()
   luong: number;
 
@@ -29,9 +29,7 @@ export default class NhanVienProps {
   @IsNotEmpty({ groups: CreateType.getAllGroups() })
   hoTen: string;
 
-  @IsString({ groups: CreateType.getAllGroups() })
-  //@Matches(/^\d{9, 11}$/g, { groups: CreateType.getAllGroups() })
-  @IsNotEmpty({ groups: CreateType.getAllGroups() })
+  @Validate(IsCMND, { groups: CreateType.getAllGroups() })
   @Expose()
   cmnd: string;
 
@@ -43,8 +41,7 @@ export default class NhanVienProps {
   @Expose({ name: "gioi_tinh"})
   gioiTinh: string;
 
-  @IsString({ groups: CreateType.getAllGroups() })
-  //@Matches(/^(0|\+84\s?)\d{9}$/g, { groups: CreateType.getAllGroups() })
+  @Validate(IsVNPhoneNumber, { groups: CreateType.getAllGroups() })
   @Expose()
   sdt: string;
 

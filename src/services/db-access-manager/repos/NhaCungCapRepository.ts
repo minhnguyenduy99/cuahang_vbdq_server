@@ -72,4 +72,16 @@ export default class NhaCungCapRepository implements INhaCungCapRepository {
       return FailResult.fail(new KnexDatabaseError("NhaCungCap", err));
     }
   }
+
+  async persist(nhacungcap: NhaCungCap): Promise<Result<void, IDatabaseError>> {
+    try {
+      const persistence = this.mapper.toPersistenceFormat(nhacungcap);
+      await this.connection.getConnector().table(this.tableName).update(persistence).where({
+        id: persistence.id
+      });
+      return SuccessResult.ok(null);
+    } catch (err) {
+      return FailResult.fail(new KnexDatabaseError("NhaCungCap", err));
+    }
+  }
 }

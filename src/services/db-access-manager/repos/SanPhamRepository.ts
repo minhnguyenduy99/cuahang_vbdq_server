@@ -26,11 +26,13 @@ export default class SanPhamRepository implements ISanPhamRepository {
   async searchSanPham(tenSP: string, loaiSP: string, limit: LimitResult)
     : Promise<Result<SanPhamDTO[], IDatabaseError>> {
     try {
-      const searchSanPhamProcedure = "SearchSanPham";
-      const searchResult = await this.connection.getConnector()
-        .raw(`CALL ${searchSanPhamProcedure}(?, ?, ?, ?)`, [tenSP, loaiSP, limit.count, limit.from]);
-      const sanphamData = (searchResult[0][0] as Array<any>)
-        .map(sanpham => this.mapper.toDTOFromPersistence(sanpham).getValue());
+      const listSanPhams = await this.connection.getConnector()
+        .select("*").from(this.tableName)
+        .where('ten', 'like', `%${tenSP}%`)
+        .andWhere('loai_sp', 'like', `%${loaiSP}%`)
+        .debug(true);
+
+      const sanphamData = listSanPhams.map(sanpham => this.mapper.toDTOFromPersistence(sanpham));
       return SuccessResult.ok(sanphamData);
     } catch (err) {
       return FailResult.fail(new KnexDatabaseError("SanPham", err));
@@ -52,7 +54,7 @@ export default class SanPhamRepository implements ISanPhamRepository {
       const sanPham = await this.connection.getConnector().select("*").from(this.tableName).where({
         id: sanphamId
       }).limit(1);
-      return SuccessResult.ok(this.mapper.toDTOFromPersistence(sanPham[0]).getValue());
+      return SuccessResult.ok(this.mapper.toDTOFromPersistence(sanPham[0]));
     } catch (err) {
       return FailResult.fail(new KnexDatabaseError("SanPham", err));
     }

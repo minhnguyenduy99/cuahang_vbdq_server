@@ -68,7 +68,6 @@ export class SanPhamProps {
   @IsNotEmpty({ groups: CreateType.getAllGroups() })
   idNhaCC: string;
 
-  @IsString({ groups: CreateType.getAllGroups() })
   @IsOptional({ groups: [CreateType.getGroups().createNew] })
   @Expose({ name: "tieu_chuan" })
   tieuChuan: string;

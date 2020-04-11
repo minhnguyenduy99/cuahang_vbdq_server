@@ -19,11 +19,11 @@ export default class KhachHangRepository implements IKhachHangRepository {
 
   async searchKhachHang(tenKH: string = "", cmnd: string = ""): Promise<Result<KhachHangDTO[], IDatabaseError>> {
     try {
-      const searchKhachHang = "SearchKhachHang";
       const searchResult = await this.connection.getConnector()
-        .raw(`CALL ${searchKhachHang}(?, ?)`, [tenKH, cmnd]);
-      const khachhangData = (searchResult[0][0] as Array<any>)
-        .map(khachhang => this.mapper.toDTOFromPersistence(khachhang).getValue());
+        .select("*").from(this.tableName)
+        .where(`ho_ten`, 'like', `%${tenKH}%`)
+        .andWhere('cmnd', 'like', `%${cmnd}%`);
+      const khachhangData = searchResult.map(khachhang => this.mapper.toDTOFromPersistence(khachhang));
       return SuccessResult.ok(khachhangData);
     } catch (err) {
       return FailResult.fail(new KnexDatabaseError("KhachHang", err));
@@ -51,7 +51,7 @@ export default class KhachHangRepository implements IKhachHangRepository {
       if (khachHang.length === 0) {
         return SuccessResult.ok(null);
       }
-      return SuccessResult.ok(this.mapper.toDTOFromPersistence(khachHang[0]).getValue());
+      return SuccessResult.ok(this.mapper.toDTOFromPersistence(khachHang[0]));
     } catch (err) {
       return FailResult.fail(new KnexDatabaseError("KhachHang", err));
     }

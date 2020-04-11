@@ -1,13 +1,14 @@
-import { IDatabaseError, IAppError, UseCaseError } from "@core";
+import { IDatabaseError, IAppError, UseCaseError, DomainServiceError } from "@core";
 import { InvalidFieldErrorInfo, HttpInvalidFieldError } from "./HttpInvalidFieldError";
 import { HTTP_ERROR_CODE, BaseHttpError } from "./BaseHttpError";
 import { HttpDatabaseError } from "./HttpDatabaseError";
 import { ValidationError } from "class-validator";
 import { HttpUseCaseError } from "./HttpUseCaseError";
+import HttpDomainServiceError from "./HttpDomainError";
 
 class HttpErrorFactory {
 
-  public error(error: UseCaseError<any> | ValidationError[] | ValidationError | IDatabaseError) {
+  public error(error: UseCaseError<any> | ValidationError[] | ValidationError | IDatabaseError | DomainServiceError) {
     if (error instanceof UseCaseError) {
       return new HttpUseCaseError(error);
     }
@@ -16,6 +17,9 @@ class HttpErrorFactory {
     }
     if (error instanceof ValidationError) {
       return this.invalidFieldError([error]);
+    }
+    if (error instanceof DomainServiceError) {
+      return this.domainService(error);
     }
     return this.internalServerError();
   }
@@ -36,6 +40,10 @@ class HttpErrorFactory {
     return new HttpDatabaseError(dbError, HTTP_ERROR_CODE.server_error);
   }
 
+  public domainService(domainError: DomainServiceError, code: number = HTTP_ERROR_CODE.bad_request) {
+    return new HttpDomainServiceError(domainError, code);
+  }
+
   public unauthorized(appErr: IAppError) {
     return new BaseHttpError(appErr.message, HTTP_ERROR_CODE.bad_request);
   }
@@ -51,7 +59,6 @@ class HttpErrorFactory {
   private convertErrorType(errors: ValidationError[]): InvalidFieldErrorInfo[] {
     const errorInfos: InvalidFieldErrorInfo[] = errors.map(err => {
       return {
-        target: err.target,
         field: err.property,
         value: err.value,
         constraints: Object.values(err.constraints)

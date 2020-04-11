@@ -4,6 +4,7 @@ import { ITaiKhoanRepository, CreateTaiKhoan } from "@modules/taikhoan";
 import { IUseCase, FailResult, SuccessResult, ICommand, DomainEvents } from "@core";
 import { INhanVienRepository } from "../..";
 import CreateType from "../../../entity-create-type";
+import NhanVienExists from "./NhanVienExists";
 
 export interface TaoTaiKhoanDTO {
 
@@ -57,6 +58,10 @@ export class TaoTaiKhoan implements ICommand<TaoTaiKhoanDTO> {
     if (saveTaiKhoan.isFailure) {
       return FailResult.fail(saveTaiKhoan.error);
     }
+    const isNhanVienExists = await this.isNhanVienExists(request.cmnd);
+    if (isNhanVienExists) {
+      return FailResult.fail(new NhanVienExists(request.cmnd));
+    }
     const taikhoan = this.taoTaiKhoanUseCase.getData();
     let createNVResult = await NhanVien.create({ ...request, tk_id: taikhoan.id }, CreateType.getGroups().createNew,  this.taoTaiKhoanUseCase.getData());
     if (createNVResult.isFailure) {
@@ -89,5 +94,13 @@ export class TaoTaiKhoan implements ICommand<TaoTaiKhoanDTO> {
     if (this.taoTaiKhoanUseCase.isCommit()) {
       this.taoTaiKhoanUseCase.rollback();
     }
+  }
+
+  private async isNhanVienExists(cmnd: string) {
+    const findNhanVien = await this.nhanvienRepo.getNhanVienByCMND(cmnd);
+    if (findNhanVien.isFailure || !findNhanVien.getValue()) {
+      return false;
+    }
+    return true;
   }
 }

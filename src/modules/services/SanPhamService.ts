@@ -1,6 +1,7 @@
 import { ISanPhamRepository, SanPham } from "@modules/sanpham";
 import PhieuBanHangCreated from "../phieubanhang/PhieuBanHangCreated";
 import { Result, FailResult, IDomainService, IDatabaseError, BaseAppError, SuccessResult } from "@core";
+import CreateType from "@create_type";
 
 
 export default class SanPhamService implements IDomainService { 
@@ -42,7 +43,7 @@ export default class SanPhamService implements IDomainService {
     if (!sanphamDTO) {
       return SuccessResult.ok(null as SanPham);
     }
-    return SanPham.create(sanphamDTO);
+    return SanPham.create(sanphamDTO, CreateType.getGroups().loadFromPersistence);
   }
 
   private updateSanPham(sanpham: SanPham) {

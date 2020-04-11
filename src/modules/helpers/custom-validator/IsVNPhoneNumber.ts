@@ -1,9 +1,9 @@
 import { ValidatorConstraintInterface, ValidationArguments } from "class-validator";
 
-export default class IsMoney implements ValidatorConstraintInterface {
+export default class IsVNPhoneNumber implements ValidatorConstraintInterface {
   
-  validate(value: number, validationArguments?: ValidationArguments): boolean {
-    return value % 1000 === 0 && value >= 0;
+  validate(value: string, validationArguments?: ValidationArguments): boolean {
+    return /^(0|\+84\s?)\d{9}$/g.test(value);
   }
   
   defaultMessage?(validationArguments?: ValidationArguments): string {

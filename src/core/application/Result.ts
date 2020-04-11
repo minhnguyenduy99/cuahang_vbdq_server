@@ -23,10 +23,6 @@ export class Result<T, E> {
   }
 
   public getValue () : T {
-    if (!this.isSuccess) {
-      throw new Error(`Cant retrieve the value from a failed result.`)
-    }
-
     return this._value;
   }
 

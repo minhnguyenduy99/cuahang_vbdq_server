@@ -5,17 +5,17 @@ import { UseCaseError } from "@core";
 export class HttpUseCaseError extends BaseHttpError {
 
   readonly type: string;
+  readonly usecase: UseCaseError<any>;
 
   public constructor(useCaseErr: UseCaseError<any>, code: number = HTTP_ERROR_CODE.bad_request) {
     super(useCaseErr.message, code);
-    this.type = useCaseErr.usecase;
+    this.usecase = useCaseErr;
   }
 
   public getErrorInfo() {
     return {
       code: this.code,
-      type: this.type,
-      message: this.message
+      ...this.usecase.getErrorInfo()
     }
   }
 }

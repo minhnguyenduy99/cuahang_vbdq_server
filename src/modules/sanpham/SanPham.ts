@@ -61,7 +61,7 @@ export default class SanPham extends Entity<SanPhamProps> {
     return this.props.giaBan;
   }
 
-  static async create(data: any, nhaCungCap?: NhaCungCap, createType?: string) {
+  static async create(data: any, createType: string, nhaCungCap?: NhaCungCap) {
     let dataDTO = plainToClass(SanPhamProps, data, { groups: [createType], excludeExtraneousValues: true });
     const errors = await validate(dataDTO, { groups: [createType] });
     if (errors.length > 0) {
