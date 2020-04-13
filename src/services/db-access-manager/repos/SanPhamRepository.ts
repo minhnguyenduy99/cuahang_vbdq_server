@@ -1,26 +1,16 @@
 import knex from "knex";
-import { ISanPhamRepository, SanPham, SanPhamDTO } from "@modules/sanpham";
-import SanPhamMapper from "@mappers/SanPhamMapper";
 import { Result, IDatabaseError, IDbConnection, FailResult, SuccessResult, LimitResult } from "@core";
+import { ISanPhamRepository, SanPham, SanPhamDTO } from "@modules/sanpham";
+import { MapperFactory, SanPhamMapper } from "@mappers";
+
+
 import { KnexDatabaseError } from "../DatabaseError";
+import BaseKnexRepository from "../BaseKnexRepository";
 
-
-const MAXIMUM_RESULT_PER_QUERY = 15;
-
-export default class SanPhamRepository implements ISanPhamRepository {
-
-  readonly connection: IDbConnection<knex>;
-  private tableName: string;
-  private mapper: SanPhamMapper;
+export default class SanPhamRepository extends BaseKnexRepository<SanPham> implements ISanPhamRepository {
 
   constructor(connection: IDbConnection<knex>) {
-    this.connection = connection;
-    this.tableName = "SANPHAM";
-    this.mapper = new SanPhamMapper();
-  }
-
-  public execute(context: knex<any, any[]>) {
-    throw new Error("Method not implemented.");
+    super(connection, MapperFactory.createMapper(SanPhamMapper), "SANPHAM");
   }
 
   async searchSanPham(tenSP: string, loaiSP: string, limit: LimitResult)
@@ -30,6 +20,7 @@ export default class SanPhamRepository implements ISanPhamRepository {
         .select("*").from(this.tableName)
         .where('ten', 'like', `%${tenSP}%`)
         .andWhere('loai_sp', 'like', `%${loaiSP}%`)
+        .offset(limit.from).limit(limit.count)
         .debug(true);
 
       const sanphamData = listSanPhams.map(sanpham => this.mapper.toDTOFromPersistence(sanpham));
@@ -40,35 +31,22 @@ export default class SanPhamRepository implements ISanPhamRepository {
   }
   
   async createSanPham(sanpham: SanPham): Promise<Result<void, IDatabaseError>> {
-    try {
-      const persistence = this.mapper.toPersistenceFormat(sanpham);
-      await this.connection.getConnector().insert(persistence).into(this.tableName);
-      return SuccessResult.ok(null);
-    } catch (err) {
-      return FailResult.fail(new KnexDatabaseError("SanPham", err));
-    }
+    return this.create(sanpham);
   }
 
   async getSanPhamById(sanphamId: string): Promise<Result<SanPhamDTO, IDatabaseError>> {
-    try {
-      const sanPham = await this.connection.getConnector().select("*").from(this.tableName).where({
-        id: sanphamId
-      }).limit(1);
-      return SuccessResult.ok(this.mapper.toDTOFromPersistence(sanPham[0]));
-    } catch (err) {
-      return FailResult.fail(new KnexDatabaseError("SanPham", err));
-    }
+    return this.findById( [sanphamId] );
   }
 
-  async persist(sanpham: SanPham): Promise<Result<void, IDatabaseError>> {
-    try {
-      const persistence = this.mapper.toPersistenceFormat(sanpham);
-      await this.connection.getConnector().table(this.tableName).update(persistence).where({ 
-        id: persistence.id
-      });
-      return SuccessResult.ok(null);
-    } catch (err) {
-      return FailResult.fail(new KnexDatabaseError("SanPham", err));
+  protected getPersistenceCondition(persistence: any): object {
+    return {
+      id: persistence.id
+    }
+  }
+  
+  protected getIdCondition(idFields: any[]): object {
+    return {
+      id: idFields[0]
     }
   }
 }

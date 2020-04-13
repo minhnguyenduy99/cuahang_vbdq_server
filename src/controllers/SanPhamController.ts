@@ -4,7 +4,7 @@ import BaseController from "./BaseController";
 import { TaoSanPham, TimKiemSanPham } from "@modules/usecases";
 import { ISanPhamRepository} from "@modules/sanpham";
 import { INhaCungCapRepository } from "@modules/nhacungcap";
-import { SanPhamService, DomainService } from "@modules/services";
+import { SanPhamService, DomainService } from "@modules/services/DomainService";
 
 import { ImageLoader } from "@services/image-loader";
 
@@ -30,12 +30,14 @@ export default class SanPhamController extends BaseController {
 
   private createSanPham(): RequestHandler {
     return async (req, res, next) => {
+      const anh = req.body.anh_dai_dien;
+      req.body.anh_dai_dien = null;
       const createSanPhamResult = await this.executeCommand(req.body, new TaoSanPham(this.sanphamRepo, this.nhaccRepo));
       if (createSanPhamResult.isFailure) {
         return next(createSanPhamResult.error);
       }
       let newSanPham = createSanPhamResult.getValue();
-      const source = await this.imageLoader.upload(req.body.anh);
+      const source = await this.imageLoader.upload(anh);
       this.sanphamService.updateAnhSanPham(newSanPham.idsp, source);
       newSanPham.anh_dai_dien = source;
       res.status(201).json(createSanPhamResult.getValue());

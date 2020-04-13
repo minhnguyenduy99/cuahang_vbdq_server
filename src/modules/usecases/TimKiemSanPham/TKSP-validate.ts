@@ -1,5 +1,6 @@
-import { IsString, IsNumberString, IsNumber, IsPositive, IsDefined, IsInt } from "class-validator";
-import { Transform, Expose } from "class-transformer";
+import { IsString, IsNumberString, IsNumber, IsPositive, IsDefined, IsInt, Validate, ValidatorConstraint } from "class-validator";
+import { Transform, Expose, Exclude } from "class-transformer";
+import { IsQuantity } from "@modules/helpers/custom-validator";
 
 export interface TimKiemSanPhamDTO {
   ten_sp?: string;
@@ -17,12 +18,10 @@ export class TKSPValidate {
   @Expose({ name: "loai_sp" })
   loaiSP: string;
 
-  @IsInt()
-  @IsNumber()
+  @Validate(IsQuantity)
   from: number;
 
-  @IsInt()
-  @IsPositive()
+  @Validate(IsQuantity)
   @Expose({ name: "so_luong" })
   count: number;
 }

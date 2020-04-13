@@ -1,6 +1,5 @@
 import IMapper from "./IMapper.interface";
 import * as nv from "@modules/nhanvien";
-import { Result, IDatabaseError, SuccessResult } from "@core";
 import { NhanVienDTO } from "@modules/nhanvien";
 import CreateType from "@create_type";
 
@@ -11,6 +10,9 @@ export default class NhanVienMapper implements IMapper<nv.NhanVien> {
   }
 
   toDTOFromPersistence(data: any): NhanVienDTO {
+    if (!data) {
+      return null as NhanVienDTO;
+    }
     return {
       id: data.id,
       tk_id: data.tk_id,

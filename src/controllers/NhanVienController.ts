@@ -8,8 +8,7 @@ import { GetNhanVienRequest } from "@modules/usecases";
 import { ErrorFactory } from "@services/http-error-handles";
 import authenticationChecking from "../middlewares/authentication-check";
 import { ImageLoader } from "@services/image-loader";
-import { TaiKhoanService, DomainService, NhaCungCapService } from "@modules/services";
-import normalizeFileField from "../middlewares/file-field-normalize";
+import { TaiKhoanService, DomainService, NhaCungCapService } from "@modules/services/DomainService";
 
 
 export default class NhanVienController extends BaseController {
@@ -18,15 +17,13 @@ export default class NhanVienController extends BaseController {
   private nhacungcapService: NhaCungCapService;
 
   constructor(
-    private nhanvienRepo: INhanVienRepository, 
+    private imageLoader: ImageLoader,  
+    private nhanvienRepo: INhanVienRepository,
     private taikhoanRepo: ITaiKhoanRepository, 
     private nhaCCRepo: INhaCungCapRepository,
-    private imageLoader: ImageLoader,  
     route: string) {
+      
     super(route);
-    this.nhanvienRepo = nhanvienRepo;
-    this.taikhoanRepo = taikhoanRepo;
-    this.nhaCCRepo = nhaCCRepo;
     this.taikhoanService = DomainService.getService(TaiKhoanService, this.taikhoanRepo);
     this.nhacungcapService = DomainService.getService(NhaCungCapService, this.nhaCCRepo);
   }
@@ -58,12 +55,14 @@ export default class NhanVienController extends BaseController {
 
   private createNhanVien(): RequestHandler {
     return async (req, res, next) => {
+      const anh = req.body.anh_dai_dien;
+      req.body.anh_dai_dien = null;
       const result = await this.executeCommand(req.body, new TaoTaiKhoan(this.taikhoanRepo, this.nhanvienRepo));
       if (result.isFailure) {
         return next(result.error);
       }
       let newTaiKhoan = result.getValue();
-      const uploadUrl = await this.imageLoader.upload(req.body.anh);
+      const uploadUrl = await this.imageLoader.upload(anh);
       await this.taikhoanService.updateAnhDaiDien(newTaiKhoan.tk_id, uploadUrl);
       newTaiKhoan.anh_dai_dien = uploadUrl;
       res.status(201).json(result.getValue());
@@ -72,12 +71,14 @@ export default class NhanVienController extends BaseController {
 
   private createNhaCungCap(): RequestHandler {
     return async (req, res, next) => {
+      const anh = req.body.anh_dai_dien;
+      req.body.anh_dai_dien = null;
       const usecaseResult = await this.executeCommand(req.body, new TaoNhaCungCap(this.nhaCCRepo));
       if (usecaseResult.isFailure) {
         return next(usecaseResult.error);
       }
       let newNhaCungCap = usecaseResult.getValue();
-      const uploadUrl = await this.imageLoader.upload(req.body.anh);
+      const uploadUrl = await this.imageLoader.upload(anh);
       await this.nhacungcapService.updateAnhDaiDien(newNhaCungCap.id, uploadUrl);
       newNhaCungCap.anh_dai_dien = uploadUrl;
       res.status(201).json(usecaseResult.getValue());

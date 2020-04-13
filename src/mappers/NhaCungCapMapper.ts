@@ -1,5 +1,4 @@
 import IMapper from "./IMapper.interface";
-import { SuccessResult, FailResult } from "@core";
 import { NhaCungCap, NhaCungCapDTO } from "@modules/nhacungcap";
 
 export default class NhaCungCapMapper implements IMapper<NhaCungCap> {
@@ -10,15 +9,15 @@ export default class NhaCungCapMapper implements IMapper<NhaCungCap> {
 
   toDTOFromPersistence(data: any) {
     if (!data) {
-      return SuccessResult.ok(null);
+      return null;
     }
-    return SuccessResult.ok({
+    return {
       id: data.id,
       ten: data.ten,
       dia_chi: data.dia_chi,
       anh_dai_dien: data.anh_dai_dien,
       tong_gia_tri_nhap: data.tong_gia_tri_nhap
-    } as NhaCungCapDTO);
+    } as NhaCungCapDTO;
   }
   
   toPersistenceFormat(NhaCungCap: NhaCungCap) {

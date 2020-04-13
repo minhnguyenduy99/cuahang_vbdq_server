@@ -12,7 +12,8 @@ export default class LoginController extends BaseController {
   
   constructor(route: string, repo: ITaiKhoanRepository) {
     super(route);
-    this.authenticate = DomainAuthentication.create(ApplicationService.getService(DomainAuthenticateService, repo));
+    this.authenticate = new DomainAuthentication(
+      ApplicationService.getService(DomainAuthenticateService, repo));
   }
 
   protected initializeRoutes(): void {

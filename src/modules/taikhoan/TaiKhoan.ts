@@ -53,7 +53,7 @@ export class TaiKhoan extends Entity<TaiKhoanProps> {
     return compare;
   }
 
-  serialize(type?: string) {
+  serialize(type: string) {
     return classToPlain(this.props, { groups: [type] }) as TaiKhoanDTO;
   }
 

@@ -3,8 +3,7 @@ import { KhachHangProps, KhachHangDTO } from "./KhachHangProps";
 import { Entity, SuccessResult, FailResult } from "@core";
 import { classToPlain, plainToClass } from "class-transformer";
 import { validate } from "class-validator";
-import { PhieuBanHang } from "../phieubanhang";
-
+import { Phieu } from "@modules/phieu";
 
 export default class KhachHang extends Entity<KhachHangProps> {
   
@@ -22,15 +21,15 @@ export default class KhachHang extends Entity<KhachHangProps> {
     return this.props.id;
   }
 
-  updateTongGiaTriBan(phieu: PhieuBanHang) {
+  updateTongGiaTriBan(phieu: Phieu) {
     if (!phieu) {
       return;
     }
     this.props.tongGiaTriMua += phieu.tongGiaTri;
   }
   
-  serialize() {
-    return classToPlain(this.props) as KhachHangDTO;
+  serialize(type: string) {
+    return classToPlain(this.props, { groups: [type] }) as KhachHangDTO;
   }
 
   public static async create(data: any, createType: string) {

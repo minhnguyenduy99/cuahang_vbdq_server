@@ -1,6 +1,7 @@
-import { ValidatorConstraintInterface, ValidationArguments } from "class-validator";
+import { ValidatorConstraintInterface, ValidationArguments, ValidatorConstraint } from "class-validator";
 import path from "path";
 
+@ValidatorConstraint({ name: "IsImage" })
 export default class IsImage implements ValidatorConstraintInterface {
   
   private ALLOW_IMAGE_EXTENSION = [".jpg", ".jpeg", ".png"];

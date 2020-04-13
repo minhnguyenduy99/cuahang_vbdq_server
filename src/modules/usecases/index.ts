@@ -9,3 +9,6 @@ export { TimKiemNhaCungCap } from "./TimKiemNhaCC/TimKiemNhaCC";
 export { TaoKhachHangDTO, TaoKhachHang } from "./TaoKhachHang/TaoKhachHang";
 export { TimKiemKhachHang, TimKiemKhachHangDTO } from "./TimKiemKhachHang/TimKiemKhachHang";
 export { TaoPhieuBanHang } from "./TaoPhieuBanHang/TaoPhieuBanHang";
+export { TimKiemPhieuBanHang, TimKiemPhieuBHDTO } from "./TImKiemPhieuBanHang/TimKiemPhieuBanHang";
+export { GetPhieuBanHangById, GetCTPhieuBanHangDTO } from "./GetPhieuBanHang/GetPhieuBanHangById";
+export { GetPhieuBanHang, GetPhieuBanHangDTO } from "./GetPhieuBanHang/GetPhieuBanHang";

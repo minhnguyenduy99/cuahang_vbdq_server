@@ -3,7 +3,7 @@ import { IUseCase, FailResult, SuccessResult, ICommand, Entity, Result, IDatabas
 import { ITaiKhoanRepository } from "../..";
 import { TaiKhoan, TaiKhoanDTO } from "../../TaiKhoan";
 import TaiKhoanExistsError from "./TaiKhoanExistsError";
-import CreateType from "../../../entity-create-type";
+import CreateType from "@create_type";
 
  
 export interface CreateTaiKhoanDTO {
@@ -54,7 +54,7 @@ export class CreateTaiKhoan implements ICommand<CreateTaiKhoanDTO> {
     const commitResult = await await this.repo.createTaiKhoan(this.data);
     if (commitResult.isSuccess) {
       this.commited = true;
-      return SuccessResult.ok(this.data.serialize());
+      return SuccessResult.ok(this.data.serialize(CreateType.getGroups().toAppRespone));
     }
     return FailResult.fail(commitResult.error);
   }

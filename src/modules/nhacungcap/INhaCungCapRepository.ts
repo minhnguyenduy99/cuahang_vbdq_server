@@ -1,9 +1,7 @@
 import { IDatabaseRepository, IDatabaseError, Result, LimitResult } from "@core";
 import { NhaCungCap, NhaCungCapDTO } from "./NhaCungCap";
 
-
-
-export default interface INhaCungCapRepository extends IDatabaseRepository<any> {
+export default interface INhaCungCapRepository {
 
   createNhaCungCap(nhacungcap: NhaCungCap): Promise<Result<void, IDatabaseError>>;
 
@@ -13,5 +11,5 @@ export default interface INhaCungCapRepository extends IDatabaseRepository<any> 
 
   searchNhaCungCap(ten: string): Promise<Result<NhaCungCapDTO[], IDatabaseError>>;
 
-  persist(nhacungcap: NhaCungCap): Promise<Result<void, IDatabaseError>>;
+  update(nhacungcap: NhaCungCap): Promise<Result<void, IDatabaseError>>;
 }

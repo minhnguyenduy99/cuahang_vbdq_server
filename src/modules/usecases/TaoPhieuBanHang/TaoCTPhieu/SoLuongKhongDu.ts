@@ -1,5 +1,3 @@
-import { ValidationError } from "class-validator";
-import { CTPhieuBanHang } from "../../../ctphieubanhang";
 import { UseCaseError } from "@core";
 import { TaoCTPhieu } from "./TaoCTPhieu";
 

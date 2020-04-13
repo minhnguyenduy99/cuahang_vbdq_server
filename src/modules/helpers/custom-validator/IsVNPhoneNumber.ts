@@ -1,5 +1,6 @@
-import { ValidatorConstraintInterface, ValidationArguments } from "class-validator";
+import { ValidatorConstraintInterface, ValidationArguments, ValidatorConstraint } from "class-validator";
 
+@ValidatorConstraint({ name: "IsVNPhoneNumber" })
 export default class IsVNPhoneNumber implements ValidatorConstraintInterface {
   
   validate(value: string, validationArguments?: ValidationArguments): boolean {

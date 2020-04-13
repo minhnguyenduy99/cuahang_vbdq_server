@@ -21,7 +21,7 @@ import LoginController from "./controllers/LoginController";
 // import services
 import { DatabaseService, DbConfigObjectConnection, repo } from "@services/db-access-manager";
 import KhachHangController from "./controllers/KhachHangController";
-import { ImageLoader } from "./services";
+import { ImageLoader } from "@services/image-loader";
 
 
 
@@ -66,7 +66,7 @@ export default class App {
   protected initializeDBService() {
     this.dbService = new DatabaseService();
     this.dbService.addConnection(new DbConfigObjectConnection("test_connection", {
-      connectionName: "admin",
+      connectionName: "remote",
       filePath: {
         isAbsolute: false,
         value: DEFAULT_RELATIVE_CONNECTION_PATH
@@ -101,14 +101,13 @@ export default class App {
     const nhacungcapRepo = this.dbService.createRepository(repo.NhaCungCapRepository);
     const sanphamRepo = this.dbService.createRepository(repo.SanPhamRepository);
     const khachhangRepo = this.dbService.createRepository(repo.KhachHangRepository);
-    const phieuMHRepo = this.dbService.createRepository(repo.PhieuBHRepository);
-    const ctphieuMHRepo = this.dbService.createRepository(repo.CTPhieuBHRepository);
+    const phieuBHRepo = this.dbService.createRepository(repo.PhieuBHRepository);
+    const ctphieuBHRepo = this.dbService.createRepository(repo.CTPhieuRepository, "CTPHIEUBANHANG");
 
-
-    this.app.use(new NhanVienController(nhanvienRepo, taikhoanRepo, nhacungcapRepo, this.imageLoaderService, "/nhanvien").getRouter());
+    this.app.use(new NhanVienController(this.imageLoaderService, nhanvienRepo, taikhoanRepo, nhacungcapRepo, "/nhanvien").getRouter());
     this.app.use(new SanPhamController(sanphamRepo, nhacungcapRepo, this.imageLoaderService,  "/sanpham").getRouter());
     this.app.use(new KhachHangController(khachhangRepo, "/khachhang").getRouter());
-    this.app.use(new PhieuBanHangController("/phieubanhang", nhanvienRepo, khachhangRepo, phieuMHRepo, ctphieuMHRepo, sanphamRepo).getRouter());
+    this.app.use(new PhieuBanHangController("/phieubanhang", nhanvienRepo, khachhangRepo, phieuBHRepo, ctphieuBHRepo, sanphamRepo).getRouter());
     this.app.use(new LoginController("/login", taikhoanRepo).getRouter());
     this.app.get("/logout", (req, res, next) => {
       req.session.destroy((err) => {

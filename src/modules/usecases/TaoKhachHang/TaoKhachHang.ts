@@ -54,6 +54,6 @@ export class TaoKhachHang implements ICommand<TaoKhachHangDTO> {
       return FailResult.fail(commitResult.error);
     }
     this.commited = true;
-    return SuccessResult.ok(this.getData().serialize());
+    return SuccessResult.ok(this.getData().serialize(CreateType.getGroups().toAppRespone));
   }
 }

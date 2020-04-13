@@ -44,8 +44,13 @@ export class UseCaseError<T extends IUseCase<any, any>> implements IAppError {
   message: string;
   usecase: string;
 
-  constructor(type: ClassType<T>, msg?: string) {
-    this.usecase = type.name;
+  constructor(type: string | ClassType<T>, msg?: string) {
+    if (typeof type === "string") {
+      this.usecase = type;
+    } else {
+      this.usecase = (type as ClassType<T>).name;
+    }
+    
     this.message = msg || "Usecase exception";
   }
 

@@ -27,7 +27,7 @@ export class TimKiemSanPham implements IQuery<TimKiemSanPhamDTO> {
   }
 
   public async validate(request: TimKiemSanPhamDTO): Promise<Result<TKSPValidate, ValidationError[]>> {
-    let convertData = await plainToClass(TKSPValidate, request); 
+    let convertData = plainToClass(TKSPValidate, request); 
     let errors = await validate(convertData);
     if (errors.length > 0) {
       return FailResult.fail(errors);

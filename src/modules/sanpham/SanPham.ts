@@ -1,11 +1,12 @@
 import uniqid from "uniqid";
-import { SanPhamProps, SanPhamDTO } from "./SanPhamProps";
-import { Entity, SuccessResult, FailResult, InvalidEntity } from "@core";
 import { classToPlain, plainToClass } from "class-transformer";
 import { validate } from "class-validator";
-import { NhaCungCap } from "../nhacungcap";
-import { CTPhieuBanHang } from "../ctphieubanhang";
 
+import { Entity, SuccessResult, FailResult, InvalidEntity } from "@core";
+import { ChiTietPhieu } from "@modules/phieu";
+import { NhaCungCap } from "@modules/nhacungcap";
+
+import { SanPhamProps, SanPhamDTO } from "./SanPhamProps";
 
 export default class SanPham extends Entity<SanPhamProps> {
 
@@ -30,7 +31,7 @@ export default class SanPham extends Entity<SanPhamProps> {
     this.nhaCC = nhacungcap;
   }
 
-  updateSoLuong(ctphieu: CTPhieuBanHang) {
+  updateSoLuong(ctphieu: ChiTietPhieu) {
     if (this.sanPhamId !== ctphieu.sanphamId) {
       return;
     }

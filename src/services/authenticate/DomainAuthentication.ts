@@ -1,6 +1,5 @@
-import { TaiKhoanDTO, ITaiKhoanRepository } from "@modules/taikhoan";
 import { IAuthenticate } from ".";
-import { IDomainAuthenticateService } from "@modules/services";
+import { IDomainAuthenticateService } from "@modules/services/ApplicationService";
 import AuthenticateResult from "./AuthenticateResult";
 
 interface AuthenticateData {
@@ -10,7 +9,7 @@ interface AuthenticateData {
 
 export default class DomainAuthentication implements IAuthenticate<AuthenticateData> {
 
-  private constructor(
+  constructor(
     private authService: IDomainAuthenticateService
   ) {
   }
@@ -30,9 +29,5 @@ export default class DomainAuthentication implements IAuthenticate<AuthenticateD
       message: taikhoan ? "Đăng nhập thành công" : "Tên đăng nhập hoặc mật khẩu không đúng",
       data: taikhoan
     }
-  }
-
-  static create(authService: IDomainAuthenticateService) {
-    return new DomainAuthentication(authService);
   }
 }

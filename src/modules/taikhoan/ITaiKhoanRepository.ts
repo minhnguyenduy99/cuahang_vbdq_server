@@ -1,7 +1,7 @@
-import { IDatabaseRepository, Result, IDatabaseError } from "@core";
+import { Result, IDatabaseError } from "@core";
 import { TaiKhoan, TaiKhoanDTO } from "./TaiKhoan";
 
-export default interface ITaiKhoanRepository extends IDatabaseRepository<any> {
+export default interface ITaiKhoanRepository {
   
   createTaiKhoan(taikhoan: TaiKhoan): Promise<Result<void, IDatabaseError>>;
 
@@ -11,7 +11,7 @@ export default interface ITaiKhoanRepository extends IDatabaseRepository<any> {
 
   findTaiKhoanById(taikhoanId: string): Promise<Result<TaiKhoanDTO, IDatabaseError>>;
 
-  persist(taiKhoan: TaiKhoan): Promise<Result<void, IDatabaseError>>;
-
   deleteTaiKhoan(taikhoanId: string): Promise<Result<void, IDatabaseError>>;
+
+  updateTaiKhoan(taikhoan: TaiKhoan): Promise<Result<void, IDatabaseError>>;
 }

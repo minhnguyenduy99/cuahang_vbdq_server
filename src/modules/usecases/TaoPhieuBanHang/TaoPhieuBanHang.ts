@@ -1,15 +1,12 @@
 import { ICommand, Result, IDatabaseError, FailResult, SuccessResult, DomainEvents } from "@core";
-import { IPhieuBHRepository, PhieuBanHangDTO } from "@modules/phieubanhang";
-import { PhieuBanHang } from "@modules/phieubanhang";
 import { IKhachHangRepository } from "@modules/khachhang";
 import { INhanVienRepository } from "@modules/nhanvien";
 import CreateType from "@create_type";
-import { ICTPhieuBHRepository } from "@modules/ctphieubanhang";
 import { TaoCTPhieu, TaoCTPhieuDTO } from "./TaoCTPhieu/TaoCTPhieu";
 import { ISanPhamRepository } from "@modules/sanpham";
-import { SanPhamService, KhachHangService, NhanVienService, DomainService } from "@modules/services";
-import { PhieuBanHangCreated } from "@modules/phieubanhang";
-
+import { SanPhamService, KhachHangService, NhanVienService, DomainService, PhieuBHService } from "@modules/services/DomainService";
+import { IPhieuRepository, ICTPhieuRepository, PhieuCreated, ChiTietPhieu } from "@modules/phieu";
+import { PhieuBanHang, PhieuBanHangDTO} from "@modules/phieu/phieubanhang";
 
 export interface TaoPhieuMHDTO {
   kh_id: string;
@@ -23,26 +20,22 @@ export class TaoPhieuBanHang implements ICommand<TaoPhieuMHDTO> {
   private data: PhieuBanHang;
   private commited: boolean;
   private taoCTPhieuUseCase: TaoCTPhieu;
-  private sanphamService: SanPhamService;
-  private khachhangService: KhachHangService;
-  private nhanvienService: NhanVienService;
+  private phieuService: PhieuBHService;
 
   constructor(
-    private phieuRepo: IPhieuBHRepository, 
-    private khachhangRepo: IKhachHangRepository, 
-    private nhanvienRepo: INhanVienRepository,
-    private ctphieuRepo: ICTPhieuBHRepository,
-    private sanphamRepo: ISanPhamRepository) {
+    private phieuRepo: IPhieuRepository<PhieuBanHang>, 
+    khachhangRepo: IKhachHangRepository, 
+    nhanvienRepo: INhanVienRepository,
+    ctphieuRepo: ICTPhieuRepository<ChiTietPhieu>,
+    sanphamRepo: ISanPhamRepository) {
 
-    this.sanphamService = DomainService.getService(SanPhamService, this.sanphamRepo);
-    this.khachhangService = KhachHangService.create(this.khachhangRepo);
-    this.nhanvienService = NhanVienService.create(this.nhanvienRepo);
-    this.taoCTPhieuUseCase = new TaoCTPhieu(this.ctphieuRepo, this.sanphamRepo);
+    this.phieuService = DomainService.getService(
+      PhieuBHService, this.phieuRepo, 
+      DomainService.getService(NhanVienService, nhanvienRepo),
+      DomainService.getService(KhachHangService, khachhangRepo));
+    
+    this.taoCTPhieuUseCase = new TaoCTPhieu(ctphieuRepo, sanphamRepo);
     this.commited = false;
-
-    // register domain service event
-    DomainEvents.register((ev: PhieuBanHangCreated) => this.sanphamService.onPhieuBanHangCreated(ev), PhieuBanHangCreated.name);
-    DomainEvents.register((ev: PhieuBanHangCreated) => this.khachhangService.onPhieuBanHangCreated(ev), PhieuBanHangCreated.name);
   }
 
   isCommit(): boolean {
@@ -50,26 +43,15 @@ export class TaoPhieuBanHang implements ICommand<TaoPhieuMHDTO> {
   }
 
   async execute(request: TaoPhieuMHDTO): Promise<Result<void, any>> {
-    const [getKhachHang, getNhanVien] = await Promise.all([
-      this.khachhangService.getKhachHangById(request.kh_id),
-      this.nhanvienService.getNhanVienById(request.nv_id)]
-    );
-    const executeTaoCTPhieuUsecase = await this.taoCTPhieuUseCase.execute(request.ds_ctphieu);
-    const validateResult = Result.combine([getKhachHang, getNhanVien, executeTaoCTPhieuUsecase]);
-    if (validateResult.isFailure) {
-      return FailResult.fail(validateResult.error);
+    const createListCTPhieu = await this.taoCTPhieuUseCase.execute(request.ds_ctphieu);
+    if (createListCTPhieu.isFailure) {
+      return FailResult.fail(createListCTPhieu.error);
     }
-
-    const phieuEntity = await PhieuBanHang.create(
-      request, 
-      this.taoCTPhieuUseCase.getData(), 
-      getKhachHang.getValue(), getNhanVien.getValue(), 
-      CreateType.getGroups().createNew);
-
-    if (phieuEntity.isFailure) {
-      return FailResult.fail(phieuEntity.error);
+    let createPhieu = await this.phieuService.createPhieu(request, this.taoCTPhieuUseCase.getData());
+    if (createPhieu.isFailure) {
+      return FailResult.fail(createPhieu.error);
     }
-    this.data = phieuEntity.getValue();
+    this.data = createPhieu.getValue();
     return SuccessResult.ok(null);
   }
 
@@ -85,10 +67,9 @@ export class TaoPhieuBanHang implements ICommand<TaoPhieuMHDTO> {
     }
     this.commited = true;
 
-    // dispatch event
     DomainEvents.dispatchEventsForAggregate(this.data.entityId);
     
-    return SuccessResult.ok(this.data.serialize());
+    return SuccessResult.ok(this.data.serialize(CreateType.getGroups().toAppRespone));
   }
 
   private rollback(): Promise<void> {

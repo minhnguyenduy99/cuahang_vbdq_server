@@ -3,7 +3,7 @@ import KhachHang from "./KhachHang";
 import { KhachHangDTO } from "./KhachHangProps";
 
 
-export default interface IKhachHangRepository extends IDatabaseRepository<any> {
+export default interface IKhachHangRepository {
 
   createKhachHang(khachhang: KhachHang): Promise<Result<void, IDatabaseError>>;
   
@@ -11,5 +11,5 @@ export default interface IKhachHangRepository extends IDatabaseRepository<any> {
 
   searchKhachHang(tenKH: string, cmnd: string): Promise<Result<KhachHangDTO[], IDatabaseError>>;
 
-  persist(khachhang: KhachHang): Promise<Result<void, IDatabaseError>>;
+  update(khachhang: KhachHang): Promise<Result<void, IDatabaseError>>;
 }

@@ -1,42 +1,28 @@
 import IMapper from "./IMapper.interface";
-import { Result, IDatabaseError, FailResult, DatabaseError, SuccessResult } from "@core";
 import { TaiKhoan, TaiKhoanDTO } from "@modules/taikhoan";
+import CreateType from "@create_type";
 
 export default class TaiKhoanMapper implements IMapper<TaiKhoan> {
   
   toDTO(TaiKhoan: TaiKhoan) {
-    return TaiKhoan.serialize();
-  }
-  
-  async toEntityFromPersistence(data: any): Promise<Result<TaiKhoan, IDatabaseError>> {
-    const createTaiKhoan = await TaiKhoan.create({
-      id: data.id,
-      ten_tk: data.ten_dang_nhap,
-      mat_khau: data.mat_khau,
-      anh_dai_dien: data.anh_dai_dien,
-      loai_tk: data.loai
-    })
-    if (createTaiKhoan.isFailure) {
-      return FailResult.fail(new DatabaseError("DATA_PERSISTENCE_ERROR"));
-    }
-    return SuccessResult.ok(createTaiKhoan.getValue());
+    return TaiKhoan.serialize(CreateType.getGroups().toAppRespone);
   }
 
   toDTOFromPersistence(data: any) {
     if (!data) {
-      return SuccessResult.ok(null);
+      return { } as TaiKhoanDTO;
     }
-    return SuccessResult.ok({
+    return {
       id: data.id,
       ten_tk: data.ten_dang_nhap,
       mat_khau: data.mat_khau,
       anh_dai_dien: data.anh_dai_dien,
       loai_tk: data.loai
-    } as TaiKhoanDTO);
+    } as TaiKhoanDTO;
   }
   
   toPersistenceFormat(taikhoan: TaiKhoan) {
-    const dto = taikhoan.serialize("TO_PERSISTENCE");
+    const dto = taikhoan.serialize(CreateType.getGroups().toPersistence);
     return {
       id: dto.id,
       ten_dang_nhap: dto.ten_tk,

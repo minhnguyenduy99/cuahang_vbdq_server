@@ -3,9 +3,9 @@ import { ISanPhamRepository, SanPhamDTO, SanPham } from "@modules/sanpham";
 import SoLuongSanPhamKhongDu from "./SoLuongKhongDu";
 import CreateType from "@create_type";
 import { ValidationError } from "class-validator";
-import { ICTPhieuBHRepository, CTPhieuBanHang } from "@modules/ctphieubanhang";
-import { SanPhamService, DomainService } from "@modules/services";
 import SanPhamKhongTonTai from "./SanPhamKhongTonTai";
+import { ChiTietPhieu, ICTPhieuRepository, ChiTietPhieuDTO } from "@modules/phieu";
+import { CTPhieuBHService, DomainService, SanPhamService } from "@modules/services/DomainService";
 
 export interface TaoCTPhieuDTO {
   sp_id: string;
@@ -17,14 +17,14 @@ type CTPhieuValidateError = IDatabaseError | ValidationError[] | ValidationError
 export class TaoCTPhieu implements ICommand<TaoCTPhieuDTO[]> {
   
   private commited: boolean;
-  private data: CTPhieuBanHang[];
-  private sanphamService: SanPhamService;
+  private data: ChiTietPhieu[];
+  private ctphieuService: CTPhieuBHService;
 
   constructor(
-    private ctPhieuRepo: ICTPhieuBHRepository, 
-    private sanphamRepo: ISanPhamRepository) {
+    private ctPhieuRepo: ICTPhieuRepository<ChiTietPhieu>, 
+    sanphamRepo: ISanPhamRepository) {
 
-    this.sanphamService = DomainService.getService(SanPhamService, this.sanphamRepo);
+    this.ctphieuService = DomainService.getService(CTPhieuBHService, ctPhieuRepo, sanphamRepo);
     this.commited = false;
   }
 
@@ -32,13 +32,13 @@ export class TaoCTPhieu implements ICommand<TaoCTPhieuDTO[]> {
     return this.commited;
   }
 
-  async execute(request: TaoCTPhieuDTO[]): Promise<Result<void, CTPhieuValidateError>> {
-    const listCTPhieu = await this.createListCTPhieu(request);
-    
-    if (listCTPhieu.isFailure) {
-      return FailResult.fail(listCTPhieu.error);
+  async execute(request: TaoCTPhieuDTO[]) {
+    const createListCTPhieu = await Promise.all(request.map(ctphieu => this.createCTPhieu(ctphieu)));
+    const result = Result.combineSame(createListCTPhieu);
+    if (result.isFailure) {
+      return FailResult.fail(result.error);
     }
-    this.data = listCTPhieu.getValue();
+    this.data = result.getValue();
     return SuccessResult.ok(null);
   }
 
@@ -50,33 +50,16 @@ export class TaoCTPhieu implements ICommand<TaoCTPhieuDTO[]> {
     this.commited = true;
     return SuccessResult.ok(this.data.map(ctphieu => ctphieu.serialize(CreateType.getGroups().toAppRespone)));
   }
-
-  rollback(): Promise<void> {
-    throw new Error("Method not implemented.");
-  }
-
-  getData(): CTPhieuBanHang[] {
+  
+  getData(): ChiTietPhieu[] {
     return this.data;
   }
 
-  private async createCTPhieu(ctphieuDTO: TaoCTPhieuDTO) {
-    let getSanPham = await this.sanphamService.findSanPhamById(ctphieuDTO.sp_id);
-    let sanpham = getSanPham.getValue();
-    
-    if (getSanPham.isFailure || !sanpham) {
-      return FailResult.fail(new SanPhamKhongTonTai(ctphieuDTO.sp_id));
-    }
-    if (sanpham.soLuong < ctphieuDTO.so_luong) {
-      return FailResult.fail(new SoLuongSanPhamKhongDu());
-    }
-    return CTPhieuBanHang.create(ctphieuDTO, CreateType.getGroups().createNew, getSanPham.getValue());
-  }
-
-  private async createListCTPhieu(request: TaoCTPhieuDTO[]) {
-    let createListCTPhieu = await Promise.all(request.map(ctphieuDTO => {
-      return this.createCTPhieu(ctphieuDTO);
-    }))
-    
-    return Result.combine(createListCTPhieu);
+  private createCTPhieu(request: TaoCTPhieuDTO) {
+    const ctphieuDTO = {
+      sp_id: request.sp_id,
+      so_luong: request.so_luong
+    } as ChiTietPhieuDTO;
+    return this.ctphieuService.createCTPhieu(ctphieuDTO)
   }
 }

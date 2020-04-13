@@ -1,20 +1,18 @@
 import knex from "knex";
+import { MapperFactory, KhachHangMapper } from "@mappers";
 import { IKhachHangRepository, KhachHang, KhachHangDTO } from "@modules/khachhang";
-import { Result, IDatabaseError, IDbConnection, SuccessResult, FailResult } from "@core";
-import KhachHangMapper from "@mappers/KhachHangMapper";
-import { KnexDatabaseError } from "../DatabaseError";
+import { Result, IDatabaseError, IDbConnection, SuccessResult } from "@core";
 
+import BaseKnexRepository from "../BaseKnexRepository";
 
-export default class KhachHangRepository implements IKhachHangRepository {
-
-  connection: IDbConnection<knex>;
-  mapper: KhachHangMapper;
-  tableName: string;
-
+export default class KhachHangRepository extends BaseKnexRepository<KhachHang> implements IKhachHangRepository {
+ 
   constructor(connection: IDbConnection<knex>) {
-    this.connection = connection;
-    this.tableName = "KHACHHANG";
-    this.mapper = new KhachHangMapper();
+    super(connection, MapperFactory.createMapper(KhachHangMapper), "KHACHHANG");
+  }
+
+  update(khachhang: KhachHang): Promise<Result<void, IDatabaseError>> {
+    return this.persist(khachhang);
   }
 
   async searchKhachHang(tenKH: string = "", cmnd: string = ""): Promise<Result<KhachHangDTO[], IDatabaseError>> {
@@ -26,51 +24,27 @@ export default class KhachHangRepository implements IKhachHangRepository {
       const khachhangData = searchResult.map(khachhang => this.mapper.toDTOFromPersistence(khachhang));
       return SuccessResult.ok(khachhangData);
     } catch (err) {
-      return FailResult.fail(new KnexDatabaseError("KhachHang", err));
+      return this.knexDatabaseFailed(err);
     }
   }
 
   async createKhachHang(khachhang: KhachHang): Promise<Result<void, IDatabaseError>> {
-    try {
-      const persistence = this.mapper.toPersistenceFormat(khachhang);
-      await this.connection.getConnector().insert(persistence).into(this.tableName);
-      return SuccessResult.ok(null);
-    } catch (err) {
-      return FailResult.fail(new KnexDatabaseError("KhachHang", err));
-    }
+    return this.create(khachhang);
   }
 
   async findKhachHangById(khachhangId: string): Promise<Result<KhachHangDTO, IDatabaseError>> {
-    try {
-      const khachHang = await this.connection.getConnector()
-        .select("*")
-        .from(this.tableName).where({
-          id: khachhangId
-        })
-        .limit(1);
-      if (khachHang.length === 0) {
-        return SuccessResult.ok(null);
-      }
-      return SuccessResult.ok(this.mapper.toDTOFromPersistence(khachHang[0]));
-    } catch (err) {
-      return FailResult.fail(new KnexDatabaseError("KhachHang", err));
+    return this.findById( [khachhangId] );
+  }
+
+  protected getPersistenceCondition(persistence: any): object {
+    return {
+      id: persistence.id
     }
   }
 
-  async persist(khachhang: KhachHang): Promise<Result<void, IDatabaseError>> {
-    try {
-      const persistence = this.mapper.toPersistenceFormat(khachhang);
-      await this.connection.getConnector().table(this.tableName).update(persistence).where({
-        id: persistence.id
-      });
-      return SuccessResult.ok(null);
-    } catch (err) {
-      return FailResult.fail(new KnexDatabaseError("KhachHang", err));
+  protected getIdCondition(idFields: any[]): object {
+    return {
+      id: idFields[0]
     }
   }
-
-  execute(context: any) {
-    throw new Error("Method not implemented.");
-  }
-
 }

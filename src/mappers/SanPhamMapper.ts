@@ -1,5 +1,4 @@
 import IMapper from "./IMapper.interface";
-import { SuccessResult } from "@core";
 import { SanPham, SanPhamDTO } from "@modules/sanpham";
 
 export default class SanPhamMapper implements IMapper<SanPham> {
@@ -10,7 +9,7 @@ export default class SanPhamMapper implements IMapper<SanPham> {
 
   toDTOFromPersistence(data: any) {
     if (!data) {
-      return { } as SanPhamDTO;
+      return null;
     }
     return {
       idsp: data.id,

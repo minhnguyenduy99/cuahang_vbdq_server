@@ -30,12 +30,12 @@ export class KhachHangProps {
   cmnd: string;
 
   @IsEmpty({ groups: [CreateType.getGroups().createNew] })
-  @Validate(IsMoney, { groups: CreateType.getAllGroups() })
+  @Validate(IsMoney, { groups: CreateType.getAllGroupsExcept("createNew") })
   @Expose({ name: "tong_gia_tri_ban" })
   tongGiaTriBan: number;
 
   @IsEmpty({ groups: [CreateType.getGroups().createNew] })
-  @Validate(IsMoney, { groups: CreateType.getAllGroups() })
+  @Validate(IsMoney, { groups: CreateType.getAllGroupsExcept("createNew") })
   @Expose({ name: "tong_gia_tri_mua" })
   tongGiaTriMua: number;
 }

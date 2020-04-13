@@ -18,7 +18,7 @@
     "@core": "dist/src/core/index.js",
     "@modules": "dist/src/modules/",
     "@services": "dist/src/services",
-    "@mappers": "dist/src/mappers",
+    "@mappers": "dist/src/mappers/index.js",
     "@create_type": "dist/src/modules/entity-create-type.js"
   },
   "author": "",

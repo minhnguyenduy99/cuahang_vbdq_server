@@ -1,6 +1,8 @@
 import * as core from "@core";
 import BaseKnexConnection from "./BaseKnexConnection";
 import DBConnectionManager from "./DBConnectionManager";
+import { Entity, IDatabaseRepository } from "@core";
+import BaseKnexRepository from "./BaseKnexRepository";
 
 export default class DatabaseService implements core.IDatabaseService {
 
@@ -21,12 +23,12 @@ export default class DatabaseService implements core.IDatabaseService {
     throw new Error("DatabaseService.end() is not implemented");
   }
 
-  public createRepository<T extends core.IDatabaseRepository<any>>(
-    type: new (connection: BaseKnexConnection) => T): T {
+  public createRepository<T extends IDatabaseRepository<any>>(
+    type: new (connection: BaseKnexConnection, tableName?: string) => T, tableName?: string): T {
     if (!this.currentConnection) {
       throw new Error("The default connection has not been set");
     }
-    return new type(this.currentConnection);
+    return new type(this.currentConnection, tableName);
   }
 
   public addConnection(connection: BaseKnexConnection) {

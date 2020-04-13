@@ -1,15 +1,18 @@
 import IMapper from "./IMapper.interface";
 import { KhachHang, KhachHangDTO } from "@modules/khachhang";
-import { IDatabaseError, Result, SuccessResult } from "@core";
+import CreateType from "@create_type";
 
 
 export default class KhachHangMapper implements IMapper<KhachHang> {
 
   toDTO(khachhang: KhachHang) {
-    return khachhang.serialize();
+    return khachhang.serialize(CreateType.getGroups().toAppRespone);
   }
 
   toDTOFromPersistence(data: any) {
+    if (!data) {
+      return null;
+    }
     return {
       id: data.id,
       ten_kh: data.ho_ten,
@@ -20,7 +23,7 @@ export default class KhachHangMapper implements IMapper<KhachHang> {
   }
   
   toPersistenceFormat(khachhang: KhachHang) {
-    const dto = khachhang.serialize();
+    const dto = khachhang.serialize(CreateType.getGroups().toPersistence);
     return {
       id: dto.id,
       ho_ten: dto.ten_kh,
