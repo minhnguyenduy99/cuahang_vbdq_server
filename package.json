@@ -4,6 +4,7 @@
   "description": "",
   "main": "dist/server.js",
   "scripts": {
+    "preinstall": "npm install --dev",
     "build": "tsc --build tsconfig.json",
     "prestart": "npm run build",
     "start": "node .",
