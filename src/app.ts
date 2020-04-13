@@ -5,7 +5,6 @@ import bodyParser from "body-parser";
 import formData from "express-form-data";
 import session from "express-session";
 import "reflect-metadata";
-import morgan from "morgan";
 
 import { IDatabaseService } from "@core"
 
@@ -79,7 +78,7 @@ export default class App {
   }
 
   protected developmentMiddlewares() {
-    this.app.use(morgan("dev"));
+    // this.app.use(morgan("dev"));
   }
 
   protected initializeMiddlewares(): void {
