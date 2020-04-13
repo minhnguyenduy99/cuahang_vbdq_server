@@ -39,6 +39,9 @@ export default class App {
 
     this.initializeService();
 
+    if (process.env.NODE_ENV === "development") {
+      this.developmentMiddlewares();
+    }
     this.initializeMiddlewares();
     this.initializeControllers();
     this.initializeErrorHandles();
@@ -75,12 +78,15 @@ export default class App {
     this.dbService.setDefaultConnection("test_connection");
   }
 
+  protected developmentMiddlewares() {
+    this.app.use(morgan("dev"));
+  }
+
   protected initializeMiddlewares(): void {
     this.app.use(cors({
       origin: "*",
       allowedHeaders: "*"
     }));
-    this.app.use(morgan("dev"));
     // Body parser middlewares
     this.app.use(formData.parse({
       autoClean: true,
