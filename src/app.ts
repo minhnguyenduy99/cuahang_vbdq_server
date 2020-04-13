@@ -1,5 +1,5 @@
 // import built-in modules
-import path from "path";
+import cors from "cors";
 import express from "express";
 import bodyParser from "body-parser";
 import formData from "express-form-data";
@@ -76,6 +76,10 @@ export default class App {
   }
 
   protected initializeMiddlewares(): void {
+    this.app.use(cors({
+      origin: "*",
+      allowedHeaders: "*"
+    }));
     this.app.use(morgan("dev"));
     // Body parser middlewares
     this.app.use(formData.parse({
