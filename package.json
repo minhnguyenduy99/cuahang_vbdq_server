@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/server.js",
   "scripts": {
-    "preinstall": "npm install --dev",
+    "heroku-postbuild": "npm install --only=dev --no-shrinkwrap && npm run build",
     "build": "tsc --build tsconfig.json",
     "prestart": "npm run build",
     "start": "node .",
