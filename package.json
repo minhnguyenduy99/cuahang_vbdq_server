@@ -7,7 +7,7 @@
     "heroku-postbuild": "npm install --only=dev --no-shrinkwrap && npm run build",
     "build": "tsc --build tsconfig.json",
     "start": "node .",
-    "start:production": "node . --ignore prestart",
+    "start:production": "node . --ignore prestart && echo NODE_ENV",
     "start:watch": "nodemon --config ./nodemon.json",
     "lint": "eslint ./**"
   },
