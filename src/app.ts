@@ -5,6 +5,7 @@ import bodyParser from "body-parser";
 import formData from "express-form-data";
 import session from "express-session";
 import "reflect-metadata";
+import cors from "cors";
 import morgan from "morgan";
 
 import { IDatabaseService } from "@core"
@@ -76,6 +77,10 @@ export default class App {
   }
 
   protected initializeMiddlewares(): void {
+    this.app.use(cors({
+      origin: "*",
+      allowedHeaders: "*"
+    }));
     this.app.use(morgan("dev"));
     // Body parser middlewares
     this.app.use(formData.parse({

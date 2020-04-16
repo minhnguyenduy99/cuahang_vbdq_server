@@ -4,7 +4,7 @@ import { classToPlain, plainToClass } from "class-transformer";
 import { validate, ValidationError } from "class-validator";
 import { NhanVien } from "@modules/nhanvien";
 import { PhieuProps, PhieuDTO } from "./PhieuProps";
-import ChiTietPhieu from "./chitietphieu";
+import ChiTietPhieu from "./ChiTietPhieu";
 import PhieuCreated from "./PhieuCreated";
 import { ClassType } from "class-transformer/ClassTransformer";
 
