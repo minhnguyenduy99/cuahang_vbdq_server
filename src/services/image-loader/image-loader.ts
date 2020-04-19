@@ -1,21 +1,24 @@
 import cloudinary from "cloudinary";
-import { IApplicationService } from "@modules/services/ApplicationService";
+import { IAppSettings, ApplicationService } from "@core";
 
 const cloudinary_v2 = cloudinary.v2;
 
-interface UploadFile {
-
+interface SettingsData {
+  url?: string;
+  name?: string;
+  apiKey?: string;
+  apiSecret?: string
 }
 
-export default class ImageLoader implements IApplicationService {
-
-  async start(): Promise<boolean> {
-    await this.config();
-    return true;
+export default class ImageLoader extends ApplicationService<SettingsData> {
+  
+  constructor(appSettings: IAppSettings) {
+    super(appSettings);
+    this.config();
   }
 
-  async end(): Promise<void> {
-    throw new Error("Method not implemented.");
+  protected getAppSettings(settings: IAppSettings): SettingsData {
+    return settings.getValue("remoteImageServer") as SettingsData;
   }
 
   async upload(file: any) {
@@ -28,10 +31,11 @@ export default class ImageLoader implements IApplicationService {
   }
 
   private config() {
+    const { apiKey, apiSecret, name } = this.serviceData;
     cloudinary_v2.config({
-      cloud_name: 'dml8e1w0z', 
-      api_key: '221949179788151', 
-      api_secret: 'T2O9uzGP6JzsLwsyEp-YqwMWPHI',
+      cloud_name: name, 
+      api_key: apiKey, 
+      api_secret: apiSecret
     })
   }
 }

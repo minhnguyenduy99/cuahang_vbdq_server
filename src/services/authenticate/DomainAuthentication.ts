@@ -1,17 +1,32 @@
+import jwt from "jsonwebtoken";
 import { IAuthenticate } from ".";
-import { IDomainAuthenticateService } from "@modules/services/ApplicationService";
+import { IDomainAuthenticateService } from "@modules/services/DomainService";
 import AuthenticateResult from "./AuthenticateResult";
+import { ApplicationService, IAppSettings } from "@core";
+
 
 interface AuthenticateData {
   username: string;
   password: string;
 }
 
-export default class DomainAuthentication implements IAuthenticate<AuthenticateData> {
+interface AuthenticateConfigData {
+  secretKey: string;
+}
+
+export default class DomainAuthentication extends ApplicationService<AuthenticateConfigData> implements IAuthenticate<AuthenticateData> {
 
   constructor(
+    appSettings: IAppSettings,
     private authService: IDomainAuthenticateService
   ) {
+    super(appSettings);
+  }
+
+  protected getAppSettings(settings: IAppSettings): AuthenticateConfigData {
+    return {
+      secretKey: settings.getValue("authPrivateKey") || ""
+    }
   }
 
   async authenticate(data: AuthenticateData): Promise<AuthenticateResult> {
@@ -24,10 +39,21 @@ export default class DomainAuthentication implements IAuthenticate<AuthenticateD
       };
     }
     const taikhoan = authenticateResult.getValue();
+    const token = jwt.sign(taikhoan.id, this.serviceData.secretKey);
     return {
       valid: taikhoan ? true: false,
       message: taikhoan ? "Đăng nhập thành công" : "Tên đăng nhập hoặc mật khẩu không đúng",
-      data: taikhoan
+      data: taikhoan,
+      token: token
+    }
+  }
+
+  async verifyByToken(token: string): Promise<boolean> {
+    try {
+      jwt.verify(token, this.serviceData.secretKey);
+      return true;
+    } catch (err) {
+      return false;
     }
   }
 }

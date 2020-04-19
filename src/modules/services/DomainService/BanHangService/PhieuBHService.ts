@@ -1,12 +1,12 @@
-import { ChiTietPhieu, PhieuCreated } from "@modules/phieu";
-import { FailResult, Result, DomainEvents } from "@core";
+import { ChiTietPhieu } from "@modules/phieu";
+import { FailResult, Result, DomainService } from "@core";
 import CreateType from "@create_type";
 import { PhieuBanHang, IPhieuBHRepository } from "@modules/phieu/phieubanhang";
 import { INhanVienRepository } from "@modules/nhanvien";
 import { IKhachHangRepository } from "@modules/khachhang";
 
 import PhieuService from "../PhieuService";
-import { NhanVienService, KhachHangService, DomainService } from "@modules/services/DomainService";
+import { KhachHangService } from "@modules/services/DomainService";
 
 
 export default class PhieuBHService extends PhieuService<PhieuBanHang> {

@@ -8,16 +8,17 @@ import { GetNhanVienRequest } from "@modules/usecases";
 import { ErrorFactory } from "@services/http-error-handles";
 import authenticationChecking from "../middlewares/authentication-check";
 import { ImageLoader } from "@services/image-loader";
-import { TaiKhoanService, DomainService, NhaCungCapService } from "@modules/services/DomainService";
+import { TaiKhoanService, NhaCungCapService } from "@modules/services/DomainService";
+import { DomainService, ApplicationService } from "@core";
 
 
 export default class NhanVienController extends BaseController {
 
   private taikhoanService: TaiKhoanService;
   private nhacungcapService: NhaCungCapService;
+  private imageLoader: ImageLoader;
 
-  constructor(
-    private imageLoader: ImageLoader,  
+  constructor( 
     private nhanvienRepo: INhanVienRepository,
     private taikhoanRepo: ITaiKhoanRepository, 
     private nhaCCRepo: INhaCungCapRepository,
@@ -26,10 +27,11 @@ export default class NhanVienController extends BaseController {
     super(route);
     this.taikhoanService = DomainService.getService(TaiKhoanService, this.taikhoanRepo);
     this.nhacungcapService = DomainService.getService(NhaCungCapService, this.nhaCCRepo);
+    this.imageLoader = ApplicationService.getService(ImageLoader);
   }
   
   protected initializeRoutes(): void {
-    //this.router.use(`${this.route}`, authenticationChecking("tk_id"));
+    this.router.use(`${this.route}`, authenticationChecking());
     this.router.get(`${this.route}/:nv_id`, this.getNhanVienById());
     this.router.post(`${this.route}`, this.createNhanVien());
     this.router.post(`${this.route}/nhacungcap`, this.createNhaCungCap());

@@ -1,4 +1,6 @@
 // import built-in modules
+import fs from 'fs';
+import path from 'path';
 import cors from "cors";
 import express from "express";
 import bodyParser from "body-parser";
@@ -6,7 +8,8 @@ import formData from "express-form-data";
 import session from "express-session";
 import "reflect-metadata";
 
-import { IDatabaseService } from "@core"
+import { IDatabaseService, ApplicationService, IAppSettings, ApplicationMode, DomainService } from "@core"
+import AppSettings from "./app-settings";
 
 // import middlewares
 import HttpException from "./middlewares/http-exception";
@@ -16,29 +19,31 @@ import NhanVienController from "./controllers/NhanVienController";
 import SanPhamController from "./controllers/SanPhamController";
 import PhieuBanHangController from "./controllers/PhieuBanHangController";
 import LoginController from "./controllers/LoginController";
+import KhachHangController from "./controllers/KhachHangController";
 
 // import services
-import { DatabaseService, DbConfigObjectConnection, repo } from "@services/db-access-manager";
-import KhachHangController from "./controllers/KhachHangController";
+import { DatabaseService, repo } from "@services/db-access-manager";
 import { ImageLoader } from "@services/image-loader";
-
-
-
-const DEFAULT_RELATIVE_CONNECTION_PATH = "/config/db-connection.json";
+import { IAuthenticate, DomainAuthentication } from '@services/authenticate';
+import { DomainAuthenticateService } from '@modules/services/DomainService';
 
 export default class App {
 
+  private APP_SETTINGS_DEV_FILE = path.join(__dirname + "/config/app-settings.development.json");
+  private APP_SETTINGS_PRODUCTION_fILE = path.join(__dirname, "/config/app-settings.production.json");
+  private settings: IAppSettings;
+
   private app: express.Application;
 
-  private dbService: IDatabaseService;
-  private imageLoaderService: ImageLoader;
-
-  constructor() {
+  constructor(mode: string) {
+    if (mode === "DEVELOPMENT") {
+      this.settings = AppSettings.create(this.APP_SETTINGS_DEV_FILE);
+    } else {
+      this.settings = AppSettings.create(this.APP_SETTINGS_PRODUCTION_fILE);
+    }
     this.app = express();
-
     this.initializeService();
-
-    if (process.env.NODE_ENV === "development") {
+    if (this.isDevelopmentMode()) {
       this.developmentMiddlewares();
     }
     this.initializeMiddlewares();
@@ -46,35 +51,23 @@ export default class App {
     this.initializeErrorHandles();
   }
 
-  listen(host: string, port: number) {
-    return this.app.listen(port, host, () => {
+  async start() {
+    await this.startService();
+
+    const host = this.settings.getValue("host");
+    const port = this.settings.getValue("port");
+    this.app.listen(port, host, () => {
       console.log(`The application is listening at ${host}:${port}...`);
     })
   }
 
-
-  public async startService() {
-    await Promise.all([
-      this.dbService.start(),
-      this.imageLoaderService.start()
-    ]);
+  protected async startService() {
+    await ApplicationService.getService(DatabaseService).start();
   }
 
   protected initializeService() {
-    this.imageLoaderService = new ImageLoader();
-    this.initializeDBService();
-  }
-
-  protected initializeDBService() {
-    this.dbService = new DatabaseService();
-    this.dbService.addConnection(new DbConfigObjectConnection("test_connection", {
-      connectionName: "remote",
-      filePath: {
-        isAbsolute: false,
-        value: DEFAULT_RELATIVE_CONNECTION_PATH
-      }
-    }))
-    this.dbService.setDefaultConnection("test_connection");
+    ApplicationService.createService(ImageLoader, this.settings);
+    ApplicationService.createService(DatabaseService, this.settings);
   }
 
   protected developmentMiddlewares() {
@@ -105,19 +98,23 @@ export default class App {
   }
 
   protected initializeControllers(): void {
-    const nhanvienRepo = this.dbService.createRepository(repo.NhanVienRepository);
-    const taikhoanRepo = this.dbService.createRepository(repo.TaiKhoanRepository);
-    const nhacungcapRepo = this.dbService.createRepository(repo.NhaCungCapRepository);
-    const sanphamRepo = this.dbService.createRepository(repo.SanPhamRepository);
-    const khachhangRepo = this.dbService.createRepository(repo.KhachHangRepository);
-    const phieuBHRepo = this.dbService.createRepository(repo.PhieuBHRepository);
-    const ctphieuBHRepo = this.dbService.createRepository(repo.CTPhieuRepository, "CTPHIEUBANHANG");
+    const dbService = ApplicationService.getService(DatabaseService);
 
-    this.app.use(new NhanVienController(this.imageLoaderService, nhanvienRepo, taikhoanRepo, nhacungcapRepo, "/nhanvien").getRouter());
-    this.app.use(new SanPhamController(sanphamRepo, nhacungcapRepo, this.imageLoaderService,  "/sanpham").getRouter());
+    const nhanvienRepo = dbService.createRepository(repo.NhanVienRepository);
+    const taikhoanRepo = dbService.createRepository(repo.TaiKhoanRepository);
+    const nhacungcapRepo = dbService.createRepository(repo.NhaCungCapRepository);
+    const sanphamRepo = dbService.createRepository(repo.SanPhamRepository);
+    const khachhangRepo = dbService.createRepository(repo.KhachHangRepository);
+    const phieuBHRepo = dbService.createRepository(repo.PhieuBHRepository);
+    const ctphieuBHRepo = dbService.createRepository(repo.CTPhieuRepository, "CTPHIEUBANHANG");
+
+    ApplicationService.createService(DomainAuthentication, this.settings, DomainService.getService(DomainAuthenticateService, taikhoanRepo));
+
+    this.app.use(new NhanVienController(nhanvienRepo, taikhoanRepo, nhacungcapRepo, "/nhanvien").getRouter());
+    this.app.use(new SanPhamController(sanphamRepo, nhacungcapRepo, "/sanpham").getRouter());
     this.app.use(new KhachHangController(khachhangRepo, "/khachhang").getRouter());
     this.app.use(new PhieuBanHangController("/phieubanhang", nhanvienRepo, khachhangRepo, phieuBHRepo, ctphieuBHRepo, sanphamRepo).getRouter());
-    this.app.use(new LoginController("/login", taikhoanRepo).getRouter());
+    this.app.use(new LoginController("/login").getRouter());
     this.app.get("/logout", (req, res, next) => {
       req.session.destroy((err) => {
         if (err) 
@@ -129,5 +126,13 @@ export default class App {
 
   protected initializeErrorHandles() {
     this.app.use(HttpException);
+  }
+
+  protected isDevelopmentMode() {
+    return this.settings.getApplicationMode() === ApplicationMode.Development;
+  }
+
+  protected isProductionMode() {
+    return this.settings.getApplicationMode() === ApplicationMode.Prduction;
   }
 }

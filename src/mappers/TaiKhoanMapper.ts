@@ -10,7 +10,7 @@ export default class TaiKhoanMapper implements IMapper<TaiKhoan> {
 
   toDTOFromPersistence(data: any) {
     if (!data) {
-      return { } as TaiKhoanDTO;
+      return null;
     }
     return {
       id: data.id,

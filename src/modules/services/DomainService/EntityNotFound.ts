@@ -1,4 +1,4 @@
-import { Entity, DomainServiceError } from "@core";
+import { DomainServiceError } from "@core";
 
 export default class EntityNotFound extends DomainServiceError {
 

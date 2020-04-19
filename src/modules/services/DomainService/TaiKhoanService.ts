@@ -1,4 +1,4 @@
-import { IDomainService, Result, IDatabaseError, FailResult, BaseAppError, SuccessResult } from "@core";
+import { IDomainService, Result, IDatabaseError, FailResult, SuccessResult } from "@core";
 import { TaiKhoan, ITaiKhoanRepository } from "@modules/taikhoan";
 import CreateType from "@create_type";
 import { EntityNotFound } from ".";

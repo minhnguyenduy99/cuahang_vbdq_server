@@ -6,18 +6,10 @@ import App from "./src/app";
 (async function startServer() {
 
   dotenv.config();
+  console.log(`MODE: ${process.env.MODE}`);
 
-  const host = process.env.HOST || "localhost";
-  const port = parseInt(process.env.PORT, 10) || 3000;
-
-  const app = new App();
-
-  try {
-    await app.startService();
-  } catch (err) {
-    console.log(err);
-  }
-  app.listen(host, port);
+  const app = new App(process.env.MODE);
+  app.start();
 
 })();
 

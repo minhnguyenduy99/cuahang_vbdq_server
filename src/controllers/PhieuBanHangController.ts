@@ -5,6 +5,7 @@ import { RequestHandler } from "express";
 import { TaoPhieuBanHang, TimKiemPhieuBHDTO, TimKiemPhieuBanHang, GetPhieuBanHangById, GetPhieuBanHang, GetCTPhieuBanHangDTO, GetPhieuBanHangDTO } from "@modules/usecases";
 import { ISanPhamRepository } from "@modules/sanpham";
 import { IPhieuRepository, ICTPhieuRepository } from "@modules/phieu";
+import authenticationChecking from "../middlewares/authentication-check";
 
 export default class PhieuBanHangController extends BaseController {
   
@@ -20,6 +21,7 @@ export default class PhieuBanHangController extends BaseController {
   }
   
   protected initializeRoutes(): void {
+    this.router.use(`${this.route}`, authenticationChecking());
     this.router.post(`${this.route}`, this.createPhieu());
     this.router.get(`${this.route}/:id`, this.findPhieuById());
     this.router.get(`${this.route}`, this.findPhieuBanHang());

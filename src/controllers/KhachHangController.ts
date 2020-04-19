@@ -4,8 +4,6 @@ import { RequestHandler } from "express";
 import { TaoKhachHang, TimKiemKhachHang, TimKiemKhachHangDTO } from "@modules/usecases";
 import { ErrorFactory } from "@services/http-error-handles";
 
-
-
 export default class KhachHangController extends BaseController {
   
   private repo: IKhachHangRepository;

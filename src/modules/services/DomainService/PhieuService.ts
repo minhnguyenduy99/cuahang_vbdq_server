@@ -1,6 +1,6 @@
-import { IDomainService, FailResult, SuccessResult, UseCaseError } from "@core";
+import { IDomainService, FailResult, SuccessResult, UseCaseError, DomainService } from "@core";
 import { IPhieuRepository, ChiTietPhieu, Phieu } from "@modules/phieu";
-import { NhanVienService, DomainService } from "@modules/services/DomainService";
+import { NhanVienService } from "@modules/services/DomainService";
 import { ValidationError } from "class-validator";
 import { INhanVienRepository } from "@modules/nhanvien";
 

@@ -1,12 +1,11 @@
 import CreateType from "@create_type";
 import { ValidationError } from "class-validator";
 
-import { IDomainService, FailResult, Result, SuccessResult, DomainServiceError, IDatabaseError } from "@core";
+import { IDomainService, FailResult, Result, SuccessResult, DomainServiceError, IDatabaseError, DomainService } from "@core";
 import { ICTPhieuRepository, ChiTietPhieu } from "@modules/phieu";
 import { ISanPhamRepository } from "@modules/sanpham";
 
 import SanPhamService from "./SanPhamService";
-import DomainService from "./DomainService";
 
 
 export type CTPhieuCreateError = ValidationError | ValidationError[] | DomainServiceError | IDatabaseError;

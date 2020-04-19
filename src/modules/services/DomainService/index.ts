@@ -8,6 +8,5 @@ export { default as TaiKhoanService } from "./TaiKhoanService";
 export { default as NhaCungCapService } from "./NhaCungCapService";
 export { default as CTPhieuBHService } from "./BanHangService/CTPhieuBHService";
 export { default as PhieuBHService } from "./BanHangService/PhieuBHService";
-
-// domain service factory
-export { default as DomainService } from "./DomainService";
+export { default as IDomainAuthenticateService } from "./DomainAuthenticate/IDomainAuthenticateService";
+export { default as DomainAuthenticateService } from "./DomainAuthenticate/DomainAuthenticateService";

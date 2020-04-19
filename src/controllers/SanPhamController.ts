@@ -4,27 +4,31 @@ import BaseController from "./BaseController";
 import { TaoSanPham, TimKiemSanPham } from "@modules/usecases";
 import { ISanPhamRepository} from "@modules/sanpham";
 import { INhaCungCapRepository } from "@modules/nhacungcap";
-import { SanPhamService, DomainService } from "@modules/services/DomainService";
+import { SanPhamService } from "@modules/services/DomainService";
 
 import { ImageLoader } from "@services/image-loader";
+import { DomainService, ApplicationService } from "@core";
+import authenticationChecking from "../middlewares/authentication-check";
 
 export default class SanPhamController extends BaseController {
 
   private sanphamService: SanPhamService;
+  private imageLoader: ImageLoader;
 
   constructor(
     private sanphamRepo: ISanPhamRepository, 
     private nhaccRepo: INhaCungCapRepository, 
-    private imageLoader: ImageLoader,
+
     route: string) {
     super(route);
     this.sanphamRepo = sanphamRepo;
     this.nhaccRepo = nhaccRepo;
     this.sanphamService = DomainService.getService(SanPhamService, this.sanphamRepo);
+    this.imageLoader = ApplicationService.getService(ImageLoader);
   }
   
   protected initializeRoutes(): void {
-    this.router.post(`${this.route}`, this.createSanPham());
+    this.router.post(`${this.route}`, authenticationChecking(), this.createSanPham());
     this.router.get(`${this.route}`, this.searchSanPham());
   }
 

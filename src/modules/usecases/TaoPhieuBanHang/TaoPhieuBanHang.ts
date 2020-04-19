@@ -1,10 +1,10 @@
-import { ICommand, Result, IDatabaseError, FailResult, SuccessResult, DomainEvents } from "@core";
+import { ICommand, Result, IDatabaseError, FailResult, SuccessResult, DomainEvents, DomainService } from "@core";
 import { IKhachHangRepository } from "@modules/khachhang";
 import { INhanVienRepository } from "@modules/nhanvien";
 import CreateType from "@create_type";
 import { TaoCTPhieu, TaoCTPhieuDTO } from "./TaoCTPhieu/TaoCTPhieu";
 import { ISanPhamRepository } from "@modules/sanpham";
-import { SanPhamService, KhachHangService, NhanVienService, DomainService, PhieuBHService } from "@modules/services/DomainService";
+import { SanPhamService, KhachHangService, NhanVienService, PhieuBHService } from "@modules/services/DomainService";
 import { IPhieuRepository, ICTPhieuRepository, PhieuCreated, ChiTietPhieu } from "@modules/phieu";
 import { PhieuBanHang, PhieuBanHangDTO} from "@modules/phieu/phieubanhang";
 

@@ -1,8 +1,8 @@
 import IDomainAuthenticateService from "./IDomainAuthenticateService";
 import { TaiKhoan, ITaiKhoanRepository } from "@modules/taikhoan";
-import { FailResult, SuccessResult } from "@core";
+import { FailResult, SuccessResult, DomainService } from "@core";
 import CreateType from "@create_type";
-import { TaiKhoanService, DomainService } from "@modules/services/DomainService";
+import { TaiKhoanService } from "@modules/services/DomainService";
 import InvalidAuthentication from "./InvalidAuthentication";
 
 

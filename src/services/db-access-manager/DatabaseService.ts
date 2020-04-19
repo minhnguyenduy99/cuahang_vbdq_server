@@ -1,16 +1,25 @@
 import * as core from "@core";
 import BaseKnexConnection from "./BaseKnexConnection";
 import DBConnectionManager from "./DBConnectionManager";
-import { Entity, IDatabaseRepository } from "@core";
-import BaseKnexRepository from "./BaseKnexRepository";
+import { IDatabaseRepository, ApplicationService, IAppSettings } from "@core";
+import DbConfigObjectConnection from "./DbConfigObjectConnection";
 
-export default class DatabaseService implements core.IDatabaseService {
+interface DbConnectionData {
+  name?: string;
+  host?: string;
+  username?: string;
+  password?: string;
+  port?: number;
+}
 
-  private connectionManager: DBConnectionManager;
+export default class DatabaseService extends ApplicationService<DbConnectionData> implements core.IDatabaseService {
+
   private currentConnection: BaseKnexConnection;
 
-  constructor() {
-    this.connectionManager = new DBConnectionManager();
+  constructor(appSettings: IAppSettings) {
+    super(appSettings);
+    const { name, ...connectionData} = this.serviceData;
+    this.currentConnection = new DbConfigObjectConnection(name, connectionData);
   }
 
   public async start() {
@@ -20,7 +29,7 @@ export default class DatabaseService implements core.IDatabaseService {
   }
 
   public async end() {
-    throw new Error("DatabaseService.end() is not implemented");
+    this.currentConnection.getConnector().destroy();
   }
 
   public createRepository<T extends IDatabaseRepository<any>>(
@@ -31,19 +40,7 @@ export default class DatabaseService implements core.IDatabaseService {
     return new type(this.currentConnection, tableName);
   }
 
-  public addConnection(connection: BaseKnexConnection) {
-    this.connectionManager.addConnection(connection);
-  }
-
-  public destroyConnection(connection: BaseKnexConnection): Promise<boolean> {
-    return this.connectionManager.removeConnection(connection);
-  }
-
-  public setDefaultConnection(name: string): void {
-    const conn = this.connectionManager.getConnection(name);
-    if (!conn) {
-      throw new Error(`Cannot found the connection with name of ${name}`);
-    }
-    this.currentConnection = conn;
+  protected getAppSettings(settings: core.IAppSettings) {
+    return settings.getDbConnectionData();
   }
 }

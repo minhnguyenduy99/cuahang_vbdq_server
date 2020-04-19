@@ -1,11 +1,11 @@
-import { ICommand, Result, IDatabaseError, Entity, FailResult, SuccessResult } from "@core";
+import { ICommand, Result, IDatabaseError, Entity, FailResult, SuccessResult, DomainService } from "@core";
 import { ISanPhamRepository, SanPhamDTO, SanPham } from "@modules/sanpham";
 import SoLuongSanPhamKhongDu from "./SoLuongKhongDu";
 import CreateType from "@create_type";
 import { ValidationError } from "class-validator";
 import SanPhamKhongTonTai from "./SanPhamKhongTonTai";
 import { ChiTietPhieu, ICTPhieuRepository, ChiTietPhieuDTO } from "@modules/phieu";
-import { CTPhieuBHService, DomainService, SanPhamService } from "@modules/services/DomainService";
+import { CTPhieuBHService, SanPhamService } from "@modules/services/DomainService";
 
 export interface TaoCTPhieuDTO {
   sp_id: string;

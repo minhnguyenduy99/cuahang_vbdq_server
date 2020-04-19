@@ -3,56 +3,35 @@ import path from "path";
 import Knex from "knex";
 import BaseKnexConnection from "./BaseKnexConnection";
 
-export interface ConnectionConfig {
-  connectionName: string;
-  filePath: {
-    isAbsolute: boolean,
-    value: string
-  }
+export interface DbConfig {
+  host?: string,
+  user?: string,
+  password?: string,
+  database?: string,
+  port?: number
 }
 
 export default class DbConfigObjectConnection extends BaseKnexConnection {
 
   private connector: Knex;
-  private config: ConnectionConfig;
+  private config: DbConfig;
 
   name: string;
 
-  constructor(name: string, config: ConnectionConfig) {
+  constructor(name: string, config: DbConfig) {
     super(name);
     this.config = config;
   }
 
   async connect(): Promise<boolean> {
-    const connectionObj = await this.resolveConfigFile(this.config);
     this.connector = Knex({
       client: "mysql",
-      connection: connectionObj
+      connection: this.config
     })
     return true;
   }
 
   getConnector(): Knex<any, any[]> {
     return this.connector;
-  }
-
-  protected resolveConfigFile(config: ConnectionConfig): Promise<any> {
-    return new Promise((resolve, reject) => {
-      const { connectionName, filePath } = config;
-      let resultPath = "";
-      if (filePath.isAbsolute) {
-        resultPath = filePath.value;
-      } else {
-        resultPath = path.join(__dirname, "../../", filePath.value);
-      }
-      fs.readFile(resultPath, 'utf-8', (err, data) => {
-        if (err) {
-          return reject(err);
-        } else {
-          const connectionObj = (JSON.parse(data))[connectionName];
-          resolve(connectionObj);
-        }
-      })
-    })
   }
 }

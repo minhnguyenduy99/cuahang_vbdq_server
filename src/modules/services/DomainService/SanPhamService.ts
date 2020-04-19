@@ -1,5 +1,5 @@
 import { ISanPhamRepository, SanPham } from "@modules/sanpham";
-import { Result, FailResult, IDomainService, IDatabaseError, BaseAppError, SuccessResult, DomainEvents } from "@core";
+import { Result, FailResult, IDomainService, IDatabaseError, BaseAppError, DomainEvents } from "@core";
 import CreateType from "@create_type";
 import { PhieuCreated } from "@modules/phieu";
 import { PhieuBanHang } from "@modules/phieu/phieubanhang";
