@@ -1,19 +1,9 @@
 version: 2
 jobs:
-  build:
+  build-and-deploy:
     docker:
       - image: circleci/node:latest
     steps:
-      - type: shell
-        shell: /bin/sh
-        pwd: /
-        command: sudo apt update && sudo apt install git -y && git --version
-
-      # Update environment
-      - run: sudo apt update
-
-      # Install rsync. It will be used to upload our code to server
-      - run: sudo apt-get install rsync
 
       # Sync the SSH keys 
       - add_ssh_keys
@@ -35,4 +25,4 @@ jobs:
       - run: ssh-keyscan -H 45.32.118.249 >> ~/.ssh/known_hosts
 
       # Finally, upload your files to server.
-      - run: rsync -avce ssh --delete ./ root@45.32.118.249:~/public_server/
+      - run: ssh -o "StrictHostKeyChecking no" root@45.32.118.249 "cd ~/cuahang_vbdq_server; git pull; npm install;"
