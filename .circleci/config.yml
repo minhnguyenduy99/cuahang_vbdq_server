@@ -28,8 +28,11 @@ jobs:
       # Run your command
       - run: npm run build
 
+      # Run your command
+      - run: npm run test
+
       # Add the server to known hosts
       - run: ssh-keyscan -H 45.32.118.249 >> ~/.ssh/known_hosts
 
       # Finally, upload your files to server.
-      - run: rsync -avce ssh --delete ./dist/ root@45.32.118.249:~/public_server/
+      - run: rsync -avce ssh --delete ./ root@45.32.118.249:~/public_server/
