@@ -4,7 +4,7 @@ import BaseController from "./BaseController";
 import { TaoSanPham, TimKiemSanPham } from "@modules/usecases";
 import { SanPhamService } from "@modules/services/DomainService";
 
-import { ImageLoader } from "@services/image-loader";
+import { ImageLoader, FOLDERS } from "@services/image-loader";
 import authenticationChecking from "../middlewares/authentication-check";
 import { Dependency, DEPConsts } from "@dep";
 
@@ -33,7 +33,7 @@ export default class SanPhamController extends BaseController {
         return next(createSanPhamResult.error);
       }
       let newSanPham = createSanPhamResult.getValue();
-      const source = await this.imageLoader.upload(anh);
+      const source = await this.imageLoader.upload(anh, FOLDERS.SanPham);
       this.sanphamService.updateAnhSanPham(newSanPham.idsp, source);
       newSanPham.anh_dai_dien = source;
       res.status(201).json(createSanPhamResult.getValue());

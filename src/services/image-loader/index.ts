@@ -1,1 +1,1 @@
-export { default as ImageLoader } from "./image-loader";
+export { ImageLoader, FOLDERS } from "./image-loader";

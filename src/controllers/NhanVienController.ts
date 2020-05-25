@@ -3,7 +3,7 @@ import BaseController from "./BaseController";
 import { GetNhanVien, TaoTaiKhoan, TaoNhaCungCap } from "@modules/nhanvien";
 import { TimKiemNhaCungCap, GetNhanVienRequest } from "@modules/usecases";
 import { ErrorFactory } from "@services/http-error-handles";
-import { ImageLoader } from "@services/image-loader";
+import { ImageLoader, FOLDERS } from "@services/image-loader";
 import authenticationChecking from "../middlewares/authentication-check";
 import { INhaCungCapService, ITaiKhoanService } from "@modules/services/Shared";
 import { Dependency, DEPConsts } from "@dep";
@@ -56,7 +56,7 @@ export default class NhanVienController extends BaseController {
         return next(result.error);
       }
       let newTaiKhoan = result.getValue();
-      const uploadUrl = await this.imageLoader.upload(anh);
+      const uploadUrl = await this.imageLoader.upload(anh, FOLDERS.NhanVien);
       await this.taikhoanService.updateAnhDaiDien(newTaiKhoan.tk_id, uploadUrl);
       newTaiKhoan.anh_dai_dien = uploadUrl;
       res.status(201).json(result.getValue());
@@ -72,7 +72,7 @@ export default class NhanVienController extends BaseController {
         return next(usecaseResult.error);
       }
       let newNhaCungCap = usecaseResult.getValue();
-      const uploadUrl = await this.imageLoader.upload(anh);
+      const uploadUrl = await this.imageLoader.upload(anh, FOLDERS.NhaCungCap);
       await this.nhacungcapService.updateAnhDaiDien(newNhaCungCap.id, uploadUrl);
       newNhaCungCap.anh_dai_dien = uploadUrl;
       res.status(201).json(usecaseResult.getValue());
