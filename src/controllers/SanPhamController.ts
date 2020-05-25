@@ -2,29 +2,21 @@ import { RequestHandler } from "express";
 import BaseController from "./BaseController";
 
 import { TaoSanPham, TimKiemSanPham } from "@modules/usecases";
-import { ISanPhamRepository} from "@modules/sanpham";
-import { INhaCungCapRepository } from "@modules/nhacungcap";
 import { SanPhamService } from "@modules/services/DomainService";
 
 import { ImageLoader } from "@services/image-loader";
-import { DomainService, ApplicationService } from "@core";
 import authenticationChecking from "../middlewares/authentication-check";
+import { Dependency, DEPConsts } from "@dep";
 
 export default class SanPhamController extends BaseController {
 
   private sanphamService: SanPhamService;
   private imageLoader: ImageLoader;
 
-  constructor(
-    private sanphamRepo: ISanPhamRepository, 
-    private nhaccRepo: INhaCungCapRepository, 
-
-    route: string) {
+  constructor(route: string) {
     super(route);
-    this.sanphamRepo = sanphamRepo;
-    this.nhaccRepo = nhaccRepo;
-    this.sanphamService = DomainService.getService(SanPhamService, this.sanphamRepo);
-    this.imageLoader = ApplicationService.getService(ImageLoader);
+    this.sanphamService = Dependency.Instance.getDomainService(DEPConsts.SanPhamService);
+    this.imageLoader = Dependency.Instance.getApplicationSerivce(DEPConsts.ImageLoader);
   }
   
   protected initializeRoutes(): void {
@@ -36,7 +28,7 @@ export default class SanPhamController extends BaseController {
     return async (req, res, next) => {
       const anh = req.body.anh_dai_dien;
       req.body.anh_dai_dien = null;
-      const createSanPhamResult = await this.executeCommand(req.body, new TaoSanPham(this.sanphamRepo, this.nhaccRepo));
+      const createSanPhamResult = await this.executeCommand(req.body, new TaoSanPham());
       if (createSanPhamResult.isFailure) {
         return next(createSanPhamResult.error);
       }
@@ -58,7 +50,7 @@ export default class SanPhamController extends BaseController {
         from: parseInt(from),
         so_luong: parseInt(so_luong)
       }
-      const searchSanPhamResult = await this.executeQuery(parseRequest, new TimKiemSanPham(this.sanphamRepo, this.nhaccRepo));
+      const searchSanPhamResult = await this.executeQuery(parseRequest, new TimKiemSanPham());
       if (searchSanPhamResult.isFailure) {
         return next(searchSanPhamResult.error);
       }

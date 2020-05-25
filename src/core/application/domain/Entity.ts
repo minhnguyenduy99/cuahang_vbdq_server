@@ -1,12 +1,11 @@
 import ISerializable from "./ISerializable";
-import { ValueObjectProps } from "./ValueObject";
 import { UniqueEntityID } from ".";
 
 const isEntity = (obj: any): obj is Entity<any> => {
   return obj instanceof Entity;
 }
 
-export default abstract class Entity<T extends ValueObjectProps> implements ISerializable {
+export default abstract class Entity<T> implements ISerializable {
   protected props: T;
   protected _entityId: UniqueEntityID;
   protected _isStateChanged = true;

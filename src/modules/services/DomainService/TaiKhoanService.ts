@@ -1,14 +1,16 @@
-import { IDomainService, Result, IDatabaseError, FailResult, SuccessResult } from "@core";
+import { Result, IRepositoryError, FailResult, SuccessResult } from "@core";
 import { TaiKhoan, ITaiKhoanRepository } from "@modules/taikhoan";
 import CreateType from "@create_type";
 import { EntityNotFound } from ".";
+import { Dependency, DEPConsts } from "@dep";
+import ITaiKhoanService from "../Shared/ITaiKhoanService";
 
-
-export default class TaiKhoanService implements IDomainService {
+export default class TaiKhoanService implements ITaiKhoanService {
   
-  constructor(
-    private repo: ITaiKhoanRepository
-  ) {
+  private repo: ITaiKhoanRepository;
+
+  constructor() {
+    this.repo = Dependency.Instance.getRepository(DEPConsts.TaiKhoanRepository);  
   }
 
   async findTaiKhoanById(taikhoanId: string) {
@@ -48,7 +50,7 @@ export default class TaiKhoanService implements IDomainService {
     return SuccessResult.ok(null);
   }
   
-  persist(taikhoan: TaiKhoan): Promise<Result<any, IDatabaseError>> {
+  persist(taikhoan: TaiKhoan): Promise<Result<any, IRepositoryError>> {
     return this.repo.updateTaiKhoan(taikhoan);
   }
 }

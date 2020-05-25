@@ -1,9 +1,9 @@
 import jwt from "jsonwebtoken";
 import { IAuthenticate } from ".";
-import { IDomainAuthenticateService } from "@modules/services/DomainService";
+import { IAccountAuthenticateService } from "@modules/services/Shared";
 import AuthenticateResult from "./AuthenticateResult";
 import { ApplicationService, IAppSettings } from "@core";
-
+import { Dependency, DEPConsts } from "@dep";
 
 interface AuthenticateData {
   username: string;
@@ -16,11 +16,11 @@ interface AuthenticateConfigData {
 
 export default class DomainAuthentication extends ApplicationService<AuthenticateConfigData> implements IAuthenticate<AuthenticateData> {
 
-  constructor(
-    appSettings: IAppSettings,
-    private authService: IDomainAuthenticateService
-  ) {
+  private authService: IAccountAuthenticateService;
+
+  constructor(appSettings: IAppSettings) {
     super(appSettings);
+    this.authService = Dependency.Instance.getDomainService(DEPConsts.AccountAuthenticateService);
   }
 
   protected getAppSettings(settings: IAppSettings): AuthenticateConfigData {
@@ -48,7 +48,7 @@ export default class DomainAuthentication extends ApplicationService<Authenticat
     }
   }
 
-  async verifyByToken(token: string): Promise<boolean> {
+  async verifiedByToken(token: string): Promise<boolean> {
     try {
       jwt.verify(token, this.serviceData.secretKey);
       return true;

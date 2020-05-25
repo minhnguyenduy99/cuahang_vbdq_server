@@ -1,8 +1,9 @@
 import knex from "knex";
-import { IDbConnection, Entity, Result, IDatabaseError, FailResult, SuccessResult } from "@core";
+import { IDbConnection, Entity, Result, IDatabaseError, FailResult, SuccessResult, IDatabaseRepoError } from "@core";
 import { IPersistableRepository } from "@core";
 import { IMapper } from "@mappers";
 import { KnexDatabaseError } from "./DatabaseError";
+import KnexDBRepoError from "./KnexDBRepoError";
 
 
 
@@ -14,7 +15,7 @@ export default abstract class BaseKnexRepository<T extends Entity<any>> implemen
     protected tableName: string) {
   }
 
-  async persist(model: T): Promise<Result<void, IDatabaseError>> {
+  async persist(model: T): Promise<Result<void, IDatabaseRepoError>> {
     try {
       const persistence = this.mapper.toPersistenceFormat(model);
       await this.connection.getConnector()
@@ -26,7 +27,7 @@ export default abstract class BaseKnexRepository<T extends Entity<any>> implemen
     }
   }
 
-  async findById(idObject: any = []): Promise<Result<any, IDatabaseError>> {
+  async findById(idObject: any = []): Promise<Result<any, IDatabaseRepoError>> {
     try {
       const result = await this.connection.getConnector()
         .select("*").from(this.tableName)
@@ -38,7 +39,7 @@ export default abstract class BaseKnexRepository<T extends Entity<any>> implemen
     }
   }
 
-  async create(entity: T): Promise<Result<void, IDatabaseError>> {
+  async create(entity: T): Promise<Result<void, IDatabaseRepoError>> {
     try {
       const persistence = this.mapper.toPersistenceFormat(entity);
       await this.connection.getConnector().insert(persistence).into(this.tableName);
@@ -49,7 +50,7 @@ export default abstract class BaseKnexRepository<T extends Entity<any>> implemen
   }
 
   protected knexDatabaseFailed(err: any) {
-    return FailResult.fail(new KnexDatabaseError(this.tableName, err));
+    return FailResult.fail(new KnexDBRepoError(this.tableName, new KnexDatabaseError(err)));
   }
 
   protected abstract getPersistenceCondition(persistence: any): object;

@@ -1,19 +1,16 @@
-import IDomainAuthenticateService from "./IDomainAuthenticateService";
-import { TaiKhoan, ITaiKhoanRepository } from "@modules/taikhoan";
-import { FailResult, SuccessResult, DomainService } from "@core";
+import { TaiKhoan } from "@modules/taikhoan";
+import { FailResult, SuccessResult } from "@core";
 import CreateType from "@create_type";
-import { TaiKhoanService } from "@modules/services/DomainService";
-import InvalidAuthentication from "./InvalidAuthentication";
+import { IAccountAuthenticateService, InvalidAuthentication, ITaiKhoanService } from "@modules/services/Shared";
+import { Dependency, DEPConsts } from "@dep";
 
 
-export default class DomainAuthenticateService implements IDomainAuthenticateService {
+export default class AccountAuthenticateService implements IAccountAuthenticateService {
   
-  private taikhoanService: TaiKhoanService;
+  private taikhoanService: ITaiKhoanService;
 
-  constructor(
-    taikhoanRepo: ITaiKhoanRepository
-  ) {
-    this.taikhoanService = DomainService.getService(TaiKhoanService, taikhoanRepo);
+  constructor() {
+    this.taikhoanService = Dependency.Instance.getDomainService(DEPConsts.TaiKhoanService);
   }
 
   async authenticate(tenDangNhap: string, matKhau: string) {
@@ -24,14 +21,14 @@ export default class DomainAuthenticateService implements IDomainAuthenticateSer
     const taikhoan = getTaiKhoan.getValue();
     const isMatKhauValid = await this.validateMatKhau(taikhoan, matKhau);
     if (!isMatKhauValid) {
-      return SuccessResult.ok(null);
+      return FailResult.fail(new InvalidAuthentication());
     }
     return SuccessResult.ok(taikhoan.serialize(CreateType.getGroups().toAppRespone));
   }
 
   private async validateMatKhau(taikhoan: TaiKhoan, matkhau: string) {
     if (!taikhoan) {
-      return;
+      return false;
     } 
     return taikhoan.isMatKhauValid(matkhau);
   }

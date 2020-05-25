@@ -3,6 +3,7 @@ import { plainToClass } from "class-transformer";
 import TKKHValidate from "./TKKH-validate";
 import { validate } from "class-validator";
 import { IKhachHangRepository, KhachHangDTO } from "@modules/khachhang";
+import { Dependency, DEPConsts } from "@dep";
 
 export interface TimKiemKhachHangDTO {
   kh_id?: string;
@@ -14,8 +15,8 @@ export class TimKiemKhachHang implements IQuery<TimKiemKhachHangDTO> {
   
   private repo: IKhachHangRepository;
 
-  constructor(repo: IKhachHangRepository) {
-    this.repo = repo;
+  constructor() {
+    this.repo = Dependency.Instance.getRepository(DEPConsts.KhachHangRepository);
   }
 
   async validate(request: TimKiemKhachHangDTO): Promise<Result<TKKHValidate, any[]>> {

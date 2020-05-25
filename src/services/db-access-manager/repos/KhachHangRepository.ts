@@ -1,7 +1,7 @@
 import knex from "knex";
 import { MapperFactory, KhachHangMapper } from "@mappers";
 import { IKhachHangRepository, KhachHang, KhachHangDTO } from "@modules/khachhang";
-import { Result, IDatabaseError, IDbConnection, SuccessResult } from "@core";
+import { Result, IDatabaseError, IDbConnection, SuccessResult, IRepositoryError, IDatabaseRepoError } from "@core";
 
 import BaseKnexRepository from "../BaseKnexRepository";
 
@@ -11,11 +11,11 @@ export default class KhachHangRepository extends BaseKnexRepository<KhachHang> i
     super(connection, MapperFactory.createMapper(KhachHangMapper), "KHACHHANG");
   }
 
-  update(khachhang: KhachHang): Promise<Result<void, IDatabaseError>> {
+  update(khachhang: KhachHang): Promise<Result<void, IDatabaseRepoError>> {
     return this.persist(khachhang);
   }
 
-  async searchKhachHang(tenKH: string = "", cmnd: string = ""): Promise<Result<KhachHangDTO[], IDatabaseError>> {
+  async searchKhachHang(tenKH: string = "", cmnd: string = ""): Promise<Result<KhachHangDTO[], IDatabaseRepoError>> {
     try {
       const searchResult = await this.connection.getConnector()
         .select("*").from(this.tableName)
@@ -28,11 +28,11 @@ export default class KhachHangRepository extends BaseKnexRepository<KhachHang> i
     }
   }
 
-  async createKhachHang(khachhang: KhachHang): Promise<Result<void, IDatabaseError>> {
+  async createKhachHang(khachhang: KhachHang): Promise<Result<void, IDatabaseRepoError>> {
     return this.create(khachhang);
   }
 
-  async findKhachHangById(khachhangId: string): Promise<Result<KhachHangDTO, IDatabaseError>> {
+  async findKhachHangById(khachhangId: string): Promise<Result<KhachHangDTO, IDatabaseRepoError>> {
     return this.findById( [khachhangId] );
   }
 

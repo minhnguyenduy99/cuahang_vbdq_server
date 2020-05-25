@@ -1,15 +1,15 @@
-import { IDatabaseRepository, IDatabaseError, Result, LimitResult } from "@core";
+import { IRepositoryError, Result } from "@core";
 import { NhaCungCap, NhaCungCapDTO } from "./NhaCungCap";
 
 export default interface INhaCungCapRepository {
 
-  createNhaCungCap(nhacungcap: NhaCungCap): Promise<Result<void, IDatabaseError>>;
+  createNhaCungCap(nhacungcap: NhaCungCap): Promise<Result<void, IRepositoryError>>;
 
-  nhaCungCapExists(tenNhaCungCap: string): Promise<Result<boolean, IDatabaseError>>;
+  nhaCungCapExists(tenNhaCungCap: string): Promise<Result<boolean, IRepositoryError>>;
 
-  getNhaCungCapById(id: string): Promise<Result<NhaCungCapDTO, IDatabaseError>>;
+  getNhaCungCapById(id: string): Promise<Result<NhaCungCapDTO, IRepositoryError>>;
 
-  searchNhaCungCap(ten: string): Promise<Result<NhaCungCapDTO[], IDatabaseError>>;
+  searchNhaCungCap(ten: string): Promise<Result<NhaCungCapDTO[], IRepositoryError>>;
 
-  update(nhacungcap: NhaCungCap): Promise<Result<void, IDatabaseError>>;
+  update(nhacungcap: NhaCungCap): Promise<Result<void, IRepositoryError>>;
 }

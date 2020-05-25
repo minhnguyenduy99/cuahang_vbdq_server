@@ -1,26 +1,25 @@
 import { ChiTietPhieu } from "@modules/phieu";
-import { FailResult, Result, DomainService } from "@core";
+import { FailResult, Result } from "@core";
 import CreateType from "@create_type";
-import { PhieuBanHang, IPhieuBHRepository } from "@modules/phieu/phieubanhang";
-import { INhanVienRepository } from "@modules/nhanvien";
-import { IKhachHangRepository } from "@modules/khachhang";
+import { PhieuBanHang } from "@modules/phieu/phieubanhang";
 
 import PhieuService from "../PhieuService";
 import { KhachHangService } from "@modules/services/DomainService";
+import { Dependency, DEPConsts } from "@dep";
+import { IPhieuBHService } from "@modules/services/Shared";
 
 
-export default class PhieuBHService extends PhieuService<PhieuBanHang> {
+export default class PhieuBHService extends PhieuService<PhieuBanHang> implements IPhieuBHService {
   
   protected khachhangService: KhachHangService;
 
-  constructor(
-    protected phieuRepo: IPhieuBHRepository,
-    nhanvienRepo: INhanVienRepository,
-    khachhangRepo: IKhachHangRepository
-  ) {
+  constructor() {
+    super();
+    this.khachhangService = Dependency.Instance.getDomainService(DEPConsts.KhachHangService);
+  }
 
-    super(phieuRepo, nhanvienRepo);
-    this.khachhangService = DomainService.getService(KhachHangService, khachhangRepo);
+  setPhieuRepository(): void {
+    this.phieuRepo = Dependency.Instance.getRepository(DEPConsts.PhieuBHRepository);
   }
   
   async createPhieu(phieuData: any, listCTphieu: ChiTietPhieu[]) {
@@ -35,5 +34,4 @@ export default class PhieuBHService extends PhieuService<PhieuBanHang> {
     return PhieuBanHang.create(phieuData, listCTphieu, 
       getKhachHang.getValue(), getNhanVien.getValue(), CreateType.getGroups().createNew);
   }
-
 }

@@ -1,5 +1,4 @@
 // import built-in modules
-import fs from 'fs';
 import path from 'path';
 import cors from "cors";
 import express from "express";
@@ -8,7 +7,7 @@ import formData from "express-form-data";
 import session from "express-session";
 import "reflect-metadata";
 
-import { IDatabaseService, ApplicationService, IAppSettings, ApplicationMode, DomainService } from "@core"
+import { IAppSettings, ApplicationMode } from "@core"
 import AppSettings from "./app-settings";
 
 // import middlewares
@@ -21,11 +20,7 @@ import PhieuBanHangController from "./controllers/PhieuBanHangController";
 import LoginController from "./controllers/LoginController";
 import KhachHangController from "./controllers/KhachHangController";
 
-// import services
-import { DatabaseService, repo } from "@services/db-access-manager";
-import { ImageLoader } from "@services/image-loader";
-import { IAuthenticate, DomainAuthentication } from '@services/authenticate';
-import { DomainAuthenticateService } from '@modules/services/DomainService';
+import { Dependency, DEPConsts } from '@dep';
 
 export default class App {
 
@@ -34,6 +29,7 @@ export default class App {
   private settings: IAppSettings;
 
   private app: express.Application;
+  private dep: Dependency;
 
   constructor(mode: string) {
     if (mode === "DEVELOPMENT") {
@@ -41,8 +37,14 @@ export default class App {
     } else {
       this.settings = AppSettings.create(this.APP_SETTINGS_PRODUCTION_fILE);
     }
+
+    this.dep = Dependency.create(this.settings);
     this.app = express();
-    this.initializeService();
+
+    this.initializeDatabaseService();
+    this.initializeRepositories();
+    this.initializeApplicationService();
+
     if (this.isDevelopmentMode()) {
       this.developmentMiddlewares();
     }
@@ -52,7 +54,7 @@ export default class App {
   }
 
   async start() {
-    await this.startService();
+    await this.startApplicationService();
 
     const host = this.settings.getValue("host");
     const port = this.settings.getValue("port");
@@ -61,13 +63,21 @@ export default class App {
     })
   }
 
-  protected async startService() {
-    await ApplicationService.getService(DatabaseService).start();
+  protected setupDependency() {
+
   }
 
-  protected initializeService() {
-    ApplicationService.createService(ImageLoader, this.settings);
-    ApplicationService.createService(DatabaseService, this.settings);
+  protected async startApplicationService() {
+    await this.dep.getApplicationSerivce(DEPConsts.DatabaseService).start();
+  }
+
+  protected initializeApplicationService() {
+    this.dep.registerApplicationService(DEPConsts.DomainAuthentication);
+    this.dep.registerApplicationService(DEPConsts.ImageLoader);
+  }
+
+  protected initializeDatabaseService() {
+    this.dep.setDatabaseService(DEPConsts.DatabaseService);
   }
 
   protected developmentMiddlewares() {
@@ -97,23 +107,21 @@ export default class App {
     }))
   }
 
+  protected initializeRepositories() {
+    this.dep.registerRepository(DEPConsts.TaiKhoanRepository);
+    this.dep.registerRepository(DEPConsts.NhaCungCapRepository);
+    this.dep.registerRepository(DEPConsts.KhachHangRepository);
+    this.dep.registerRepository(DEPConsts.NhanVienRepository);
+    this.dep.registerRepository(DEPConsts.SanPhamRepository);
+    this.dep.registerRepository(DEPConsts.PhieuBHRepository);
+    this.dep.registerRepository(DEPConsts.CTPhieuRepository, "CTPHIEUBANHANG");
+  }
+
   protected initializeControllers(): void {
-    const dbService = ApplicationService.getService(DatabaseService);
-
-    const nhanvienRepo = dbService.createRepository(repo.NhanVienRepository);
-    const taikhoanRepo = dbService.createRepository(repo.TaiKhoanRepository);
-    const nhacungcapRepo = dbService.createRepository(repo.NhaCungCapRepository);
-    const sanphamRepo = dbService.createRepository(repo.SanPhamRepository);
-    const khachhangRepo = dbService.createRepository(repo.KhachHangRepository);
-    const phieuBHRepo = dbService.createRepository(repo.PhieuBHRepository);
-    const ctphieuBHRepo = dbService.createRepository(repo.CTPhieuRepository, "CTPHIEUBANHANG");
-
-    ApplicationService.createService(DomainAuthentication, this.settings, DomainService.getService(DomainAuthenticateService, taikhoanRepo));
-
-    this.app.use(new NhanVienController(nhanvienRepo, taikhoanRepo, nhacungcapRepo, "/nhanvien").getRouter());
-    this.app.use(new SanPhamController(sanphamRepo, nhacungcapRepo, "/sanpham").getRouter());
-    this.app.use(new KhachHangController(khachhangRepo, "/khachhang").getRouter());
-    this.app.use(new PhieuBanHangController("/phieubanhang", nhanvienRepo, khachhangRepo, phieuBHRepo, ctphieuBHRepo, sanphamRepo).getRouter());
+    this.app.use(new NhanVienController("/nhanvien").getRouter());
+    this.app.use(new SanPhamController("/sanpham").getRouter());
+    this.app.use(new KhachHangController("/khachhang").getRouter());
+    this.app.use(new PhieuBanHangController("/phieubanhang").getRouter());
     this.app.use(new LoginController("/login").getRouter());
     this.app.get("/logout", (req, res, next) => {
       req.session.destroy((err) => {

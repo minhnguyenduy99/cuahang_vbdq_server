@@ -1,4 +1,4 @@
-import { ICommand, Result, IDatabaseError, Entity, FailResult, SuccessResult, DomainService } from "@core";
+import { ICommand, Result, IRepositoryError, Entity, FailResult, SuccessResult, DomainService } from "@core";
 import { ISanPhamRepository, SanPhamDTO, SanPham } from "@modules/sanpham";
 import SoLuongSanPhamKhongDu from "./SoLuongKhongDu";
 import CreateType from "@create_type";
@@ -6,25 +6,23 @@ import { ValidationError } from "class-validator";
 import SanPhamKhongTonTai from "./SanPhamKhongTonTai";
 import { ChiTietPhieu, ICTPhieuRepository, ChiTietPhieuDTO } from "@modules/phieu";
 import { CTPhieuBHService, SanPhamService } from "@modules/services/DomainService";
+import { Dependency, DEPConsts } from "@dep";
 
 export interface TaoCTPhieuDTO {
   sp_id: string;
   so_luong: number;
 }
 
-type CTPhieuValidateError = IDatabaseError | ValidationError[] | ValidationError;
-
 export class TaoCTPhieu implements ICommand<TaoCTPhieuDTO[]> {
   
   private commited: boolean;
   private data: ChiTietPhieu[];
   private ctphieuService: CTPhieuBHService;
+  private ctPhieuRepo: ICTPhieuRepository<ChiTietPhieu>;
 
-  constructor(
-    private ctPhieuRepo: ICTPhieuRepository<ChiTietPhieu>, 
-    sanphamRepo: ISanPhamRepository) {
-
-    this.ctphieuService = DomainService.getService(CTPhieuBHService, ctPhieuRepo, sanphamRepo);
+  constructor() {
+    this.ctPhieuRepo = Dependency.Instance.getRepository(DEPConsts.CTPhieuRepository);
+    this.ctphieuService = Dependency.Instance.getDomainService(DEPConsts.CTPhieuBHService);
     this.commited = false;
   }
 
@@ -42,7 +40,7 @@ export class TaoCTPhieu implements ICommand<TaoCTPhieuDTO[]> {
     return SuccessResult.ok(null);
   }
 
-  async commit(): Promise<Result<TaoCTPhieuDTO[], IDatabaseError>> {
+  async commit(): Promise<Result<TaoCTPhieuDTO[], IRepositoryError>> {
     const commitResult = await this.ctPhieuRepo.createListCTPhieu(this.data);
     if (commitResult.isFailure) {
       return FailResult.fail(commitResult.error);

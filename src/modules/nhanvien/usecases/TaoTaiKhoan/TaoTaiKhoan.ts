@@ -1,10 +1,10 @@
-import uniqid from "uniqid";
-import { NhanVien, NhanVienDTO } from "../../NhanVien";
-import { ITaiKhoanRepository, CreateTaiKhoan } from "@modules/taikhoan";
-import { IUseCase, FailResult, SuccessResult, ICommand, DomainEvents } from "@core";
+import { NhanVien } from "../../NhanVien";
+import { CreateTaiKhoan } from "@modules/taikhoan";
+import { FailResult, SuccessResult, ICommand, DomainEvents } from "@core";
 import { INhanVienRepository } from "../..";
 import CreateType from "../../../entity-create-type";
 import NhanVienExists from "./NhanVienExists";
+import { Dependency, DEPConsts } from "@dep";
 
 export interface TaoTaiKhoanDTO {
 
@@ -26,17 +26,15 @@ export interface TaoTaiKhoanDTO {
 
 export class TaoTaiKhoan implements ICommand<TaoTaiKhoanDTO> {
   
-  private taoTaiKhoanUseCase: CreateTaiKhoan;
+  private taoTaiKhoanUseCase: CreateTaiKhoan; 
+  private nhanvienRepo: INhanVienRepository
   private data: NhanVien;
   private commited: boolean;
 
-  constructor(
-    private taikhoanRepo: ITaiKhoanRepository, 
-    private nhanvienRepo: INhanVienRepository) {
-    this.taikhoanRepo = taikhoanRepo;
-    this.nhanvienRepo = nhanvienRepo;
+  constructor() {
+    this.nhanvienRepo = Dependency.Instance.getRepository(DEPConsts.NhanVienRepository);
     this.commited = false;
-    this.taoTaiKhoanUseCase = new CreateTaiKhoan(this.taikhoanRepo);
+    this.taoTaiKhoanUseCase = new CreateTaiKhoan();
   }
 
   getData(): NhanVien {

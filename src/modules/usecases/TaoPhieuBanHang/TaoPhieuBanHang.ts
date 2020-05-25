@@ -1,12 +1,10 @@
-import { ICommand, Result, IDatabaseError, FailResult, SuccessResult, DomainEvents, DomainService } from "@core";
-import { IKhachHangRepository } from "@modules/khachhang";
-import { INhanVienRepository } from "@modules/nhanvien";
+import { ICommand, Result, IRepositoryError, FailResult, SuccessResult, DomainEvents } from "@core";
 import CreateType from "@create_type";
 import { TaoCTPhieu, TaoCTPhieuDTO } from "./TaoCTPhieu/TaoCTPhieu";
-import { ISanPhamRepository } from "@modules/sanpham";
-import { SanPhamService, KhachHangService, NhanVienService, PhieuBHService } from "@modules/services/DomainService";
-import { IPhieuRepository, ICTPhieuRepository, PhieuCreated, ChiTietPhieu } from "@modules/phieu";
+import { IPhieuRepository } from "@modules/phieu";
 import { PhieuBanHang, PhieuBanHangDTO} from "@modules/phieu/phieubanhang";
+import { Dependency, DEPConsts } from "@dep";
+import { IPhieuBHService } from "@modules/services/Shared";
 
 export interface TaoPhieuMHDTO {
   kh_id: string;
@@ -20,21 +18,12 @@ export class TaoPhieuBanHang implements ICommand<TaoPhieuMHDTO> {
   private data: PhieuBanHang;
   private commited: boolean;
   private taoCTPhieuUseCase: TaoCTPhieu;
-  private phieuService: PhieuBHService;
+  private phieuService: IPhieuBHService;
+  private phieuRepo: IPhieuRepository<PhieuBanHang>;
 
-  constructor(
-    private phieuRepo: IPhieuRepository<PhieuBanHang>, 
-    khachhangRepo: IKhachHangRepository, 
-    nhanvienRepo: INhanVienRepository,
-    ctphieuRepo: ICTPhieuRepository<ChiTietPhieu>,
-    sanphamRepo: ISanPhamRepository) {
-
-    this.phieuService = DomainService.getService(
-      PhieuBHService, this.phieuRepo, 
-      DomainService.getService(NhanVienService, nhanvienRepo),
-      DomainService.getService(KhachHangService, khachhangRepo));
-    
-    this.taoCTPhieuUseCase = new TaoCTPhieu(ctphieuRepo, sanphamRepo);
+  constructor() {
+    this.phieuService = Dependency.Instance.getDomainService(DEPConsts.PhieuBHService);
+    this.taoCTPhieuUseCase = new TaoCTPhieu();
     this.commited = false;
   }
 
@@ -55,7 +44,7 @@ export class TaoPhieuBanHang implements ICommand<TaoPhieuMHDTO> {
     return SuccessResult.ok(null);
   }
 
-  async commit(): Promise<Result<PhieuBanHangDTO, IDatabaseError>> {
+  async commit(): Promise<Result<PhieuBanHangDTO, IRepositoryError>> {
     const commitPhieu = await this.phieuRepo.createPhieu(this.data);
     if (commitPhieu.isFailure) {
       return FailResult.fail(commitPhieu.error);

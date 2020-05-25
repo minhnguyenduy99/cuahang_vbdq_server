@@ -1,16 +1,12 @@
 import BaseController from "./BaseController";
-import { IKhachHangRepository } from "@modules/khachhang";
 import { RequestHandler } from "express";
 import { TaoKhachHang, TimKiemKhachHang, TimKiemKhachHangDTO } from "@modules/usecases";
 import { ErrorFactory } from "@services/http-error-handles";
 
 export default class KhachHangController extends BaseController {
-  
-  private repo: IKhachHangRepository;
 
-  constructor(repo: IKhachHangRepository, route: string) {
+  constructor(route: string) {
     super(route);
-    this.repo = repo;
   }
   
   protected initializeRoutes(): void {
@@ -21,7 +17,7 @@ export default class KhachHangController extends BaseController {
 
   private taoKhachHang(): RequestHandler {
     return async (req, res, next) => {
-      const taoKhachHangResult = await this.executeCommand(req.body, new TaoKhachHang(this.repo));
+      const taoKhachHangResult = await this.executeCommand(req.body, new TaoKhachHang());
       if (taoKhachHangResult.isFailure) {
         return next(taoKhachHangResult.error);
       }
@@ -35,7 +31,7 @@ export default class KhachHangController extends BaseController {
         ten_kh: req.query.ten_kh,
         cmnd: req.query.cmnd
       } as TimKiemKhachHangDTO;
-      const timKiemKhachHang = await this.executeQuery(request, new TimKiemKhachHang(this.repo));
+      const timKiemKhachHang = await this.executeQuery(request, new TimKiemKhachHang());
       if (timKiemKhachHang.isFailure) {
         return next(timKiemKhachHang.error);
       }
@@ -46,7 +42,7 @@ export default class KhachHangController extends BaseController {
   private findKhachHangById(): RequestHandler {
     return async (req, res, next) => {
       const idKH = req.params.kh_id;
-      const timKiemKhachHang = await this.executeQuery({ kh_id: idKH }, new TimKiemKhachHang(this.repo));
+      const timKiemKhachHang = await this.executeQuery({ kh_id: idKH }, new TimKiemKhachHang());
       if (timKiemKhachHang.isFailure) {
         return next(timKiemKhachHang.error);
       }

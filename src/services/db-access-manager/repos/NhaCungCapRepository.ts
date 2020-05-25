@@ -1,6 +1,6 @@
 import knex from "knex";
 import { MapperFactory, NhaCungCapMapper } from "@mappers";
-import { IDbConnection, SuccessResult, Result, IDatabaseError } from "@core";
+import { IDbConnection, SuccessResult, Result, IDatabaseRepoError } from "@core";
 import { INhaCungCapRepository, NhaCungCap, NhaCungCapDTO } from "@modules/nhacungcap";
 
 import BaseKnexRepository from "../BaseKnexRepository";
@@ -12,11 +12,11 @@ export default class NhaCungCapRepository extends BaseKnexRepository<NhaCungCap>
     super(connection, MapperFactory.createMapper(NhaCungCapMapper), "NHACUNGCAP");
   }
 
-  update(nhacungcap: NhaCungCap): Promise<Result<void, IDatabaseError>> {
+  update(nhacungcap: NhaCungCap): Promise<Result<void, IDatabaseRepoError>> {
     return this.persist(nhacungcap);
   }
 
-  async searchNhaCungCap(ten: string): Promise<Result<NhaCungCapDTO[], IDatabaseError>> {
+  async searchNhaCungCap(ten: string): Promise<Result<NhaCungCapDTO[], IDatabaseRepoError>> {
     try {
       const searchResult = await this.connection.getConnector()
         .select("*").from(this.tableName)
@@ -54,7 +54,7 @@ export default class NhaCungCapRepository extends BaseKnexRepository<NhaCungCap>
     }
   }
 
-  async getNhaCungCapById(id: string): Promise<Result<NhaCungCapDTO, IDatabaseError>> {
+  async getNhaCungCapById(id: string): Promise<Result<NhaCungCapDTO, IDatabaseRepoError>> {
     return this.findById( [id] );
   }
 

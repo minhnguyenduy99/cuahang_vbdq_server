@@ -1,8 +1,9 @@
-import { FailResult, ICommand, Result, IDatabaseError, SuccessResult } from "@core";
+import { FailResult, ICommand, Result, IRepositoryError, SuccessResult } from "@core";
 import { ISanPhamRepository, SanPham, SanPhamDTO } from "@modules/sanpham";
 import { INhaCungCapRepository, NhaCungCap } from "@modules/nhacungcap";
 import CreateType from "../../entity-create-type";
 import NhaCungCapNotFound from "./NhaCungCapNotFound";
+import { Dependency, DEPConsts } from "@dep";
 
 export interface TaoSanPhamDTO {
   ten_sp: string;
@@ -24,9 +25,9 @@ export class TaoSanPham implements ICommand<TaoSanPhamDTO> {
   private data: SanPham;
   private commited: boolean;
 
-  constructor(sanphamRepo: ISanPhamRepository, nhaCungCapRepo: INhaCungCapRepository ) {
-    this.sanphamRepo = sanphamRepo;
-    this.nhacungcapRepo = nhaCungCapRepo;
+  constructor() {
+    this.sanphamRepo = Dependency.Instance.getRepository(DEPConsts.SanPhamRepository);
+    this.nhacungcapRepo = Dependency.Instance.getRepository(DEPConsts.NhaCungCapRepository);
     this.commited = false;
   }
 
@@ -53,7 +54,7 @@ export class TaoSanPham implements ICommand<TaoSanPhamDTO> {
     return SuccessResult.ok(null);
   }
 
-  async commit(): Promise<Result<SanPhamDTO, IDatabaseError>> {
+  async commit(): Promise<Result<SanPhamDTO, IRepositoryError>> {
     const result = await this.sanphamRepo.createSanPham(this.data);
     if (result.isFailure) {
       return FailResult.fail(result.error);

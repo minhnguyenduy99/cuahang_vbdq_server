@@ -1,21 +1,23 @@
 import { IKhachHangRepository, KhachHang } from "@modules/khachhang";
 import { PhieuCreated } from "@modules/phieu";
 import CreateType from "@create_type";
-import { IDomainService, Result, IDatabaseError, FailResult, UnknownAppError, SuccessResult, DomainEvents } from "@core";
+import { Result, IRepositoryError, FailResult, UnknownAppError, SuccessResult, DomainEvents } from "@core";
 import EntityNotFound from "./EntityNotFound";
 import { PhieuBanHang } from "@modules/phieu/phieubanhang";
+import { IKhachHangService } from "@modules/services/Shared";
+import { Dependency, DEPConsts } from "@dep";
 
 
-export default class KhachHangService implements IDomainService {
+export default class KhachHangService implements IKhachHangService {
+  
+  private khachhangRepo: IKhachHangRepository;
 
-  constructor(
-    private khachhangRepo: IKhachHangRepository
-  ) {
-    
-    DomainEvents.register((ev: PhieuCreated<PhieuBanHang>) => this.onPhieuBanHangCreated(ev), PhieuCreated.name);
+  constructor() {
+    this.khachhangRepo = Dependency.Instance.getRepository(DEPConsts.KhachHangRepository);
+    DomainEvents.register(this.onPhieuBanHangCreated.bind(this), PhieuCreated.name);
   }
 
-  persist(khachhang: KhachHang): Promise<Result<void, IDatabaseError>> {
+  persist(khachhang: KhachHang): Promise<Result<void, IRepositoryError>> {
     return this.khachhangRepo.update(khachhang);
   }
 
@@ -40,9 +42,5 @@ export default class KhachHangService implements IDomainService {
     let khachHang = phieu.khachHang;
     khachHang.updateTongGiaTriBan(phieu);
     this.persist(khachHang);
-  }
-
-  static create(repo: IKhachHangRepository) {
-    return new KhachHangService(repo);
   }
 }

@@ -2,6 +2,7 @@ import { IQuery, FailResult, Result, SuccessResult, UseCaseError } from "@core";
 import { IPhieuRepository, ICTPhieuRepository, ChiTietPhieu } from "@modules/phieu";
 import { PhieuBanHang } from "@modules/phieu/phieubanhang";
 import { ISanPhamRepository } from "@modules/sanpham";
+import { DEPConsts, Dependency } from "@dep";
 
 export interface GetCTPhieuBanHangDTO {
   phieu_id: string;
@@ -9,12 +10,15 @@ export interface GetCTPhieuBanHangDTO {
 
 
 export class GetPhieuBanHangById implements IQuery<GetCTPhieuBanHangDTO> {
+  
+  private phieuBHRepo: IPhieuRepository<PhieuBanHang>;
+  private ctphieuRepo: ICTPhieuRepository<ChiTietPhieu>;
+  private sanphamRepo: ISanPhamRepository;
 
-  constructor(
-    private phieuBHRepo: IPhieuRepository<PhieuBanHang>,
-    private ctphieuRepo: ICTPhieuRepository<ChiTietPhieu>,
-    private sanphamRepo: ISanPhamRepository
-  ) {
+  constructor() {
+    this.phieuBHRepo = Dependency.Instance.getRepository(DEPConsts.PhieuBHRepository);
+    this.ctphieuRepo = Dependency.Instance.getRepository(DEPConsts.CTPhieuRepository);
+    this.sanphamRepo = Dependency.Instance.getRepository(DEPConsts.SanPhamRepository);
   }
 
   async execute(request: GetCTPhieuBanHangDTO): Promise<Result<any, any>> {

@@ -1,9 +1,9 @@
-import { IQuery, Result, FailResult, SuccessResult, LimitResult } from "@core";
+import { IQuery, Result, FailResult, SuccessResult } from "@core";
 import { Expose, plainToClass } from "class-transformer";
 import { IsQuantity } from "@modules/helpers/custom-validator";
 import { Validate, validate, ValidationError } from "class-validator";
 import { IPhieuBHRepository } from "@modules/phieu/phieubanhang";
-
+import { Dependency, DEPConsts } from "@dep";
 
 export interface GetPhieuBanHangDTO {
   from: number;
@@ -11,12 +11,11 @@ export interface GetPhieuBanHangDTO {
 }
 
 export class GetPhieuBanHang implements IQuery<GetPhieuBanHangDTO> {
-  
-  constructor(
-    private phieuRepo: IPhieuBHRepository
-  ) {
+  private phieuRepo: IPhieuBHRepository;
 
-  } 
+  constructor() {
+    this.phieuRepo = Dependency.Instance.getRepository(DEPConsts.PhieuBHRepository);
+  }
 
   async validate(request: GetPhieuBanHangDTO): Promise<Result<ValidatedRequest, ValidationError | ValidationError[]>> {
     const convertedRequest = plainToClass(ValidatedRequest, request);

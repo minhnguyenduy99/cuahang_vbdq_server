@@ -2,6 +2,7 @@ import { IQuery, FailResult, SuccessResult } from "@core";
 import { IsString, validate } from "class-validator";
 import { Expose, plainToClass } from "class-transformer";
 import INhanVienRepository from "../../nhanvien/INhanVienRepository";
+import { Dependency, DEPConsts } from "@dep";
 
 
 export class GetNhanVienDTO {
@@ -20,8 +21,8 @@ export class GetNhanVien implements IQuery<GetNhanVienRequest> {
   
   private repo: INhanVienRepository;
 
-  constructor(repo: INhanVienRepository) {
-    this.repo = repo;
+  constructor() {
+    this.repo = Dependency.Instance.getRepository(DEPConsts.NhanVienRepository);
   }
 
   async execute(request: GetNhanVienRequest) {

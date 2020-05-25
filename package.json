@@ -19,7 +19,8 @@
     "@modules": "dist/src/modules/",
     "@services": "dist/src/services",
     "@mappers": "dist/src/mappers/index.js",
-    "@create_type": "dist/src/modules/entity-create-type.js"
+    "@create_type": "dist/src/modules/entity-create-type.js",
+    "@dep": "dist/src/dependency-injection/index.js"
   },
   "author": "",
   "license": "ISC",

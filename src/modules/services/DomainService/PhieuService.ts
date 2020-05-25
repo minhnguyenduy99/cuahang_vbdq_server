@@ -1,26 +1,25 @@
-import { IDomainService, FailResult, SuccessResult, UseCaseError, DomainService } from "@core";
+import { IDomainService, FailResult, SuccessResult } from "@core";
 import { IPhieuRepository, ChiTietPhieu, Phieu } from "@modules/phieu";
 import { NhanVienService } from "@modules/services/DomainService";
-import { ValidationError } from "class-validator";
-import { INhanVienRepository } from "@modules/nhanvien";
+import { Dependency, DEPConsts } from "@dep";
+import { IPhieuService, PhieuCreateError } from "@modules/services/Shared";
 
-export type PhieuCreateError = ValidationError | ValidationError[] | UseCaseError<any> | UseCaseError<any>[];
 
-export default abstract class PhieuService<P extends Phieu> implements IDomainService {
+export default abstract class PhieuService<P extends Phieu> implements IPhieuService<P> {
 
   protected nhanvienService: NhanVienService;
-  
-  constructor(
-    protected phieuRepo: IPhieuRepository<P>,
-    nhanvienRepo: INhanVienRepository
-  ) {
-    this.nhanvienService = DomainService.getService(NhanVienService, nhanvienRepo);
+  protected phieuRepo: IPhieuRepository<P>;
+
+  constructor() {
+    this.nhanvienService = Dependency.Instance.getDomainService(DEPConsts.NhanVienService);
+    this.setPhieuRepository();
   }
 
   save(phieu: P) {
     return this.phieuRepo.createPhieu(phieu);
   }
 
+  abstract setPhieuRepository(): void;
   abstract async createPhieu<CT extends ChiTietPhieu>(phieuData: any, listCTphieu: CT[])
   : Promise<SuccessResult<P> | FailResult<PhieuCreateError>>;
 }

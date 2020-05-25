@@ -1,43 +1,27 @@
 import CreateType from "@create_type";
 import { ValidationError } from "class-validator";
 
-import { IDomainService, FailResult, Result, SuccessResult, DomainServiceError, IDatabaseError, DomainService } from "@core";
+import { IDomainService, FailResult, Result, SuccessResult, DomainServiceError, IRepositoryError, DomainService } from "@core";
 import { ICTPhieuRepository, ChiTietPhieu } from "@modules/phieu";
 import { ISanPhamRepository } from "@modules/sanpham";
 
 import SanPhamService from "./SanPhamService";
+import { Dependency, DEPConsts } from "@dep";
+import { ICTPhieuService } from "@modules/services/Shared";
 
-
-export type CTPhieuCreateError = ValidationError | ValidationError[] | DomainServiceError | IDatabaseError;
-export default abstract class CTPhieuService<CT extends ChiTietPhieu> implements IDomainService {
+export type CTPhieuCreateError = ValidationError | ValidationError[] | DomainServiceError | IRepositoryError;
+export default abstract class CTPhieuService<CT extends ChiTietPhieu> implements ICTPhieuService<CT> {
 
   protected sanphamService: SanPhamService;
   protected ctphieuRepo: ICTPhieuRepository<CT>;
+  protected sanphamRepo: ISanPhamRepository;
 
-  constructor(
-    ctphieuRepo: ICTPhieuRepository<CT>,
-    private sanphamRepo: ISanPhamRepository
-  ) {
-    this.ctphieuRepo = ctphieuRepo;
-    this.sanphamService = DomainService.getService(SanPhamService, this.sanphamRepo);
+  constructor() {
+    this.setCTPhieuRepository();
+    this.sanphamService = Dependency.Instance.getDomainService(DEPConsts.SanPhamService);
   }
 
-  async getCTPhieuWithSanPham(phieuId: string) {
-    let findCTPhieu = await this.ctphieuRepo.findAllCTPhieu(phieuId);
-    if (findCTPhieu.isFailure) {
-      return FailResult.fail(findCTPhieu);
-    }
-    let listCTPhieu = findCTPhieu.getValue();
-    let listCTPhieuSPMap = await Promise.all(listCTPhieu.map(async (ctphieu) => {
-      const sp = await this.sanphamRepo.findById(ctphieu.sp_id);
-      return {
-        ...ctphieu,
-        san_pham: sp.getValue()
-      }
-    }));
-    return listCTPhieuSPMap;
-  }
-
+  abstract setCTPhieuRepository(): void;
   abstract async createCTPhieu(ctphieuData: any)
   : Promise<SuccessResult<CT> | FailResult<CTPhieuCreateError>>;
 

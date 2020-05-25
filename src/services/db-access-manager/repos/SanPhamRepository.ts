@@ -1,10 +1,7 @@
 import knex from "knex";
-import { Result, IDatabaseError, IDbConnection, FailResult, SuccessResult, LimitResult } from "@core";
+import { Result, IDbConnection, SuccessResult, LimitResult, IDatabaseRepoError } from "@core";
 import { ISanPhamRepository, SanPham, SanPhamDTO } from "@modules/sanpham";
 import { MapperFactory, SanPhamMapper } from "@mappers";
-
-
-import { KnexDatabaseError } from "../DatabaseError";
 import BaseKnexRepository from "../BaseKnexRepository";
 
 export default class SanPhamRepository extends BaseKnexRepository<SanPham> implements ISanPhamRepository {
@@ -14,7 +11,7 @@ export default class SanPhamRepository extends BaseKnexRepository<SanPham> imple
   }
 
   async searchSanPham(tenSP: string, loaiSP: string, limit: LimitResult)
-    : Promise<Result<SanPhamDTO[], IDatabaseError>> {
+    : Promise<Result<SanPhamDTO[], IDatabaseRepoError>> {
     try {
       const listSanPhams = await this.connection.getConnector()
         .select("*").from(this.tableName)
@@ -26,15 +23,15 @@ export default class SanPhamRepository extends BaseKnexRepository<SanPham> imple
       const sanphamData = listSanPhams.map(sanpham => this.mapper.toDTOFromPersistence(sanpham));
       return SuccessResult.ok(sanphamData);
     } catch (err) {
-      return FailResult.fail(new KnexDatabaseError("SanPham", err));
+      return this.knexDatabaseFailed(err);
     }
   }
   
-  async createSanPham(sanpham: SanPham): Promise<Result<void, IDatabaseError>> {
+  async createSanPham(sanpham: SanPham): Promise<Result<void, IDatabaseRepoError>> {
     return this.create(sanpham);
   }
 
-  async getSanPhamById(sanphamId: string): Promise<Result<SanPhamDTO, IDatabaseError>> {
+  async getSanPhamById(sanphamId: string): Promise<Result<SanPhamDTO, IDatabaseRepoError>> {
     return this.findById( [sanphamId] );
   }
 

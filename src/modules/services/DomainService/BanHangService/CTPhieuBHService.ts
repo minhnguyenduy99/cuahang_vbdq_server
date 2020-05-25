@@ -1,14 +1,17 @@
 import CTPhieuService from "../CTPhieuService";
-import { FailResult, Result, DomainEvents } from "@core";
-import { ChiTietPhieu, ChiTietPhieuDTO, ICTPhieuRepository } from "@modules/phieu";
+import { FailResult } from "@core";
+import { ChiTietPhieu, ChiTietPhieuDTO } from "@modules/phieu";
 import CreateType from "@create_type";
-import { ISanPhamRepository } from "@modules/sanpham";
-
+import { Dependency, DEPConsts } from "@dep";
 
 export default class CTPhieuBHService extends CTPhieuService<ChiTietPhieu> {
 
-  constructor(ctphieuRepo: ICTPhieuRepository<ChiTietPhieu>, sanphamRepo: ISanPhamRepository) {
-    super(ctphieuRepo, sanphamRepo);
+  constructor() {
+    super();
+  }
+
+  setCTPhieuRepository(): void {
+    this.ctphieuRepo = Dependency.Instance.getRepository(DEPConsts.CTPhieuRepository);
   }
 
   async createCTPhieu(ctphieuData: ChiTietPhieuDTO) {

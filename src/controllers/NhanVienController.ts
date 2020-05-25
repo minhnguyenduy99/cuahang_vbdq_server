@@ -1,33 +1,25 @@
 import { RequestHandler } from "express";
 import BaseController from "./BaseController";
-import {  GetNhanVien, INhanVienRepository, TaoTaiKhoan, TaoNhaCungCap } from "@modules/nhanvien";
-import { ITaiKhoanRepository } from "@modules/taikhoan";
-import { INhaCungCapRepository } from "@modules/nhacungcap";
-import { TimKiemNhaCungCap } from "@modules/usecases";
-import { GetNhanVienRequest } from "@modules/usecases";
+import { GetNhanVien, TaoTaiKhoan, TaoNhaCungCap } from "@modules/nhanvien";
+import { TimKiemNhaCungCap, GetNhanVienRequest } from "@modules/usecases";
 import { ErrorFactory } from "@services/http-error-handles";
-import authenticationChecking from "../middlewares/authentication-check";
 import { ImageLoader } from "@services/image-loader";
-import { TaiKhoanService, NhaCungCapService } from "@modules/services/DomainService";
-import { DomainService, ApplicationService } from "@core";
+import authenticationChecking from "../middlewares/authentication-check";
+import { INhaCungCapService, ITaiKhoanService } from "@modules/services/Shared";
+import { Dependency, DEPConsts } from "@dep";
 
 
 export default class NhanVienController extends BaseController {
 
-  private taikhoanService: TaiKhoanService;
-  private nhacungcapService: NhaCungCapService;
   private imageLoader: ImageLoader;
+  private nhacungcapService: INhaCungCapService;
+  private taikhoanService: ITaiKhoanService;
 
-  constructor( 
-    private nhanvienRepo: INhanVienRepository,
-    private taikhoanRepo: ITaiKhoanRepository, 
-    private nhaCCRepo: INhaCungCapRepository,
-    route: string) {
-      
+  constructor(route: string) {
     super(route);
-    this.taikhoanService = DomainService.getService(TaiKhoanService, this.taikhoanRepo);
-    this.nhacungcapService = DomainService.getService(NhaCungCapService, this.nhaCCRepo);
-    this.imageLoader = ApplicationService.getService(ImageLoader);
+    this.imageLoader = Dependency.Instance.getApplicationSerivce(DEPConsts.ImageLoader);
+    this.nhacungcapService = Dependency.Instance.getDomainService(DEPConsts.NhaCungCapService);
+    this.taikhoanService = Dependency.Instance.getDomainService(DEPConsts.TaiKhoanService);
   }
   
   protected initializeRoutes(): void {
@@ -43,7 +35,7 @@ export default class NhanVienController extends BaseController {
       const request = { 
         nv_id: req.params.nv_id
       } as GetNhanVienRequest;
-      const result = await this.executeQuery(request, new GetNhanVien(this.nhanvienRepo));
+      const result = await this.executeQuery(request, new GetNhanVien());
       if (result.isFailure) {
         return next(result.error);
       }
@@ -59,7 +51,7 @@ export default class NhanVienController extends BaseController {
     return async (req, res, next) => {
       const anh = req.body.anh_dai_dien;
       req.body.anh_dai_dien = null;
-      const result = await this.executeCommand(req.body, new TaoTaiKhoan(this.taikhoanRepo, this.nhanvienRepo));
+      const result = await this.executeCommand(req.body, new TaoTaiKhoan());
       if (result.isFailure) {
         return next(result.error);
       }
@@ -75,7 +67,7 @@ export default class NhanVienController extends BaseController {
     return async (req, res, next) => {
       const anh = req.body.anh_dai_dien;
       req.body.anh_dai_dien = null;
-      const usecaseResult = await this.executeCommand(req.body, new TaoNhaCungCap(this.nhaCCRepo));
+      const usecaseResult = await this.executeCommand(req.body, new TaoNhaCungCap());
       if (usecaseResult.isFailure) {
         return next(usecaseResult.error);
       }
@@ -89,7 +81,7 @@ export default class NhanVienController extends BaseController {
 
   private findNhaCungCap(): RequestHandler {
     return async (req, res, next) => {
-      const usecaseResult = await this.executeQuery(req.query, new TimKiemNhaCungCap(this.nhaCCRepo));
+      const usecaseResult = await this.executeQuery(req.query, new TimKiemNhaCungCap());
       if (usecaseResult.isFailure) {
         return next(usecaseResult.error);
       }

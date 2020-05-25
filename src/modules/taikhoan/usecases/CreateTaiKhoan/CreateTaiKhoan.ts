@@ -1,9 +1,9 @@
-import uniqid from "uniqid";
-import { IUseCase, FailResult, SuccessResult, ICommand, Entity, Result, IDatabaseError } from "@core";
+import { FailResult, SuccessResult, ICommand, Result, IRepositoryError } from "@core";
 import { ITaiKhoanRepository } from "../..";
 import { TaiKhoan, TaiKhoanDTO } from "../../TaiKhoan";
 import TaiKhoanExistsError from "./TaiKhoanExistsError";
 import CreateType from "@create_type";
+import { Dependency, DEPConsts } from "@dep";
 
  
 export interface CreateTaiKhoanDTO {
@@ -20,8 +20,8 @@ export class CreateTaiKhoan implements ICommand<CreateTaiKhoanDTO> {
   private data: TaiKhoan;
   private commited: boolean;
 
-  constructor(repo: ITaiKhoanRepository) {
-    this.repo = repo; 
+  constructor() {
+    this.repo = Dependency.Instance.getRepository(DEPConsts.TaiKhoanRepository); 
     this.commited = false;
   }
 
@@ -50,7 +50,7 @@ export class CreateTaiKhoan implements ICommand<CreateTaiKhoanDTO> {
     return SuccessResult.ok(null);
   }
 
-  async commit(): Promise<Result<TaiKhoanDTO, IDatabaseError>> {
+  async commit(): Promise<Result<TaiKhoanDTO, IRepositoryError>> {
     const commitResult = await await this.repo.createTaiKhoan(this.data);
     if (commitResult.isSuccess) {
       this.commited = true;

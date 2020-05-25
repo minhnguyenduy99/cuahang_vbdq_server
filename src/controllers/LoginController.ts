@@ -4,6 +4,7 @@ import { RequestHandler } from "express";
 import { DomainAuthentication } from "@services/authenticate";
 import { ErrorFactory } from "@services/http-error-handles";
 import { ApplicationService } from "@core";
+import { Dependency, DEPConsts } from "@dep";
 
 export default class LoginController extends BaseController {
   
@@ -11,7 +12,7 @@ export default class LoginController extends BaseController {
   
   constructor(route: string) {
     super(route);
-    this.authenticate = ApplicationService.getService(DomainAuthentication);
+    this.authenticate = Dependency.Instance.getApplicationSerivce(DEPConsts.DomainAuthentication);
   }
 
   protected initializeRoutes(): void {

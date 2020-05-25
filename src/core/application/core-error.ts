@@ -3,7 +3,7 @@ import { IUseCase } from ".";
 import { ClassType } from "class-transformer/ClassTransformer";
 
 export interface IAppError {
-  message: string;
+  message?: string;
 
   getErrorInfo(): any;
 }

@@ -1,7 +1,8 @@
-import { ICommand, Result, IDatabaseError, FailResult, SuccessResult } from "@core";
+import { ICommand, Result, IRepositoryError, FailResult, SuccessResult } from "@core";
 import { IKhachHangRepository, KhachHang, KhachHangDTO } from "@modules/khachhang";
 import CreateType from "../../entity-create-type";
 import KhachHangExists from "./KhachHangExists";
+import { Dependency, DEPConsts } from "@dep";
 
 export interface TaoKhachHangDTO {
   ten_kh: string;
@@ -14,8 +15,8 @@ export class TaoKhachHang implements ICommand<TaoKhachHangDTO> {
   private commited: boolean;
   private data: KhachHang;
 
-  constructor(repo: IKhachHangRepository) {
-    this.repo = repo;
+  constructor() {
+    this.repo = Dependency.Instance.getRepository(DEPConsts.KhachHangRepository);
     this.commited = false;
   }
 
@@ -48,7 +49,7 @@ export class TaoKhachHang implements ICommand<TaoKhachHangDTO> {
     return SuccessResult.ok(null);
   }
   
-  async commit(): Promise<Result<KhachHangDTO, IDatabaseError>> {
+  async commit(): Promise<Result<KhachHangDTO, IRepositoryError>> {
     const commitResult = await this.repo.createKhachHang(this.data);
     if (commitResult.isFailure) {
       return FailResult.fail(commitResult.error);

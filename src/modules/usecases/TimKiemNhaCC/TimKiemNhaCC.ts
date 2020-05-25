@@ -1,19 +1,20 @@
-import { IQuery, IDatabaseError, Result, FailResult, SuccessResult } from "@core";
+import { IQuery, IRepositoryError, Result, FailResult, SuccessResult } from "@core";
 import { INhaCungCapRepository, NhaCungCapDTO } from "@modules/nhacungcap";
 import { ValidationError, validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { TKNCCValidate, TimKiemNhaCCDTO } from "./TKNCC-validate";
+import { Dependency, DEPConsts } from "@dep";
 
 
 export class TimKiemNhaCungCap implements IQuery<TimKiemNhaCCDTO> {
   
   private nhaCCRepo: INhaCungCapRepository;
 
-  constructor(nhaCCRepo: INhaCungCapRepository) {
-    this.nhaCCRepo = nhaCCRepo;
+  constructor() {
+    this.nhaCCRepo = Dependency.Instance.getRepository(DEPConsts.NhaCungCapRepository);
   }
   
-  async execute(request: TimKiemNhaCCDTO): Promise<Result<NhaCungCapDTO[], IDatabaseError | ValidationError[]>> {
+  async execute(request: TimKiemNhaCCDTO): Promise<Result<NhaCungCapDTO[], IRepositoryError | ValidationError[]>> {
     const validateRequest = await this.validate(request);
     if (validateRequest.isFailure) {
       return FailResult.fail(validateRequest.error);

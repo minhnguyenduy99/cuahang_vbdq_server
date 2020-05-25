@@ -1,17 +1,17 @@
-import { Result, IDatabaseError } from "@core";
+import { Result, IRepositoryError } from "@core";
 import { TaiKhoan, TaiKhoanDTO } from "./TaiKhoan";
 
 export default interface ITaiKhoanRepository {
   
-  createTaiKhoan(taikhoan: TaiKhoan): Promise<Result<void, IDatabaseError>>;
+  createTaiKhoan(taikhoan: TaiKhoan): Promise<Result<void, IRepositoryError>>;
 
-  taiKhoanExists(tenTaiKhoan: string): Promise<Result<boolean, IDatabaseError>>;
+  taiKhoanExists(tenTaiKhoan: string): Promise<Result<boolean, IRepositoryError>>;
 
-  findTaiKhoan(tenTaiKhoan: string): Promise<Result<TaiKhoanDTO, IDatabaseError>>;
+  findTaiKhoan(tenTaiKhoan: string): Promise<Result<TaiKhoanDTO, IRepositoryError>>;
 
-  findTaiKhoanById(taikhoanId: string): Promise<Result<TaiKhoanDTO, IDatabaseError>>;
+  findTaiKhoanById(taikhoanId: string): Promise<Result<TaiKhoanDTO, IRepositoryError>>;
 
-  deleteTaiKhoan(taikhoanId: string): Promise<Result<void, IDatabaseError>>;
+  deleteTaiKhoan(taikhoanId: string): Promise<Result<void, IRepositoryError>>;
 
-  updateTaiKhoan(taikhoan: TaiKhoan): Promise<Result<void, IDatabaseError>>;
+  updateTaiKhoan(taikhoan: TaiKhoan): Promise<Result<void, IRepositoryError>>;
 }

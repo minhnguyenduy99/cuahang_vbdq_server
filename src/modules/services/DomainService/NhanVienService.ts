@@ -1,27 +1,19 @@
-import { IDomainService,
-  Result, 
-  IDatabaseError, 
+import { 
   FailResult, 
   UnknownAppError, 
   SuccessResult } from "@core";
-import { INhanVienRepository, NhanVien, NhanVienCreated } from "@modules/nhanvien";
+import { INhanVienRepository, NhanVien } from "@modules/nhanvien";
 import CreateType from "@create_type";
 import EntityNotFound from "./EntityNotFound";
+import { Dependency, DEPConsts } from "@dep";
+import { INhanVienService } from "@modules/services/Shared";
 
-export default class NhanVienService implements IDomainService {
+export default class NhanVienService implements INhanVienService {
   
-  constructor(
-    private repo: INhanVienRepository
-  ) {
-    
-  }
+  private repo: INhanVienRepository;
 
-  persist(): Promise<Result<any, IDatabaseError>> {
-    throw new Error("Method not implemented.");
-  }
-
-  onNhanVienCreated(event: NhanVienCreated) { 
-
+  constructor() {
+    this.repo = Dependency.Instance.getRepository(DEPConsts.NhanVienRepository);
   }
 
   async getNhanVienById(nhanvienId: string) {
@@ -34,13 +26,6 @@ export default class NhanVienService implements IDomainService {
       return FailResult.fail(new EntityNotFound(NhanVien));
     }
     const createNhanVien = await NhanVien.create(nhanvienDTO, CreateType.getGroups().loadFromPersistence);
-    if (createNhanVien.isFailure) {
-      return FailResult.fail(new UnknownAppError());
-    }
     return SuccessResult.ok(createNhanVien.getValue());
-  }
-
-  static create(repo: INhanVienRepository) {
-    return new NhanVienService(repo);
   }
 }

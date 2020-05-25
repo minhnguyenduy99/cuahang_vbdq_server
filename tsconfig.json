@@ -20,7 +20,8 @@
       "@services/*": ["src/services/*/index.ts"],
       "@mappers": ["src/mappers/index.ts"],
       "@config/*": ["src/config/*"],
-      "@create_type": ["src/modules/entity-create-type.ts"]
+      "@create_type": ["src/modules/entity-create-type.ts"],
+      "@dep": ["src/dependency-injection/index.ts"]
     }
   },
   "include": [

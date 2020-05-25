@@ -1,14 +1,16 @@
-import { IDomainService, Result, IDatabaseError, FailResult, UnknownAppError, SuccessResult } from "@core";
+import { Result, IRepositoryError, FailResult, UnknownAppError, SuccessResult } from "@core";
 import CreateType from "@create_type";
 import { NhaCungCap, INhaCungCapRepository } from "@modules/nhacungcap";
-
 import EntityNotFound from "./EntityNotFound";
+import { Dependency, DEPConsts } from "@dep";
+import { INhaCungCapService } from "@modules/services/Shared";
 
-export default class NhaCungCapService implements IDomainService {
+export default class NhaCungCapService implements INhaCungCapService {
   
-  constructor(
-    private repo: INhaCungCapRepository
-  ) {
+  private repo: INhaCungCapRepository;
+  
+  constructor() {
+    this.repo = Dependency.Instance.getRepository(DEPConsts.NhaCungCapRepository);
   }
 
   async findNhaCungCapById(nhaccId: string) {
@@ -20,10 +22,7 @@ export default class NhaCungCapService implements IDomainService {
     if (!dto) {
       return FailResult.fail(new EntityNotFound(NhaCungCap));
     }
-    const createNhaCungCap = await NhaCungCap.create(dto, CreateType.getGroups().loadFromPersistence);
-    if (createNhaCungCap.isFailure) {
-      return FailResult.fail(new UnknownAppError());
-    } 
+    const createNhaCungCap = await NhaCungCap.create(dto, CreateType.getGroups().loadFromPersistence); 
     return SuccessResult.ok(createNhaCungCap.getValue());
   }
 
@@ -43,7 +42,7 @@ export default class NhaCungCapService implements IDomainService {
     this.persist(nhacc);
   }
 
-  persist(nhacungcap: NhaCungCap): Promise<Result<void, IDatabaseError>> {
+  persist(nhacungcap: NhaCungCap): Promise<Result<void, IRepositoryError>> {
     return this.repo.update(nhacungcap);
   }
 }

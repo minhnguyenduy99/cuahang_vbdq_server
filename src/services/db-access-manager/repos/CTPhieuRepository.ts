@@ -1,5 +1,5 @@
 import knex from "knex";
-import { Result, IDatabaseError, IDbConnection, SuccessResult } from "@core";
+import { Result, IDbConnection, SuccessResult, IDatabaseRepoError } from "@core";
 import { MapperFactory, CTPhieuMapper } from "@mappers";
 import BaseKnexRepository from "../BaseKnexRepository";
 import { ICTPhieuRepository, ChiTietPhieu } from "@modules/phieu";
@@ -10,7 +10,7 @@ export default class CTPhieuRepository extends BaseKnexRepository<ChiTietPhieu> 
     super(connection, MapperFactory.createMapper(CTPhieuMapper), tableName);
   }
   
-  async createListCTPhieu(listCTPhieu: ChiTietPhieu[]): Promise<Result<void, IDatabaseError>> {
+  async createListCTPhieu(listCTPhieu: ChiTietPhieu[]): Promise<Result<void, IDatabaseRepoError>> {
     try {
       const persistences = listCTPhieu.map(ctphieu => this.mapper.toPersistenceFormat(ctphieu));
       const knexInstance = this.connection.getConnector();

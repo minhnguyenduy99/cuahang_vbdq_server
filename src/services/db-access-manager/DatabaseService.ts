@@ -1,7 +1,7 @@
 import * as core from "@core";
 import BaseKnexConnection from "./BaseKnexConnection";
 import DBConnectionManager from "./DBConnectionManager";
-import { IDatabaseRepository, ApplicationService, IAppSettings } from "@core";
+import { IDatabaseRepository, ApplicationService, IAppSettings, IDbConnection } from "@core";
 import DbConfigObjectConnection from "./DbConfigObjectConnection";
 
 interface DbConnectionData {
@@ -20,6 +20,10 @@ export default class DatabaseService extends ApplicationService<DbConnectionData
     super(appSettings);
     const { name, ...connectionData} = this.serviceData;
     this.currentConnection = new DbConfigObjectConnection(name, connectionData);
+  }
+
+  getDbConnection(): core.IDbConnection<any> {
+    return this.currentConnection;
   }
 
   public async start() {

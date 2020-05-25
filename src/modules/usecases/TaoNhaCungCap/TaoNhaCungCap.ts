@@ -1,7 +1,8 @@
-import { IUseCase, FailResult, ICommand, Result, IDatabaseError, SuccessResult } from "@core";
+import { IUseCase, FailResult, ICommand, Result, IRepositoryError, SuccessResult } from "@core";
 import { INhaCungCapRepository, NhaCungCap, NhaCungCapDTO } from "@modules/nhacungcap";
 import NhaCungCapExistsError from "./NhaCungCapExistsError";
 import CreateType from "../../entity-create-type";
+import { Dependency, DEPConsts } from "@dep";
 
 export interface TaoNhaCungCapDTO {
   ten: string;
@@ -15,8 +16,8 @@ export class TaoNhaCungCap implements ICommand<TaoNhaCungCapDTO> {
   private data: NhaCungCap;
   private commited: boolean;
 
-  constructor(repo: INhaCungCapRepository) {
-    this.repo = repo;
+  constructor() {
+    this.repo = Dependency.Instance.getRepository(DEPConsts.NhaCungCapRepository);
     this.commited = false;
   }
 
@@ -48,7 +49,7 @@ export class TaoNhaCungCap implements ICommand<TaoNhaCungCapDTO> {
     return SuccessResult.ok(null);
   }
 
-  async commit(): Promise<Result<NhaCungCapDTO, IDatabaseError>> {
+  async commit(): Promise<Result<NhaCungCapDTO, IRepositoryError>> {
     const commitResult = await this.repo.createNhaCungCap(this.data);
     if (commitResult.isFailure) {
       return FailResult.fail(commitResult.error);

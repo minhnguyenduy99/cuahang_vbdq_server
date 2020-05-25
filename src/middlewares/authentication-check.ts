@@ -16,7 +16,7 @@ export default function authenticationChecking(): RequestHandler {
       return next(ErrorFactory.unauthenticated());
     }
     const tokenParts = token.split(' ');
-    const isAuthenticated = await authService.verifyByToken(tokenParts[1]);
+    const isAuthenticated = await authService.verifiedByToken(tokenParts[1]);
     if (!isAuthenticated) {
       return next(ErrorFactory.unauthenticated()); 
     }
