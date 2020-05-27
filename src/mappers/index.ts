@@ -8,3 +8,4 @@ export { default as NhanVienMapper } from "./NhanVienMapper";
 export { default as NhaCungCapMapper } from "./NhaCungCapMapper";
 export { default as KhachHangMapper } from "./KhachHangMapper";
 export { default as PhieuMapper } from "./PhieuMapper";
+export { default as RoleMapper } from "./RoleMapper";

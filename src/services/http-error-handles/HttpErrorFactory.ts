@@ -5,6 +5,7 @@ import { HttpDatabaseError } from "./HttpDatabaseError";
 import { ValidationError } from "class-validator";
 import { HttpUseCaseError } from "./HttpUseCaseError";
 import HttpDomainServiceError from "./HttpDomainError";
+import { UnauthorizedError } from "@core/authorization";
 
 class HttpErrorFactory {
 
@@ -44,7 +45,7 @@ class HttpErrorFactory {
     return new HttpDomainServiceError(domainError, code);
   }
 
-  public unauthorized(appErr: IAppError) {
+  public unauthorized(appErr: UnauthorizedError | IAppError = new UnauthorizedError()) {
     return new BaseHttpError(appErr.message, HTTP_ERROR_CODE.bad_request);
   }
 
