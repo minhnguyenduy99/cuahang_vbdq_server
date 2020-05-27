@@ -1,8 +1,6 @@
+import { IAppSettings } from ".";
 
 
 export default interface IApp {
-
-  
-
-  listen(): void;
+  start(): void;
 }

@@ -7,8 +7,8 @@ import formData from "express-form-data";
 import session from "express-session";
 import "reflect-metadata";
 
-import { IAppSettings, ApplicationMode } from "@core"
-import AppSettings from "./app-settings";
+import { IAppSettings, ApplicationMode, IApp } from "@core"
+import AppSettings from "./settings/app-settings";
 
 // import middlewares
 import HttpException from "./middlewares/http-exception";
@@ -22,25 +22,18 @@ import KhachHangController from "./controllers/KhachHangController";
 
 import { Dependency, DEPConsts } from '@dep';
 
-export default class App {
+export default class App implements IApp {
+  protected settings: IAppSettings;
+  protected dep: Dependency;
 
-  private APP_SETTINGS_DEV_FILE = path.join(__dirname + "/config/app-settings.development.json");
-  private APP_SETTINGS_PRODUCTION_fILE = path.join(__dirname, "/config/app-settings.production.json");
-  private settings: IAppSettings;
-
-  private app: express.Application;
-  private dep: Dependency;
+  protected app: express.Application;
 
   constructor(mode: string) {
-    if (mode === "DEVELOPMENT") {
-      this.settings = AppSettings.create(this.APP_SETTINGS_DEV_FILE);
-    } else {
-      this.settings = AppSettings.create(this.APP_SETTINGS_PRODUCTION_fILE);
-    }
 
+    this.settings = AppSettings.createByMode(mode);
     this.dep = Dependency.create(this.settings);
-    this.app = express();
 
+    this.app = express();
     this.initializeDatabaseService();
     this.initializeRepositories();
     this.initializeApplicationService();
@@ -48,6 +41,7 @@ export default class App {
     if (this.isDevelopmentMode()) {
       this.developmentMiddlewares();
     }
+
     this.initializeMiddlewares();
     this.initializeControllers();
     this.initializeErrorHandles();
@@ -61,10 +55,6 @@ export default class App {
     this.app.listen(port, host, () => {
       console.log(`The application is listening at ${host}:${port}...`);
     })
-  }
-
-  protected setupDependency() {
-
   }
 
   protected async startApplicationService() {
