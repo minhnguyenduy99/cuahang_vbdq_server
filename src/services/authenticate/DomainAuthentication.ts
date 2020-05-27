@@ -4,6 +4,7 @@ import { IAccountAuthenticateService } from "@modules/services/Shared";
 import AuthenticateResult from "./AuthenticateResult";
 import { ApplicationService, IAppSettings } from "@core";
 import { Dependency, DEPConsts } from "@dep";
+import { TaiKhoanDTO } from "@modules/taikhoan";
 
 interface AuthenticateData {
   username: string;
@@ -29,7 +30,7 @@ export default class DomainAuthentication extends ApplicationService<Authenticat
     }
   }
 
-  async authenticate(data: AuthenticateData): Promise<AuthenticateResult> {
+  async authenticate(data: AuthenticateData): Promise<AuthenticateResult<TaiKhoanDTO>> {
     const authenticateResult = await this.authService.authenticate(data.username, data.password);
     if (authenticateResult.isFailure) {
       return {

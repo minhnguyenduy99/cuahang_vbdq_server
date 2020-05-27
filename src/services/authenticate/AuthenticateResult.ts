@@ -1,8 +1,8 @@
 
 
-export default interface AuthenticateResult {
+export default interface AuthenticateResult<T> {
   valid: boolean;
   message: string;
   token?: string;
-  data?: any;
+  data?: T;
 }
