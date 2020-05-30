@@ -1,9 +1,8 @@
-import { IUseCase, FailResult, ICommand, Result, IRepositoryError, SuccessResult } from "@core";
+import { FailResult, ICommand, SuccessResult, UseCaseError } from "@core";
 import { INhaCungCapRepository, NhaCungCap, NhaCungCapDTO } from "@modules/nhacungcap";
-import NhaCungCapExistsError from "./NhaCungCapExistsError";
-import CreateType from "../../entity-create-type";
+import CreateType from "@create_type";
 import { Dependency, DEPConsts } from "@dep";
-
+import Errors from "./ErrorConsts";
 export interface TaoNhaCungCapDTO {
   ten: string;
   dia_chi: string;
@@ -31,31 +30,24 @@ export class TaoNhaCungCap implements ICommand<TaoNhaCungCapDTO> {
   
   async execute(request: TaoNhaCungCapDTO) {
     const createNhaCC = await NhaCungCap.create(request as NhaCungCapDTO, CreateType.getGroups().createNew);
-
     // Dữ liệu từ request không hợp lệ
     if (createNhaCC.isFailure) {
       return FailResult.fail(createNhaCC.error);
     }
     const newNhaCC = createNhaCC.getValue();
     const nhaCungCapExists = await this.repo.nhaCungCapExists(newNhaCC.ten);
-    if (nhaCungCapExists.isFailure) {
-      return FailResult.fail(nhaCungCapExists.error);
-    }
     // Nhà cung cấp đã tồn tại
-    if (nhaCungCapExists.getValue()) {
-      return FailResult.fail(new NhaCungCapExistsError())
+    if (nhaCungCapExists) {
+      return FailResult.fail(new UseCaseError(Errors.NhaCungCapTonTai));
     }
     this.data = newNhaCC;
     return SuccessResult.ok(null);
   }
 
-  async commit(): Promise<Result<NhaCungCapDTO, IRepositoryError>> {
-    const commitResult = await this.repo.createNhaCungCap(this.data);
-    if (commitResult.isFailure) {
-      return FailResult.fail(commitResult.error);
-    }
+  async commit(): Promise<NhaCungCapDTO> {
+    await this.repo.createNhaCungCap(this.data);
     this.commited = true;
-    return SuccessResult.ok(this.data.serialize(CreateType.getGroups().toAppRespone));
+    return this.data.serialize(CreateType.getGroups().toAppRespone);
   }
 
   rollback(): Promise<void> {

@@ -1,9 +1,7 @@
 import BaseController from "./BaseController";
 import { IAuthenticate } from "@services/authenticate";
 import { RequestHandler } from "express";
-import { DomainAuthentication } from "@services/authenticate";
 import { ErrorFactory } from "@services/http-error-handles";
-import { ApplicationService } from "@core";
 import { Dependency, DEPConsts } from "@dep";
 
 export default class LoginController extends BaseController {
@@ -16,7 +14,7 @@ export default class LoginController extends BaseController {
   }
 
   protected initializeRoutes(): void {
-    this.router.post(`${this.route}/nhanvien`, this.authenticateNhanVien());
+    this.method("post", this.authenticateNhanVien(), "/nhanvien");
   }
 
   private authenticateNhanVien(): RequestHandler {

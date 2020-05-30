@@ -21,6 +21,7 @@ import LoginController from "./controllers/LoginController";
 import KhachHangController from "./controllers/KhachHangController";
 
 import { Dependency, DEPConsts } from '@dep';
+import NhaCungCapController from './controllers/NhaCungCapController';
 
 export default class App implements IApp {
   protected settings: IAppSettings;
@@ -28,9 +29,9 @@ export default class App implements IApp {
 
   protected app: express.Application;
 
-  constructor(mode: string) {
+  constructor(settingFile: string) {
 
-    this.settings = AppSettings.createByMode(mode);
+    this.settings = AppSettings.createByMode(settingFile);
     this.dep = Dependency.create(this.settings);
 
     this.app = express();
@@ -113,6 +114,7 @@ export default class App implements IApp {
     this.app.use(new KhachHangController("/khachhang").getRouter());
     this.app.use(new PhieuBanHangController("/phieubanhang").getRouter());
     this.app.use(new LoginController("/login").getRouter());
+    this.app.use(new NhaCungCapController("/nhacungcap").getRouter());
     this.app.get("/logout", (req, res, next) => {
       req.session.destroy((err) => {
         if (err) 

@@ -4,11 +4,11 @@ import { NhanVien, NhanVienDTO } from "./NhanVien";
 
 export default interface INhanVienRepository {
 
-  getNhanVienById(id: string): Promise<Result<NhanVienDTO, IRepositoryError>>;
+  getNhanVienById(id: string): Promise<NhanVienDTO>;
 
-  getNhanVienByCMND(cmnd: string): Promise<Result<NhanVienDTO, IRepositoryError>>;
+  getNhanVienByCMND(cmnd: string): Promise<NhanVienDTO>;
 
-  createNhanVien(nhanvien: NhanVien): Promise<Result<void, IRepositoryError>>;
+  createNhanVien(nhanvien: NhanVien): Promise<void>;
 
-  deleteNhanVien(id: string): Promise<Result<void, IRepositoryError>>;
+  deleteNhanVien(id: string): Promise<void>;
 }

@@ -1,4 +1,4 @@
-import { IDomainService, FailResult, SuccessResult } from "@core";
+import { FailResult, SuccessResult } from "@core";
 import { IPhieuRepository, ChiTietPhieu, Phieu } from "@modules/phieu";
 import { NhanVienService } from "@modules/services/DomainService";
 import { Dependency, DEPConsts } from "@dep";

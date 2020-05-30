@@ -17,22 +17,18 @@ export default class KhachHangService implements IKhachHangService {
     DomainEvents.register(this.onPhieuBanHangCreated.bind(this), PhieuCreated.name);
   }
 
-  persist(khachhang: KhachHang): Promise<Result<void, IRepositoryError>> {
+  persist(khachhang: KhachHang): Promise<void> {
     return this.khachhangRepo.update(khachhang);
   }
 
   async getKhachHangById(khachHangId: string) {
-    const findKhachHang = await this.khachhangRepo.findKhachHangById(khachHangId);
-    let khachhangDTO = findKhachHang.getValue();
-    if (findKhachHang.isFailure) {
-      return FailResult.fail(findKhachHang.error);
-    }
+    const khachhangDTO = await this.khachhangRepo.findKhachHangById(khachHangId);
     if (!khachhangDTO) {
       return FailResult.fail(new EntityNotFound(KhachHang));
     }
     const createKhachHang = await KhachHang.create(khachhangDTO, CreateType.getGroups().loadFromPersistence);
     if (createKhachHang.isFailure) {
-      return FailResult.fail(new UnknownAppError());
+      throw new UnknownAppError()
     }
     return SuccessResult.ok(createKhachHang.getValue());
   }

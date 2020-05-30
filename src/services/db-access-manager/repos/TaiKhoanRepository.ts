@@ -1,10 +1,8 @@
 import Knex from "knex";
-import { Result, IDatabaseError, IDbConnection, FailResult, SuccessResult, IDatabaseRepoError } from "@core";
+import { IDbConnection } from "@core";
 import { MapperFactory, TaiKhoanMapper } from "@mappers";
 import { ITaiKhoanRepository, TaiKhoan, TaiKhoanDTO } from "@modules/taikhoan";
-import { KnexDatabaseError } from "../DatabaseError";
 import BaseKnexRepository from "../BaseKnexRepository";
-
 
 
 export default class TaiKhoanRepository extends BaseKnexRepository<TaiKhoan> implements ITaiKhoanRepository {
@@ -13,7 +11,7 @@ export default class TaiKhoanRepository extends BaseKnexRepository<TaiKhoan> imp
     super(connection, MapperFactory.createMapper(TaiKhoanMapper), "TAIKHOAN");
   }
 
-  updateTaiKhoan(taikhoan: TaiKhoan): Promise<Result<void, IDatabaseRepoError>> {
+  updateTaiKhoan(taikhoan: TaiKhoan): Promise<void> {
     return this.persist(taikhoan);
   }
 
@@ -22,39 +20,38 @@ export default class TaiKhoanRepository extends BaseKnexRepository<TaiKhoan> imp
       await this.connection.getConnector().table(this.tableName).delete().where({
         id: taikhoanId
       })
-      return SuccessResult.ok(null);
     }catch(err) {
-      return this.knexDatabaseFailed(err);
+      throw this.knexDatabaseFailed(err);
     }
   }
 
-  async findTaiKhoan(tenDangNhap: string): Promise<Result<TaiKhoanDTO, IDatabaseRepoError>> {
+  async findTaiKhoan(tenDangNhap: string): Promise<TaiKhoanDTO> {
     try {
       const taikhoan = await this.connection.getConnector().select("*").from(this.tableName).where({
         ten_dang_nhap: tenDangNhap
       }).limit(1);
-      return SuccessResult.ok(this.mapper.toDTOFromPersistence(taikhoan[0]));
+      return this.mapper.toDTOFromPersistence(taikhoan[0]);
     } catch(err) {
-      return this.knexDatabaseFailed(err);
+      throw this.knexDatabaseFailed(err);
     }
   }
 
-  async findTaiKhoanById(taikhoanId: string): Promise<Result<TaiKhoanDTO, IDatabaseRepoError>> {
+  async findTaiKhoanById(taikhoanId: string): Promise<TaiKhoanDTO> {
     return this.findById( [taikhoanId] );
   }
 
-  async taiKhoanExists(tenTaiKhoan: string): Promise<Result<boolean, IDatabaseRepoError>> {
+  async taiKhoanExists(tenTaiKhoan: string): Promise<boolean> {
     try {
       const foundTaiKhoans = await this.connection.getConnector().select("id").from(this.tableName).where({
         ten_dang_nhap: tenTaiKhoan
       }).limit(1);
-      return SuccessResult.ok(foundTaiKhoans.length > 0);
+      return foundTaiKhoans.length > 0;
     } catch (err) {
-      return this.knexDatabaseFailed(err);
+      throw this.knexDatabaseFailed(err);
     }
   }
 
-  async createTaiKhoan(taikhoan: TaiKhoan): Promise<Result<void, IDatabaseRepoError>> {
+  async createTaiKhoan(taikhoan: TaiKhoan): Promise<void> {
     return this.create(taikhoan);
   }  
 

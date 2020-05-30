@@ -10,16 +10,15 @@ export default class CTPhieuRepository extends BaseKnexRepository<ChiTietPhieu> 
     super(connection, MapperFactory.createMapper(CTPhieuMapper), tableName);
   }
   
-  async createListCTPhieu(listCTPhieu: ChiTietPhieu[]): Promise<Result<void, IDatabaseRepoError>> {
+  async createListCTPhieu(listCTPhieu: ChiTietPhieu[]): Promise<void> {
     try {
       const persistences = listCTPhieu.map(ctphieu => this.mapper.toPersistenceFormat(ctphieu));
       const knexInstance = this.connection.getConnector();
       await knexInstance.transaction((trx) => {
         return knexInstance(this.tableName).transacting(trx).insert(persistences);
       })
-      return SuccessResult.ok(null);
     } catch (err) {
-      return this.knexDatabaseFailed(err);
+      throw this.knexDatabaseFailed(err);
     }
   }
 
@@ -30,11 +29,9 @@ export default class CTPhieuRepository extends BaseKnexRepository<ChiTietPhieu> 
         .where({
           phieu_id: phieuId
         });
-      return SuccessResult.ok(
-        listCTPhieu.map(ctphieu => this.mapper.toDTOFromPersistence(ctphieu))
-      );
+      return listCTPhieu.map(ctphieu => this.mapper.toDTOFromPersistence(ctphieu));
     } catch (err) {
-      return this.knexDatabaseFailed(err);
+      throw this.knexDatabaseFailed(err);
     }
   }
 

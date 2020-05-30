@@ -32,11 +32,8 @@ export class GetPhieuBanHang implements IQuery<GetPhieuBanHangDTO> {
       return FailResult.fail(validateResult.error);
     }
     const query = validateResult.getValue();
-    let findListPhieu = await this.phieuRepo.findAllPhieu({ from: query.from, count: query.so_luong });
-    if (findListPhieu.isFailure) {
-      return FailResult.fail(findListPhieu.error);
-    }
-    return SuccessResult.ok(findListPhieu.getValue());
+    let listPhieuBHDto = await this.phieuRepo.findAllPhieu({ from: query.from, count: query.so_luong });
+    return SuccessResult.ok(listPhieuBHDto);
   }
 }
 

@@ -31,7 +31,7 @@ export class GetNhanVien implements IQuery<GetNhanVienRequest> {
       return createIdResult;
     }
     const result = await this.repo.getNhanVienById(createIdResult.getValue().id);
-    return result;
+    return SuccessResult.ok(result);
   }
 
   async validate(request: GetNhanVienRequest) {

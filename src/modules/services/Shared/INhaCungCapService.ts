@@ -5,9 +5,9 @@ import { EntityNotFound } from "../DomainService";
 
 export default interface INhaCungCapService extends IDomainService {
 
-  findNhaCungCapById(nhaccId: string): Promise<Result<NhaCungCap, EntityNotFound | IRepositoryError>>;
+  findNhaCungCapById(nhaccId: string): Promise<Result<NhaCungCap, EntityNotFound>>;
 
-  updateAnhDaiDien(nhacungcapId: string, imageSource: string): Promise<boolean>;
+  updateAnhDaiDien(nhacungcapId: string, imageSource: string): Promise<void>;
 
-  persist(nhacungcap: NhaCungCap): Promise<Result<void, IRepositoryError>>;
+  persist(nhacungcap: NhaCungCap): Promise<void>;
 }

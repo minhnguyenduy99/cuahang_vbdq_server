@@ -5,11 +5,11 @@ import { SanPham } from ".";
 
 export default interface ISanPhamRepository {
 
-  createSanPham(sanpham: SanPham): Promise<Result<void, IRepositoryError>>;
+  createSanPham(sanpham: SanPham): Promise<void>;
 
-  searchSanPham(tenSP: string, loaiSP: string, limit: LimitResult): Promise<Result<SanPhamDTO[], IRepositoryError>>;
+  searchSanPham(tenSP: string, loaiSP: string, limit: LimitResult): Promise<SanPhamDTO[]>;
 
-  getSanPhamById(sanphamId: string): Promise<Result<SanPhamDTO, any>>;
+  getSanPhamById(sanphamId: string): Promise<SanPhamDTO>;
 
-  persist(sanpham: SanPham): Promise<Result<void, IRepositoryError>>;
+  persist(sanpham: SanPham): Promise<void>;
 }

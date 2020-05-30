@@ -1,10 +1,9 @@
-import { NhanVien } from "../../NhanVien";
-import { CreateTaiKhoan } from "@modules/taikhoan";
-import { FailResult, SuccessResult, ICommand, DomainEvents } from "@core";
-import { INhanVienRepository } from "../..";
-import CreateType from "../../../entity-create-type";
-import NhanVienExists from "./NhanVienExists";
+import { NhanVien, INhanVienRepository } from "@modules/nhanvien";
+import { CreateTaiKhoan } from "@usecases/CreateTaiKhoan";
+import { FailResult, SuccessResult, ICommand, DomainEvents, UseCaseError } from "@core";
+import CreateType from "@create_type";
 import { Dependency, DEPConsts } from "@dep";
+import Errors from "./ErrorConsts";
 
 export interface TaoTaiKhoanDTO {
 
@@ -58,7 +57,7 @@ export class TaoTaiKhoan implements ICommand<TaoTaiKhoanDTO> {
     }
     const isNhanVienExists = await this.isNhanVienExists(request.cmnd);
     if (isNhanVienExists) {
-      return FailResult.fail(new NhanVienExists(request.cmnd));
+      return FailResult.fail(new UseCaseError(Errors.NhanVienTonTai));
     }
     const taikhoan = this.taoTaiKhoanUseCase.getData();
     let createNVResult = await NhanVien.create({ ...request, tk_id: taikhoan.id }, CreateType.getGroups().createNew,  this.taoTaiKhoanUseCase.getData());
@@ -71,21 +70,20 @@ export class TaoTaiKhoan implements ICommand<TaoTaiKhoanDTO> {
   }
 
   async commit() {
-    const saveTaiKhoan = await this.taoTaiKhoanUseCase.commit();
-    if (saveTaiKhoan.isFailure) {
-      return FailResult.fail(saveTaiKhoan.error);
-    }
-    const saveNhanVien = await this.nhanvienRepo.createNhanVien(this.data);
-    if (saveNhanVien.isFailure) {
+    try {
+      await Promise.all([
+        this.taoTaiKhoanUseCase.commit(),
+        this.nhanvienRepo.createNhanVien(this.data)
+      ])
+    } catch (err) {
       this.taoTaiKhoanUseCase.rollback();
-      return FailResult.fail(saveNhanVien.error);
+      throw err;
     }
-    let serializedData = this.data.serialize(CreateType.getGroups().toAppRespone);
-    
+    let serializedData = this.data.serialize(CreateType.getGroups().toAppRespone); 
     // dispatch the domain event
     DomainEvents.dispatchEventsForAggregate(this.data.entityId);
 
-    return SuccessResult.ok(serializedData);
+    return serializedData;
   }
 
   async rollback() {
@@ -95,10 +93,7 @@ export class TaoTaiKhoan implements ICommand<TaoTaiKhoanDTO> {
   }
 
   private async isNhanVienExists(cmnd: string) {
-    const findNhanVien = await this.nhanvienRepo.getNhanVienByCMND(cmnd);
-    if (findNhanVien.isFailure || !findNhanVien.getValue()) {
-      return false;
-    }
-    return true;
+    const nhanvienDTO = await this.nhanvienRepo.getNhanVienByCMND(cmnd);
+    return nhanvienDTO !== null;
   }
 }

@@ -1,5 +1,5 @@
 import knex from "knex";
-import { Result, IDbConnection, SuccessResult, LimitResult, IDatabaseRepoError } from "@core";
+import { IDbConnection, LimitResult } from "@core";
 import { ISanPhamRepository, SanPham, SanPhamDTO } from "@modules/sanpham";
 import { MapperFactory, SanPhamMapper } from "@mappers";
 import BaseKnexRepository from "../BaseKnexRepository";
@@ -10,8 +10,7 @@ export default class SanPhamRepository extends BaseKnexRepository<SanPham> imple
     super(connection, MapperFactory.createMapper(SanPhamMapper), "SANPHAM");
   }
 
-  async searchSanPham(tenSP: string, loaiSP: string, limit: LimitResult)
-    : Promise<Result<SanPhamDTO[], IDatabaseRepoError>> {
+  async searchSanPham(tenSP: string, loaiSP: string, limit: LimitResult): Promise<SanPhamDTO[]> {
     try {
       const listSanPhams = await this.connection.getConnector()
         .select("*").from(this.tableName)
@@ -21,17 +20,17 @@ export default class SanPhamRepository extends BaseKnexRepository<SanPham> imple
         .debug(true);
 
       const sanphamData = listSanPhams.map(sanpham => this.mapper.toDTOFromPersistence(sanpham));
-      return SuccessResult.ok(sanphamData);
+      return sanphamData;
     } catch (err) {
-      return this.knexDatabaseFailed(err);
+      throw this.knexDatabaseFailed(err);
     }
   }
   
-  async createSanPham(sanpham: SanPham): Promise<Result<void, IDatabaseRepoError>> {
+  async createSanPham(sanpham: SanPham): Promise<void> {
     return this.create(sanpham);
   }
 
-  async getSanPhamById(sanphamId: string): Promise<Result<SanPhamDTO, IDatabaseRepoError>> {
+  async getSanPhamById(sanphamId: string): Promise<SanPhamDTO> {
     return this.findById( [sanphamId] );
   }
 

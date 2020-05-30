@@ -16,10 +16,11 @@
       ],
       "@": [""],
       "@core": ["src/core/index.ts"],
-      "@core/*": ["src/core/*/index.ts"],
+      "@core-modules/*": ["src/core/*/index.ts"],
       "@modules/*": ["src/modules/*/index.ts"],
       "@services/*": ["src/services/*/index.ts"],
       "@mappers": ["src/mappers/index.ts"],
+      "@usecases/*": ["src/modules/usecases/*/index.ts"],
       "@config/*": ["src/config/*"],
       "@create_type": ["src/modules/entity-create-type.ts"],
       "@dep": ["src/dependency-injection/index.ts"]

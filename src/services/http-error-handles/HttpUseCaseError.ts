@@ -5,9 +5,9 @@ import { UseCaseError } from "@core";
 export class HttpUseCaseError extends BaseHttpError {
 
   readonly type: string;
-  readonly usecase: UseCaseError<any>;
+  readonly usecase: UseCaseError;
 
-  public constructor(useCaseErr: UseCaseError<any>, code: number = HTTP_ERROR_CODE.bad_request) {
+  public constructor(useCaseErr: UseCaseError, code: number = HTTP_ERROR_CODE.bad_request) {
     super(useCaseErr.message, code);
     this.usecase = useCaseErr;
   }
@@ -15,7 +15,9 @@ export class HttpUseCaseError extends BaseHttpError {
   public getErrorInfo() {
     return {
       code: this.code,
-      ...this.usecase.getErrorInfo()
+      error_code: this.usecase.code,
+      message: this.message,
+      ...this.usecase.obj
     }
   }
 }

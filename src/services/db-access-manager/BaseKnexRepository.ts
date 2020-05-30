@@ -1,5 +1,5 @@
 import knex from "knex";
-import { IDbConnection, Entity, Result, IDatabaseError, FailResult, SuccessResult, IDatabaseRepoError } from "@core";
+import { IDbConnection, Entity, SuccessResult } from "@core";
 import { IPersistableRepository } from "@core";
 import { IMapper } from "@mappers";
 import { KnexDatabaseError } from "./DatabaseError";
@@ -15,7 +15,7 @@ export default abstract class BaseKnexRepository<T extends Entity<any>> implemen
     protected tableName: string) {
   }
 
-  async persist(model: T): Promise<Result<void, IDatabaseRepoError>> {
+  async persist(model: T): Promise<void> {
     try {
       const persistence = this.mapper.toPersistenceFormat(model);
       await this.connection.getConnector()
@@ -23,34 +23,33 @@ export default abstract class BaseKnexRepository<T extends Entity<any>> implemen
         .update(persistence)
         .where(this.getPersistenceCondition(persistence)); 
     } catch (err) {
-      return this.knexDatabaseFailed(err)
+      throw this.knexDatabaseFailed(err);
     }
   }
 
-  async findById(idObject: any = []): Promise<Result<any, IDatabaseRepoError>> {
+  async findById(idObject: any = []): Promise<any> {
     try {
       const result = await this.connection.getConnector()
         .select("*").from(this.tableName)
         .where(this.getIdCondition(idObject))
         .limit(1);
-      return SuccessResult.ok(this.mapper.toDTOFromPersistence(result[0]));
+      return this.mapper.toDTOFromPersistence(result[0]);
     } catch (err) {
-      return this.knexDatabaseFailed(err);
+      throw this.knexDatabaseFailed(err);
     }
   }
 
-  async create(entity: T): Promise<Result<void, IDatabaseRepoError>> {
+  async create(entity: T): Promise<void> {
     try {
       const persistence = this.mapper.toPersistenceFormat(entity);
       await this.connection.getConnector().insert(persistence).into(this.tableName);
-      return SuccessResult.ok(null);
     } catch (err) {
-      return this.knexDatabaseFailed(err);
+      throw this.knexDatabaseFailed(err);
     }
   }
 
   protected knexDatabaseFailed(err: any) {
-    return FailResult.fail(new KnexDBRepoError(this.tableName, new KnexDatabaseError(err)));
+    return new KnexDBRepoError(this.tableName, new KnexDatabaseError(err));
   }
 
   protected abstract getPersistenceCondition(persistence: any): object;

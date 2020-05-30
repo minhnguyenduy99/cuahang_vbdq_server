@@ -1,6 +1,5 @@
-import { IQuery, IRepositoryError, Result, FailResult, SuccessResult } from "@core";
+import { IQuery, Result, FailResult, SuccessResult } from "@core";
 import { ISanPhamRepository, SanPhamDTO } from "@modules/sanpham";
-import { INhaCungCapRepository } from "@modules/nhacungcap";
 import { ValidationError, validate } from "class-validator";
 import { plainToClass } from "class-transformer";
 import { TKSPValidate, TimKiemSanPhamDTO } from "./TKSP-validate";
@@ -15,14 +14,14 @@ export class TimKiemSanPham implements IQuery<TimKiemSanPhamDTO> {
     this.sanphamRepo = Dependency.Instance.getRepository(DEPConsts.SanPhamRepository);
   }
   
-  async execute(request: TimKiemSanPhamDTO): Promise<Result<SanPhamDTO[], IRepositoryError | ValidationError[]>> {
+  async execute(request: TimKiemSanPhamDTO): Promise<Result<SanPhamDTO[], ValidationError[]>> {
     const validateRequest = await this.validate(request);
     if (validateRequest.isFailure) {
       return FailResult.fail(validateRequest.error);
     }
     const { tenSP, loaiSP, count, from } = validateRequest.getValue();
     const searchSanPham = await this.sanphamRepo.searchSanPham(tenSP, loaiSP, { count, from });
-    return searchSanPham;
+    return SuccessResult.ok(searchSanPham);
   }
 
   public async validate(request: TimKiemSanPhamDTO): Promise<Result<TKSPValidate, ValidationError[]>> {

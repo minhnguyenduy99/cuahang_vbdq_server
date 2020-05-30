@@ -53,7 +53,7 @@ export default abstract class Phieu extends AggrerateRoot<PhieuProps> {
   }
 
   protected getTongGiaTri(): number {
-    if (!this._listCTPhieu) {
+    if (!this._listCTPhieu || this._listCTPhieu.length === 0) {
       return 0;
     }
     return this._listCTPhieu.map(ctphieu => ctphieu.giaTri).reduce((pre, cur) => pre + cur);

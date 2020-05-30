@@ -1,18 +1,14 @@
-import CreateType from "@create_type";
 import { ValidationError } from "class-validator";
-
-import { IDomainService, FailResult, Result, SuccessResult, DomainServiceError, IRepositoryError, DomainService } from "@core";
+import { FailResult, SuccessResult, DomainServiceError, IRepositoryError, InvalidDataError } from "@core";
 import { ICTPhieuRepository, ChiTietPhieu } from "@modules/phieu";
 import { ISanPhamRepository } from "@modules/sanpham";
-
-import SanPhamService from "./SanPhamService";
 import { Dependency, DEPConsts } from "@dep";
-import { ICTPhieuService } from "@modules/services/Shared";
+import { ICTPhieuService, ISanPhamService } from "@modules/services/Shared";
 
 export type CTPhieuCreateError = ValidationError | ValidationError[] | DomainServiceError | IRepositoryError;
 export default abstract class CTPhieuService<CT extends ChiTietPhieu> implements ICTPhieuService<CT> {
 
-  protected sanphamService: SanPhamService;
+  protected sanphamService: ISanPhamService;
   protected ctphieuRepo: ICTPhieuRepository<CT>;
   protected sanphamRepo: ISanPhamRepository;
 
@@ -23,6 +19,6 @@ export default abstract class CTPhieuService<CT extends ChiTietPhieu> implements
 
   abstract setCTPhieuRepository(): void;
   abstract async createCTPhieu(ctphieuData: any)
-  : Promise<SuccessResult<CT> | FailResult<CTPhieuCreateError>>;
+  : Promise<SuccessResult<CT> | FailResult<CTPhieuCreateError | InvalidDataError>>;
 
 }

@@ -1,14 +1,13 @@
-import { Result, IRepositoryError, IDomainService, BaseAppError } from "@core";
+import { IDomainService, Result } from "@core";
 import { SanPham } from "@modules/sanpham";
 import { EntityNotFound } from "../DomainService";
-import { ValidationError } from "class-validator";
 
 
 export default interface ISanPhamService extends IDomainService {
 
-  findSanPhamById(taikhoanId: string): Promise<Result<SanPham, ValidationError[] | IRepositoryError | EntityNotFound>>;
+  findSanPhamById(sanphamId: string): Promise<Result<SanPham, EntityNotFound>>;
 
-  updateAnhSanPham(sanphamId: string, source: string): Promise<Result<void, IRepositoryError | BaseAppError>>
+  updateAnhSanPham(sanphamId: string, source: string): Promise<void>;
 
-  persist(sanpham: SanPham): Promise<Result<void, IRepositoryError>>
+  persist(sanpham: SanPham): Promise<void>;
 }

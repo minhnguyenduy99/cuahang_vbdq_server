@@ -5,11 +5,11 @@ import { EntityNotFound } from "../DomainService";
 
 export default interface ITaiKhoanService extends IDomainService {
 
-  findTaiKhoanById(taikhoanId: string): Promise<Result<TaiKhoan, IRepositoryError | EntityNotFound >>;
+  findTaiKhoanById(taikhoanId: string): Promise<Result<TaiKhoan, EntityNotFound>>;
 
-  findTaiKhoanByTenDangNhap(tenDangNhap: string): Promise<Result<TaiKhoan, EntityNotFound | IRepositoryError>>;
+  findTaiKhoanByTenDangNhap(tenDangNhap: string): Promise<Result<TaiKhoan, EntityNotFound>>;
 
-  updateAnhDaiDien(taikhoanId: string, imageUrl: string): Promise<Result<any, EntityNotFound | IRepositoryError>>; 
+  updateAnhDaiDien(taikhoanId: string, imageUrl: string): Promise<Result<any, EntityNotFound>>; 
 
-  persist(taikhoan: TaiKhoan): Promise<Result<any, IRepositoryError>>;
+  persist(taikhoan: TaiKhoan): Promise<any>;
 }

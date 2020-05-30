@@ -1,5 +1,5 @@
 import BaseKnexRepository from "../BaseKnexRepository";
-import { IRoleRepository, Role } from "@core/authorization";
+import { IRoleRepository, Role } from "@core-modules/authorization";
 import { IDbConnection, SuccessResult } from "@core";
 import Knex from "knex";
 import { MapperFactory } from "@mappers";
@@ -22,9 +22,8 @@ export default class RoleRepository extends BaseKnexRepository<Role> implements 
       this.connection.getConnector().table(this.tableName).update({
         roles: rolesStr
       }).where({ id: userId })
-      return SuccessResult.ok(null);
     } catch (err) {
-      return this.knexDatabaseFailed(err);
+      throw this.knexDatabaseFailed(err);
     }
   }
 

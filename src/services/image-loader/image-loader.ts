@@ -1,5 +1,7 @@
 import cloudinary from "cloudinary";
 import { IAppSettings, ApplicationService } from "@core";
+import IImageLoader from "./IImageLoader";
+import { ALLOW_IMAGE_EXT } from "./shared";
 
 const cloudinary_v2 = cloudinary.v2;
 
@@ -7,23 +9,18 @@ interface SettingsData {
   url?: string;
   name?: string;
   apiKey?: string;
-  apiSecret?: string
+  apiSecret?: string;
+  folders: {[folderName: string]: string};
 }
 
-const ALLOW_IMAGE_EXT = ['jpg', 'jpeg', 'png'];
-
-export const FOLDERS = {
-  NhanVien: "NHANVIEN",
-  KhachHang: "KHACHHANG",
-  SanPham: "SANPHAM",
-  NhaCungCap: "NHACUNGCAP"
-}
-
-export class ImageLoader extends ApplicationService<SettingsData> {
+export class ImageLoader extends ApplicationService<SettingsData> implements IImageLoader {
   
+  protected defaultFolders: { [folderName: string]: string} = {};
+
   constructor(appSettings: IAppSettings) {
     super(appSettings);
     this.config();
+    this.defaultFolders = this.serviceData.folders;
   }
 
   protected getAppSettings(settings: IAppSettings): SettingsData {
@@ -46,13 +43,7 @@ export class ImageLoader extends ApplicationService<SettingsData> {
   }
 
   private loadDefaultImage(folder: string) {
-    switch(folder) {
-      case FOLDERS.KhachHang: return "https://res.cloudinary.com/cuahangvbdq-dev/image/upload/v1590415654/KHACHHANG/customer_default.jpg";
-      case FOLDERS.NhanVien: return "https://res.cloudinary.com/cuahangvbdq-dev/image/upload/v1590416416/NHANVIEN/staff_default.jpg";
-      case FOLDERS.SanPham: return "https://res.cloudinary.com/cuahangvbdq-dev/image/upload/v1590416630/SANPHAM/product_default.jpg";
-      case FOLDERS.NhaCungCap: return "https://res.cloudinary.com/cuahangvbdq-dev/image/upload/v1590416705/NHACUNGCAP/provider_default.png";
-      default: return null;
-    }
+    return this.defaultFolders[folder] ?? null;
   }
 
   private config() {

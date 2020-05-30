@@ -1,7 +1,4 @@
-import { 
-  FailResult, 
-  UnknownAppError, 
-  SuccessResult } from "@core";
+import { FailResult, SuccessResult } from "@core";
 import { INhanVienRepository, NhanVien } from "@modules/nhanvien";
 import CreateType from "@create_type";
 import EntityNotFound from "./EntityNotFound";
@@ -17,11 +14,7 @@ export default class NhanVienService implements INhanVienService {
   }
 
   async getNhanVienById(nhanvienId: string) {
-    const getNhanVienDTO = await this.repo.getNhanVienById(nhanvienId);
-    let nhanvienDTO = getNhanVienDTO.getValue();
-    if (getNhanVienDTO.isFailure) {
-      return FailResult.fail(getNhanVienDTO.error);
-    }
+    const nhanvienDTO = await this.repo.getNhanVienById(nhanvienId);
     if (!nhanvienDTO) {
       return FailResult.fail(new EntityNotFound(NhanVien));
     }

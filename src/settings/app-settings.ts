@@ -2,8 +2,7 @@ import fs from 'fs';
 import { IAppSettings, ApplicationMode } from '@core';
 import path from 'path';
 
-const APP_SETTINGS_DEV_FILE = path.resolve(__dirname + "/../config/app-settings.development.json");
-const APP_SETTINGS_PRODUCTION_fILE = path.resolve(__dirname, "/../config/app-settings.production.json");
+const SETTING_FOLDER = "../config";
 
 export default class AppSettings implements IAppSettings {
 
@@ -43,10 +42,7 @@ export default class AppSettings implements IAppSettings {
     return new AppSettings(filePath);
   }
 
-  static createByMode(mode: string) {
-    if (mode.toUpperCase() === 'DEVELOPMENT') {
-      return new AppSettings(APP_SETTINGS_DEV_FILE);
-    }
-    return new AppSettings(APP_SETTINGS_PRODUCTION_fILE);
+  static createByMode(settingFile: string) {
+    return new AppSettings(path.join(__dirname, SETTING_FOLDER, settingFile));
   }
 }

@@ -6,13 +6,13 @@ import { PhieuDTO } from "./PhieuProps";
 
 export default interface IPhieuRepository<P extends Phieu> {
 
-  createPhieu(phieu: P): Promise<Result<void, IRepositoryError>>;
+  createPhieu(phieu: P): Promise<void>;
 
-  removePhieu(phieuId: string): Promise<Result<void, IRepositoryError>>;
+  removePhieu(phieuId: string): Promise<void>;
 
-  findPhieuById(phieuId: string): Promise<Result<any, IRepositoryError>>;
+  findPhieuById(phieuId: string): Promise<any>;
 
-  findPhieuByDate(date: Date, limit?: LimitResult): Promise<Result<any[], IRepositoryError>>;
+  findPhieuByDate(date: Date, limit?: LimitResult): Promise<any[]>;
 
-  findAllPhieu(limit: LimitResult): Promise<Result<any[], IRepositoryError>>;
+  findAllPhieu(limit: LimitResult): Promise<any[]>;
 }

@@ -3,13 +3,13 @@ import { NhaCungCap, NhaCungCapDTO } from "./NhaCungCap";
 
 export default interface INhaCungCapRepository {
 
-  createNhaCungCap(nhacungcap: NhaCungCap): Promise<Result<void, IRepositoryError>>;
+  createNhaCungCap(nhacungcap: NhaCungCap): Promise<void>;
 
-  nhaCungCapExists(tenNhaCungCap: string): Promise<Result<boolean, IRepositoryError>>;
+  nhaCungCapExists(tenNhaCungCap: string): Promise<boolean>;
 
-  getNhaCungCapById(id: string): Promise<Result<NhaCungCapDTO, IRepositoryError>>;
+  getNhaCungCapById(id: string): Promise<NhaCungCapDTO>;
 
-  searchNhaCungCap(ten: string): Promise<Result<NhaCungCapDTO[], IRepositoryError>>;
+  searchNhaCungCap(ten: string): Promise<NhaCungCapDTO[]>;
 
-  update(nhacungcap: NhaCungCap): Promise<Result<void, IRepositoryError>>;
+  update(nhacungcap: NhaCungCap): Promise<void>;
 }

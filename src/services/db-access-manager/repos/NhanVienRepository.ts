@@ -1,7 +1,7 @@
 import Knex from "knex";
 import { MapperFactory, NhanVienMapper } from "@mappers";
 import { INhanVienRepository, NhanVien, NhanVienDTO } from "@modules/nhanvien";
-import { Result, SuccessResult, IDbConnection, IDatabaseRepoError } from "@core";
+import { IDbConnection } from "@core";
 
 import BaseKnexRepository from "../BaseKnexRepository";
 
@@ -11,14 +11,14 @@ export default class NhanVienRepository extends BaseKnexRepository<NhanVien> imp
     super(connection, MapperFactory.createMapper(NhanVienMapper), "NHANVIEN");
   }
 
-  async getNhanVienByCMND(cmnd: string): Promise<Result<NhanVienDTO, IDatabaseRepoError>> {
+  async getNhanVienByCMND(cmnd: string): Promise<NhanVienDTO> {
     try {
       const nhanvien = await this.connection.getConnector().select("*").from(this.tableName).where({
         cmnd: cmnd
       }).limit(1);
-      return SuccessResult.ok(this.mapper.toDTOFromPersistence(nhanvien[0]));
+      return this.mapper.toDTOFromPersistence(nhanvien[0]);
     } catch (err) {
-      return this.knexDatabaseFailed(err);
+      this.knexDatabaseFailed(err);
     }
   }
 
@@ -27,17 +27,16 @@ export default class NhanVienRepository extends BaseKnexRepository<NhanVien> imp
       await this.connection.getConnector().table(this.tableName).delete().where({
         id: nhanvienId
       })
-      return SuccessResult.ok(null);
     } catch (err) {
-      return this.knexDatabaseFailed(err);
+      throw this.knexDatabaseFailed(err);
     }
   }
 
-  async createNhanVien(nhanvien: NhanVien): Promise<Result<void, IDatabaseRepoError>> {
+  async createNhanVien(nhanvien: NhanVien): Promise<void> {
     return this.create(nhanvien);
   }
   
-  async getNhanVienById(id: string): Promise<Result<NhanVienDTO, IDatabaseRepoError>> {
+  async getNhanVienById(id: string): Promise<NhanVienDTO> {
     return this.findById( [id] );
   }
 

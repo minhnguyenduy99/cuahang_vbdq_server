@@ -12,11 +12,11 @@ export default class NhaCungCapRepository extends BaseKnexRepository<NhaCungCap>
     super(connection, MapperFactory.createMapper(NhaCungCapMapper), "NHACUNGCAP");
   }
 
-  update(nhacungcap: NhaCungCap): Promise<Result<void, IDatabaseRepoError>> {
+  update(nhacungcap: NhaCungCap): Promise<void> {
     return this.persist(nhacungcap);
   }
 
-  async searchNhaCungCap(ten: string): Promise<Result<NhaCungCapDTO[], IDatabaseRepoError>> {
+  async searchNhaCungCap(ten: string): Promise<NhaCungCapDTO[]> {
     try {
       const searchResult = await this.connection.getConnector()
         .select("*").from(this.tableName)
@@ -24,9 +24,9 @@ export default class NhaCungCapRepository extends BaseKnexRepository<NhaCungCap>
 
       const nhacungcapData = searchResult
         .map(nhaCungCap => this.mapper.toDTOFromPersistence(nhaCungCap));
-      return SuccessResult.ok(nhacungcapData);
+      return nhacungcapData
     } catch (err) {
-      return this.knexDatabaseFailed(err);
+      throw this.knexDatabaseFailed(err);
     }
   }
 
@@ -35,12 +35,9 @@ export default class NhaCungCapRepository extends BaseKnexRepository<NhaCungCap>
       const result = await this.connection.getConnector().select("id").from(this.tableName).where({
         ten: tenNhaCungCap
       }).limit(1);
-      if (result.length === 0) {
-        return SuccessResult.ok(false);
-      }
-      return SuccessResult.ok(true);
+      return result.length === 1;
     } catch(err) {
-      return this.knexDatabaseFailed(err);
+      throw this.knexDatabaseFailed(err);
     }
   }
   
@@ -48,13 +45,12 @@ export default class NhaCungCapRepository extends BaseKnexRepository<NhaCungCap>
     try {
       const persistence = this.mapper.toPersistenceFormat(nhacungcap);
       await this.connection.getConnector().insert(persistence).into(this.tableName)
-      return SuccessResult.ok(null);
     } catch (err) {
-      return this.knexDatabaseFailed(err);
+      throw this.knexDatabaseFailed(err);
     }
   }
 
-  async getNhaCungCapById(id: string): Promise<Result<NhaCungCapDTO, IDatabaseRepoError>> {
+  async getNhaCungCapById(id: string): Promise<NhaCungCapDTO> {
     return this.findById( [id] );
   }
 

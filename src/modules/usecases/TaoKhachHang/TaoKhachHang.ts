@@ -1,12 +1,16 @@
-import { ICommand, Result, IRepositoryError, FailResult, SuccessResult } from "@core";
+import { ICommand, Result, FailResult, SuccessResult, UseCaseError } from "@core";
 import { IKhachHangRepository, KhachHang, KhachHangDTO } from "@modules/khachhang";
-import CreateType from "../../entity-create-type";
-import KhachHangExists from "./KhachHangExists";
+import CreateType from "@create_type";
 import { Dependency, DEPConsts } from "@dep";
+import Errors from "./ErrorConsts";
 
 export interface TaoKhachHangDTO {
   ten_kh: string;
   cmnd: string;
+  ngay_sinh: Date,
+  gioi_tinh: string;
+  sdt: string;
+  dia_chi?: string;
 }
 
 export class TaoKhachHang implements ICommand<TaoKhachHangDTO> {
@@ -33,13 +37,10 @@ export class TaoKhachHang implements ICommand<TaoKhachHangDTO> {
   }
 
   async execute(request: TaoKhachHangDTO): Promise<Result<void, any>> {
-    const findKhachHang = await this.repo.searchKhachHang("", request.cmnd);
-    if (findKhachHang.isFailure) {
-      return FailResult.fail(findKhachHang.error);
-    }
+    const listKhachHangDTO = await this.repo.searchKhachHang("", request.cmnd);
     // Khách hàng với cmnd yêu cầu đã tồn tại
-    if (findKhachHang.getValue().length > 0) {
-      return FailResult.fail(new KhachHangExists(request.cmnd));
+    if (listKhachHangDTO.length > 0) {
+      return FailResult.fail(new UseCaseError(Errors.KhachHangExists));
     }
     const createKhachHangModel = await KhachHang.create(request, CreateType.getGroups().createNew);
     if (createKhachHangModel.isFailure) {
@@ -49,12 +50,9 @@ export class TaoKhachHang implements ICommand<TaoKhachHangDTO> {
     return SuccessResult.ok(null);
   }
   
-  async commit(): Promise<Result<KhachHangDTO, IRepositoryError>> {
-    const commitResult = await this.repo.createKhachHang(this.data);
-    if (commitResult.isFailure) {
-      return FailResult.fail(commitResult.error);
-    }
+  async commit(): Promise<KhachHangDTO> {
+    await this.repo.createKhachHang(this.data);
     this.commited = true;
-    return SuccessResult.ok(this.getData().serialize(CreateType.getGroups().toAppRespone));
+    return this.getData().serialize(CreateType.getGroups().toAppRespone);
   }
 }

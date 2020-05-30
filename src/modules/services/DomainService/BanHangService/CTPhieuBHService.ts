@@ -1,5 +1,5 @@
 import CTPhieuService from "../CTPhieuService";
-import { FailResult } from "@core";
+import { FailResult, InvalidEntity, InvalidDataError } from "@core";
 import { ChiTietPhieu, ChiTietPhieuDTO } from "@modules/phieu";
 import CreateType from "@create_type";
 import { Dependency, DEPConsts } from "@dep";
@@ -20,6 +20,9 @@ export default class CTPhieuBHService extends CTPhieuService<ChiTietPhieu> {
       return FailResult.fail(getSanPham.error);
     }
     let sanpham = getSanPham.getValue();
+    if (sanpham.soLuong < ctphieuData.so_luong) {
+      return FailResult.fail(new InvalidDataError("so_luong", CTPhieuBHService, "Số lượng không đủ"));
+    }
     return ChiTietPhieu.create(ctphieuData, CreateType.getGroups().createNew, sanpham);
   }
 }

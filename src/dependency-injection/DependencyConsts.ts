@@ -5,11 +5,13 @@ import {
   SanPhamRepository,
   KhachHangRepository,
   PhieuBHRepository,
-  CTPhieuRepository } from "@services/db-access-manager/repos";
+  CTPhieuRepository, 
+  RoleRepository } from "@services/db-access-manager/repos";
 
 import { ImageLoader } from "@services/image-loader";
 import { DatabaseService } from "@services/db-access-manager";
 import { DomainAuthentication } from "@services/authenticate";
+import { AuthorizationService } from "@services/authorization";
 
 import {
   TaiKhoanService, 
@@ -30,6 +32,7 @@ export default {
   KhachHangRepository,
   PhieuBHRepository,
   CTPhieuRepository,
+  RoleRepository,
 
   // Domain services
   TaiKhoanService,
@@ -44,5 +47,6 @@ export default {
   // Application services
   DatabaseService,
   ImageLoader,
-  DomainAuthentication
+  DomainAuthentication,
+  AuthorizationService
 }

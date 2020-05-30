@@ -14,13 +14,13 @@ export class TimKiemNhaCungCap implements IQuery<TimKiemNhaCCDTO> {
     this.nhaCCRepo = Dependency.Instance.getRepository(DEPConsts.NhaCungCapRepository);
   }
   
-  async execute(request: TimKiemNhaCCDTO): Promise<Result<NhaCungCapDTO[], IRepositoryError | ValidationError[]>> {
+  async execute(request: TimKiemNhaCCDTO): Promise<Result<NhaCungCapDTO[], ValidationError[]>> {
     const validateRequest = await this.validate(request);
     if (validateRequest.isFailure) {
       return FailResult.fail(validateRequest.error);
     }
     const searchNhaCungCap = await this.nhaCCRepo.searchNhaCungCap(validateRequest.getValue().tenNhaCC);
-    return searchNhaCungCap;
+    return SuccessResult.ok(searchNhaCungCap);
   }
 
   public async validate(request: TimKiemNhaCCDTO): Promise<Result<TKNCCValidate, ValidationError[]>> {

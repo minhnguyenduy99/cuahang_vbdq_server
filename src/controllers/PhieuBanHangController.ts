@@ -10,10 +10,10 @@ export default class PhieuBanHangController extends BaseController {
   }
   
   protected initializeRoutes(): void {
-    this.router.use(`${this.route}`, authenticationChecking());
-    this.router.post(`${this.route}`, this.createPhieu());
-    this.router.get(`${this.route}/:id`, this.findPhieuById());
-    this.router.get(`${this.route}`, this.findPhieuBanHang());
+    // this.method("use", authenticationChecking());
+    this.method("post", this.createPhieu());
+    this.method("get", this.findPhieuById(), "/:id");
+    this.method("get", this.findPhieuBanHang());
   }
 
   private createPhieu(): RequestHandler {

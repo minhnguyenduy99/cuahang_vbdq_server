@@ -1,9 +1,7 @@
 import knex from "knex";
-import { Result, IDatabaseError, IDbConnection, SuccessResult, FailResult, DatabaseError, LimitResult, IDatabaseRepoError } from "@core";
-import { MapperFactory, PhieuMapper } from "@mappers";
+import { Result, IDbConnection, DatabaseError, LimitResult, IDatabaseRepoError } from "@core";
 import BaseKnexRepository from "../BaseKnexRepository";
 import { Phieu, IPhieuRepository } from "@modules/phieu";
-import { PhieuBanHang } from "@modules/phieu/phieubanhang";
 import KnexDBRepoError from "../KnexDBRepoError";
 
 
@@ -23,32 +21,30 @@ export default abstract class PhieuRepository<T extends Phieu> extends BaseKnexR
       const listCTPhieu = await this.connection.getConnector()
         .select("*").from(this.tableName)
         .offset(limit.from).limit(limit.count);
-      return SuccessResult.ok(
-        listCTPhieu.map(ctphieu => this.mapper.toDTOFromPersistence(ctphieu))
-      );
+      return listCTPhieu.map(ctphieu => this.mapper.toDTOFromPersistence(ctphieu))
     } catch (err) {
-      return this.knexDatabaseFailed(err);
+      throw this.knexDatabaseFailed(err);
     }
   }
 
-  findPhieuByDate(date: Date, limit?: LimitResult): Promise<Result<any[], IDatabaseRepoError>> {
+  findPhieuByDate(date: Date, limit?: LimitResult): Promise<any[]> {
     return;
   }
 
-  async createPhieu(phieu: T): Promise<Result<void, IDatabaseRepoError>> {
+  async createPhieu(phieu: T): Promise<void> {
     return this.create(phieu);
   }
   
-  async removePhieu(phieuId: string): Promise<Result<void, IDatabaseRepoError>> {
+  async removePhieu(phieuId: string): Promise<void> {
     try {
       const result = await this.connection.getConnector().del().from(this.tableName).where({
         id: phieuId
       });
-      return result === 0 ? 
-        FailResult.fail(new KnexDBRepoError("Phieu", new DatabaseError("Unknown", "Unknown error occurs"))) : 
-        SuccessResult.ok(null);
+      if (result === 0) {
+        throw new KnexDBRepoError("Phieu", new DatabaseError("Unknown", "Unknown error occurs"));
+      }
     } catch (err) {
-      return this.knexDatabaseFailed(err);
+      throw this.knexDatabaseFailed(err);
     }
   }
 

@@ -16,9 +16,11 @@
   "_moduleAliases": {
     "@": "",
     "@core": "dist/src/core/index.js",
+    "@core-modules": "dist/src/core/",
     "@modules": "dist/src/modules/",
     "@services": "dist/src/services",
     "@mappers": "dist/src/mappers/index.js",
+    "@usecases": "dist/src/modules/usecases",
     "@create_type": "dist/src/modules/entity-create-type.js",
     "@dep": "dist/src/dependency-injection/index.js"
   },
@@ -43,7 +45,9 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
+    "@types/acl": "^0.4.37",
     "@types/cors": "^2.8.6",
+    "acl": "^0.4.11",
     "bcrypt": "^4.0.1",
     "class-transformer": "^0.2.3",
     "class-validator": "^0.12.0-rc.0",

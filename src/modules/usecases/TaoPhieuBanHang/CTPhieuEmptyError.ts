@@ -1,5 +1,5 @@
 import { ValidationError } from "class-validator";
-import { TaoCTPhieuDTO } from "./TaoCTPhieu/TaoCTPhieu";
+import { TaoCTPhieuDTO } from "./TaoCTPhieu";
 
 
 export default class CTPhieuEmptyError extends ValidationError {

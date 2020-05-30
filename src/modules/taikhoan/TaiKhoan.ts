@@ -4,6 +4,7 @@ import { Entity, SuccessResult, FailResult } from "@core";
 import TaiKhoanProps from "./TaiKhoanProps";
 import { plainToClass, classToPlain } from "class-transformer";
 import { validate } from "class-validator";
+import { IRole, RoleInfo } from "@core-modules/authorization";
 
 export interface TaiKhoanDTO {
   id: string;
@@ -13,7 +14,7 @@ export interface TaiKhoanDTO {
   loai_tk?: number;
 }
 
-export class TaiKhoan extends Entity<TaiKhoanProps> {
+export class TaiKhoan extends Entity<TaiKhoanProps> implements IRole {
 
   private _isPasswordHash: boolean;
 
@@ -25,6 +26,13 @@ export class TaiKhoan extends Entity<TaiKhoanProps> {
       this._encryptPassword();
     } else {
       this._isPasswordHash = true;
+    }
+  }
+
+  getIdAndRoleId(): RoleInfo {
+    return {
+      id: this.props.id,
+      roleId: this.props.loaiTK
     }
   }
 

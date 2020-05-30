@@ -1,9 +1,9 @@
-import { FailResult, ICommand, Result, IRepositoryError, SuccessResult } from "@core";
+import { FailResult, ICommand, SuccessResult, UseCaseError } from "@core";
 import { ISanPhamRepository, SanPham, SanPhamDTO } from "@modules/sanpham";
 import { INhaCungCapRepository, NhaCungCap } from "@modules/nhacungcap";
-import CreateType from "../../entity-create-type";
-import NhaCungCapNotFound from "./NhaCungCapNotFound";
+import CreateType from "@create_type";
 import { Dependency, DEPConsts } from "@dep";
+import Errors from "./ErrorConsts"
 
 export interface TaoSanPhamDTO {
   ten_sp: string;
@@ -54,12 +54,9 @@ export class TaoSanPham implements ICommand<TaoSanPhamDTO> {
     return SuccessResult.ok(null);
   }
 
-  async commit(): Promise<Result<SanPhamDTO, IRepositoryError>> {
-    const result = await this.sanphamRepo.createSanPham(this.data);
-    if (result.isFailure) {
-      return FailResult.fail(result.error);
-    }
-    return SuccessResult.ok(this.data.serialize());
+  async commit(): Promise<SanPhamDTO> {
+    await this.sanphamRepo.createSanPham(this.data);
+    return this.data.serialize();
   }
   
   rollback(): Promise<void> {
@@ -67,13 +64,10 @@ export class TaoSanPham implements ICommand<TaoSanPhamDTO> {
   }
 
   private async getNhaCungCap(idNhaCC: string = null) {
-    const getNhaCungCap = await this.nhacungcapRepo.getNhaCungCapById(idNhaCC);
-    if (getNhaCungCap.isFailure) {
-      return FailResult.fail(getNhaCungCap.error);
+    const nhacungcapDTO = await this.nhacungcapRepo.getNhaCungCapById(idNhaCC);
+    if (!nhacungcapDTO) {
+      return FailResult.fail(new UseCaseError(Errors.NhaCungCapNotFound));
     }
-    if (!getNhaCungCap.getValue()) {
-      return FailResult.fail(new NhaCungCapNotFound(idNhaCC));
-    }
-    return NhaCungCap.create(getNhaCungCap.getValue(), CreateType.getGroups().loadFromPersistence);
+    return NhaCungCap.create(nhacungcapDTO, CreateType.getGroups().loadFromPersistence);
   }
 }

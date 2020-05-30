@@ -6,5 +6,5 @@ import { ValidationError } from "class-validator";
 
 export default interface INhanVienService extends IDomainService {
 
-  getNhanVienById(taikhoanId: string): Promise<Result<NhanVien, ValidationError[] | IRepositoryError | EntityNotFound>>;
+  getNhanVienById(nhanvienId: string): Promise<Result<NhanVien, ValidationError[] | EntityNotFound>>;
 }

@@ -1,11 +1,8 @@
-import { FailResult, SuccessResult, ICommand, Result, IRepositoryError } from "@core";
-import { ITaiKhoanRepository } from "../..";
-import { TaiKhoan, TaiKhoanDTO } from "../../TaiKhoan";
-import TaiKhoanExistsError from "./TaiKhoanExistsError";
+import { FailResult, SuccessResult, ICommand, UseCaseError } from "@core";
+import { TaiKhoan, TaiKhoanDTO, ITaiKhoanRepository } from "@modules/taikhoan";
 import CreateType from "@create_type";
 import { Dependency, DEPConsts } from "@dep";
-
- 
+import Errors from "./ErrorConsts";
 export interface CreateTaiKhoanDTO {
   
   ten_tk: string;
@@ -40,23 +37,17 @@ export class CreateTaiKhoan implements ICommand<CreateTaiKhoanDTO> {
     }
     const taikhoan = result.getValue();
     const isTaiKhoanExists = await this.repo.taiKhoanExists(taikhoan.tenTaiKhoan);
-    if (isTaiKhoanExists.isFailure) {
-      return FailResult.fail(isTaiKhoanExists.error);
-    }
-    if (isTaiKhoanExists.getValue()) {
-      return FailResult.fail(new TaiKhoanExistsError());
+    if (isTaiKhoanExists) {
+      return FailResult.fail(new UseCaseError(Errors.TaiKhoanExists));
     }
     this.data = taikhoan;
     return SuccessResult.ok(null);
   }
 
-  async commit(): Promise<Result<TaiKhoanDTO, IRepositoryError>> {
-    const commitResult = await await this.repo.createTaiKhoan(this.data);
-    if (commitResult.isSuccess) {
-      this.commited = true;
-      return SuccessResult.ok(this.data.serialize(CreateType.getGroups().toAppRespone));
-    }
-    return FailResult.fail(commitResult.error);
+  async commit(): Promise<TaiKhoanDTO> {
+    await this.repo.createTaiKhoan(this.data);
+    this.commited = true;
+    return this.data.serialize(CreateType.getGroups().toAppRespone);
   }
 
   rollback(): Promise<void> {

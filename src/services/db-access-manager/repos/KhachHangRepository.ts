@@ -11,28 +11,39 @@ export default class KhachHangRepository extends BaseKnexRepository<KhachHang> i
     super(connection, MapperFactory.createMapper(KhachHangMapper), "KHACHHANG");
   }
 
-  update(khachhang: KhachHang): Promise<Result<void, IDatabaseRepoError>> {
+  async findKhachHangByCMND(cmnd: string): Promise<KhachHangDTO> {
+    try {
+      let data = await this.connection.getConnector().select('id').from(this.tableName).where({
+        cmnd: cmnd
+      }).limit(1);
+      return this.mapper.toDTOFromPersistence(data);
+    } catch (err) {
+      throw this.knexDatabaseFailed(err);
+    }
+  }
+
+  update(khachhang: KhachHang): Promise<void> {
     return this.persist(khachhang);
   }
 
-  async searchKhachHang(tenKH: string = "", cmnd: string = ""): Promise<Result<KhachHangDTO[], IDatabaseRepoError>> {
+  async searchKhachHang(tenKH: string = "", cmnd: string = ""): Promise<KhachHangDTO[]> {
     try {
       const searchResult = await this.connection.getConnector()
         .select("*").from(this.tableName)
         .where(`ho_ten`, 'like', `%${tenKH}%`)
         .andWhere('cmnd', 'like', `%${cmnd}%`);
       const khachhangData = searchResult.map(khachhang => this.mapper.toDTOFromPersistence(khachhang));
-      return SuccessResult.ok(khachhangData);
+      return khachhangData;
     } catch (err) {
-      return this.knexDatabaseFailed(err);
+      throw this.knexDatabaseFailed(err);
     }
   }
 
-  async createKhachHang(khachhang: KhachHang): Promise<Result<void, IDatabaseRepoError>> {
+  async createKhachHang(khachhang: KhachHang): Promise<void> {
     return this.create(khachhang);
   }
 
-  async findKhachHangById(khachhangId: string): Promise<Result<KhachHangDTO, IDatabaseRepoError>> {
+  async findKhachHangById(khachhangId: string): Promise<KhachHangDTO> {
     return this.findById( [khachhangId] );
   }
 

@@ -5,7 +5,7 @@ import { ChiTietPhieu, ChiTietPhieuDTO } from ".";
 
 export default interface ICTPhieuRepository<CT extends ChiTietPhieu> {
  
-  createListCTPhieu(listCTPhieu: CT[]): Promise<Result<void, IRepositoryError>>;
+  createListCTPhieu(listCTPhieu: CT[]): Promise<void>;
 
-  findAllCTPhieu(phieuId: string): Promise<Result<ChiTietPhieuDTO[], IRepositoryError>>;
+  findAllCTPhieu(phieuId: string): Promise<ChiTietPhieuDTO[]>;
 }

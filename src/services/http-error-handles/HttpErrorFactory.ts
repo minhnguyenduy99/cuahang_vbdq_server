@@ -5,11 +5,11 @@ import { HttpDatabaseError } from "./HttpDatabaseError";
 import { ValidationError } from "class-validator";
 import { HttpUseCaseError } from "./HttpUseCaseError";
 import HttpDomainServiceError from "./HttpDomainError";
-import { UnauthorizedError } from "@core/authorization";
+import { UnauthorizedError } from "@core-modules/authorization";
 
 class HttpErrorFactory {
 
-  public error(error: UseCaseError<any> | ValidationError[] | ValidationError | IDatabaseError | DomainServiceError) {
+  public error(error: UseCaseError | ValidationError[] | ValidationError | IDatabaseError | DomainServiceError) {
     if (error instanceof UseCaseError) {
       return new HttpUseCaseError(error);
     }

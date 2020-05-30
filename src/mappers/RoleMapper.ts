@@ -1,5 +1,5 @@
 import IMapper from "./IMapper.interface";
-import { Role, RoleDTO } from "@core/authorization";
+import { Role, RoleDTO } from "@core-modules/authorization";
 
 export default class RoleMapper implements IMapper<Role> {
   

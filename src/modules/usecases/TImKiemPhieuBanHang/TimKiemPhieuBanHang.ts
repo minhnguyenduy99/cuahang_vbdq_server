@@ -1,5 +1,7 @@
 import { IQuery, Result, FailResult, UseCaseError, SuccessResult } from "@core";
 import { IPhieuRepository } from "@modules/phieu";
+import { Dependency, DEPConsts } from "@dep";
+import Errors from "./ErrorConsts";
 
 export interface TimKiemPhieuBHDTO {
   id?: string;
@@ -11,16 +13,15 @@ export interface TimKiemPhieuBHDTO {
 
 export class TimKiemPhieuBanHang implements IQuery<TimKiemPhieuBHDTO> {
   
+  private phieuBanHangRepo: IPhieuRepository<any>;
 
-  constructor(
-    private phieuBanHangRepo: IPhieuRepository<any>,
-  ) {
-
+  constructor() {
+    this.phieuBanHangRepo = Dependency.Instance.getRepository(DEPConsts.PhieuBHRepository);
   }
   
-  async validate(request: TimKiemPhieuBHDTO): Promise<Result<void, UseCaseError<any>>> {
+  async validate(request: TimKiemPhieuBHDTO): Promise<Result<void, UseCaseError>> {
     if (request.count <= 0 || request.from <= 0) {
-      return FailResult.fail(new UseCaseError("TimKiemPhieuBanHang"));
+      return FailResult.fail(new UseCaseError(Errors.InvalidSearchIndex));
     }
     return SuccessResult.ok(null);
   }
@@ -34,18 +35,18 @@ export class TimKiemPhieuBanHang implements IQuery<TimKiemPhieuBHDTO> {
     if (request.id) {
       return this.findPhieuById(request.id);
     }
-    return this.phieuBanHangRepo.findPhieuByDate(request.date, { from: request.from, count: request.count });
+    return SuccessResult.ok(this.phieuBanHangRepo.findPhieuByDate(
+      request.date, { 
+        from: request.from, 
+        count: request.count }
+    ));
   }
 
   private async findPhieuById(phieuId: string) {
-    const findPhieu = await this.phieuBanHangRepo.findPhieuById(phieuId);
-    if (findPhieu.isFailure) {
-      return FailResult.fail(findPhieu.error);
+    const phieuDTO = await this.phieuBanHangRepo.findPhieuById(phieuId);
+    if (!phieuDTO) {
+      return FailResult.fail(new UseCaseError(Errors.PhieuIdNotFound));
     }
-    const phieu = findPhieu.getValue();
-    if (!phieu) {
-      return FailResult.fail(new UseCaseError("TimKiemPhieuBanHang", "Không tìm thấy Id phiếu"));
-    }
-    return SuccessResult.ok(phieu);
+    return SuccessResult.ok(phieuDTO);
   }
 }

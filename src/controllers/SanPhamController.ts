@@ -1,17 +1,15 @@
 import { RequestHandler } from "express";
 import BaseController from "./BaseController";
-
 import { TaoSanPham, TimKiemSanPham } from "@modules/usecases";
-import { SanPhamService } from "@modules/services/DomainService";
-
-import { ImageLoader, FOLDERS } from "@services/image-loader";
+import { FOLDERS, IImageLoader } from "@services/image-loader";
 import authenticationChecking from "../middlewares/authentication-check";
 import { Dependency, DEPConsts } from "@dep";
+import { ISanPhamService } from "@modules/services/Shared";
 
 export default class SanPhamController extends BaseController {
 
-  private sanphamService: SanPhamService;
-  private imageLoader: ImageLoader;
+  private sanphamService: ISanPhamService;
+  private imageLoader: IImageLoader;
 
   constructor(route: string) {
     super(route);
@@ -20,8 +18,9 @@ export default class SanPhamController extends BaseController {
   }
   
   protected initializeRoutes(): void {
-    this.router.post(`${this.route}`, authenticationChecking(), this.createSanPham());
-    this.router.get(`${this.route}`, this.searchSanPham());
+    // this.method("use", authenticationChecking());
+    this.method("post", this.createSanPham());
+    this.method("get", this.searchSanPham());
   }
 
   private createSanPham(): RequestHandler {

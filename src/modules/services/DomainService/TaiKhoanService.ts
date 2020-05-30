@@ -14,11 +14,7 @@ export default class TaiKhoanService implements ITaiKhoanService {
   }
 
   async findTaiKhoanById(taikhoanId: string) {
-    const findTaiKhoan = await this.repo.findTaiKhoanById(taikhoanId);
-    if (findTaiKhoan.isFailure) {
-      return FailResult.fail(findTaiKhoan.error);
-    }
-    const taikhoanDTO = findTaiKhoan.getValue();
+    const taikhoanDTO = await this.repo.findTaiKhoanById(taikhoanId);
     if (!taikhoanDTO) {
       return FailResult.fail(new EntityNotFound(TaiKhoan));
     }
@@ -27,11 +23,7 @@ export default class TaiKhoanService implements ITaiKhoanService {
   }
 
   async findTaiKhoanByTenDangNhap(tenDangNhap: string) {
-    const findTaiKhoan = await this.repo.findTaiKhoan(tenDangNhap);
-    if (findTaiKhoan.isFailure) {
-      return FailResult.fail(findTaiKhoan.error);
-    }
-    const taikhoanDTO = findTaiKhoan.getValue();
+    const taikhoanDTO = await this.repo.findTaiKhoan(tenDangNhap);
     if (!taikhoanDTO) {
       return FailResult.fail(new EntityNotFound(TaiKhoan));
     }
@@ -50,7 +42,7 @@ export default class TaiKhoanService implements ITaiKhoanService {
     return SuccessResult.ok(null);
   }
   
-  persist(taikhoan: TaiKhoan): Promise<Result<any, IRepositoryError>> {
+  persist(taikhoan: TaiKhoan): Promise<any> {
     return this.repo.updateTaiKhoan(taikhoan);
   }
 }

@@ -1,7 +1,3 @@
-import { Entity } from "./domain";
-import { IUseCase } from ".";
-import { ClassType } from "class-transformer/ClassTransformer";
-
 export interface IAppError {
   message?: string;
 
@@ -39,25 +35,23 @@ export class InvalidEntity extends BaseAppError {
   }
 }
 
-export class UseCaseError<T extends IUseCase<any, any>> implements IAppError {
+export class UseCaseError implements IAppError {
 
   message: string;
-  usecase: string;
+  code: string;
+  obj: any;
 
-  constructor(type: string | ClassType<T>, msg?: string) {
-    if (typeof type === "string") {
-      this.usecase = type;
-    } else {
-      this.usecase = (type as ClassType<T>).name;
-    }
-    
-    this.message = msg || "Usecase exception";
+  constructor(error: { code: string, message?: string }, argObj?: any) {
+    this.code = error.code
+    this.message = error.message || "Usecase exception";
+    this.obj = argObj;
   }
 
   getErrorInfo() {
     return {
-      usecase: this.usecase,
-      message: this.message
+      code: this.code,
+      message: this.message,
+      ...this.obj
     }
   }
 }
@@ -69,6 +63,25 @@ export class DomainServiceError extends BaseAppError {
     message: string) {
     
     super("DomainService", type.name , message);
+  }
+}
+
+export class InvalidDataError extends DomainServiceError {
+  
+  protected field: string;
+
+  constructor(field: string, type: Function, message?: string) {
+    super(type, message);
+    this.field = field;
+  }
+  
+  getErrorInfo() {
+    return {
+      module: this.module,
+      domain: this.domain,
+      field: this.field,
+      message: this.message
+    }
   }
 }
 
