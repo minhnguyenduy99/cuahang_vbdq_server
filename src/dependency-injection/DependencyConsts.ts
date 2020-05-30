@@ -11,7 +11,6 @@ import {
 import { ImageLoader } from "@services/image-loader";
 import { DatabaseService } from "@services/db-access-manager";
 import { DomainAuthentication } from "@services/authenticate";
-import { AuthorizationService } from "@services/authorization";
 
 import {
   TaiKhoanService, 
@@ -47,6 +46,5 @@ export default {
   // Application services
   DatabaseService,
   ImageLoader,
-  DomainAuthentication,
-  AuthorizationService
+  DomainAuthentication
 }
