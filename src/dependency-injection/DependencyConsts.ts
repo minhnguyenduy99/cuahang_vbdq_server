@@ -6,7 +6,8 @@ import {
   KhachHangRepository,
   PhieuBHRepository,
   CTPhieuRepository, 
-  RoleRepository } from "@services/db-access-manager/repos";
+  RoleRepository,
+  LoaiTaiKhoanRepository } from "@services/db-access-manager/repos";
 
 import { ImageLoader } from "@services/image-loader";
 import { DatabaseService } from "@services/db-access-manager";
@@ -32,6 +33,7 @@ export default {
   PhieuBHRepository,
   CTPhieuRepository,
   RoleRepository,
+  LoaiTaiKhoanRepository,
 
   // Domain services
   TaiKhoanService,

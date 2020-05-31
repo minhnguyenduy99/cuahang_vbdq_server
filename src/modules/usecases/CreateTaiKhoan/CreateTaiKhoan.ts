@@ -3,22 +3,25 @@ import { TaiKhoan, TaiKhoanDTO, ITaiKhoanRepository } from "@modules/taikhoan";
 import CreateType from "@create_type";
 import { Dependency, DEPConsts } from "@dep";
 import Errors from "./ErrorConsts";
+import { ILoaiTaiKhoanRepository, LoaiTaiKhoan } from "@modules/loaitaikhoan";
 export interface CreateTaiKhoanDTO {
   
   ten_tk: string;
   mat_khau: string;
   anh_dai_dien: string;
-  loai_tk: number;
+  loai_tk: string;
 }
 
 export class CreateTaiKhoan implements ICommand<CreateTaiKhoanDTO> {
 
   private repo: ITaiKhoanRepository;
+  private loaiTKRepo: ILoaiTaiKhoanRepository;
   private data: TaiKhoan;
   private commited: boolean;
 
   constructor() {
     this.repo = Dependency.Instance.getRepository(DEPConsts.TaiKhoanRepository); 
+    this.loaiTKRepo = Dependency.Instance.getRepository(DEPConsts.LoaiTaiKhoanRepository);
     this.commited = false;
   }
 

@@ -30,7 +30,7 @@ export default class TaiKhoanProps {
     }
     return val
   })
+  
   @Expose({ name: "loai_tk", groups: CreateType.getAllGroups() })
-  // @IsIn([0, 1, 2], { groups: CreateType.getAllGroups() })
-  loaiTK: number;
+  loaiTK: string;
 }

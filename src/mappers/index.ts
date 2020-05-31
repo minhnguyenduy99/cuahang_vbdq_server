@@ -9,3 +9,4 @@ export { default as NhaCungCapMapper } from "./NhaCungCapMapper";
 export { default as KhachHangMapper } from "./KhachHangMapper";
 export { default as PhieuMapper } from "./PhieuMapper";
 export { default as RoleMapper } from "./RoleMapper";
+export { default as LoaiTaiKhoanMapper } from "./LoaiTaiKhoanMapper";

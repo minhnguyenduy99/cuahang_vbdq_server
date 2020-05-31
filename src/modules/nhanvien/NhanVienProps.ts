@@ -15,10 +15,6 @@ export default class NhanVienProps {
   @Expose()
   idql: string;
 
-  @IsIn(["NHANVIEN", "KHACHHANG"], { groups: CreateType.getAllGroups() })
-  @Expose({ name: "chuc_vu"})
-  chucvu: string;
-
   @IsOptional({ groups: [CreateType.getGroups().createNew] })
   @Validate(IsMoney, { groups: CreateType.getAllGroupsExcept("createNew") })
   @ValidateIf((val) => val, { groups: [CreateType.getGroups().createNew] })

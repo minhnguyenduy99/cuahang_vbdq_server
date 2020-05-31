@@ -33,7 +33,7 @@ export default class KhachHang extends Entity<KhachHangProps> {
   }
 
   public static async create(data: any, createType: string) {
-    const khachHangProps = plainToClass(KhachHangProps, data, { groups: [createType]});
+    const khachHangProps = plainToClass(KhachHangProps, data, { groups: [createType], excludeExtraneousValues: true });
     const errors = await validate(khachHangProps, { groups: [createType] });
 
     if (errors.length === 0) {

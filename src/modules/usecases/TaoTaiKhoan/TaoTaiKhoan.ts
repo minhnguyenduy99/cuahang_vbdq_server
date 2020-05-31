@@ -4,11 +4,11 @@ import { FailResult, SuccessResult, ICommand, DomainEvents, UseCaseError } from 
 import CreateType from "@create_type";
 import { Dependency, DEPConsts } from "@dep";
 import Errors from "./ErrorConsts";
+import { ILoaiTaiKhoanRepository } from "@modules/loaitaikhoan";
 
 export interface TaoTaiKhoanDTO {
 
   idql?: string;
-  chucvu: string;
   ho_ten: string;
   cmnd: string;
   ngay_sinh: Date;
@@ -19,19 +19,21 @@ export interface TaoTaiKhoanDTO {
   ten_tk: string;
   mat_khau: string;
   anh_dai_dien: string;
-  loai_tk: number;
+  loai_tk: string;
 }
 
 
 export class TaoTaiKhoan implements ICommand<TaoTaiKhoanDTO> {
   
   private taoTaiKhoanUseCase: CreateTaiKhoan; 
-  private nhanvienRepo: INhanVienRepository
+  private nhanvienRepo: INhanVienRepository;
+  private loaiTKRepo: ILoaiTaiKhoanRepository;
   private data: NhanVien;
   private commited: boolean;
 
   constructor() {
     this.nhanvienRepo = Dependency.Instance.getRepository(DEPConsts.NhanVienRepository);
+    this.loaiTKRepo = Dependency.Instance.getRepository(DEPConsts.LoaiTaiKhoanRepository);
     this.commited = false;
     this.taoTaiKhoanUseCase = new CreateTaiKhoan();
   }
@@ -45,6 +47,11 @@ export class TaoTaiKhoan implements ICommand<TaoTaiKhoanDTO> {
   }
   
   async execute(request: TaoTaiKhoanDTO) {
+    // Kiểm tra loại tài khoản có hợp lệ
+    let listLoaiTKNhanVien = await this.loaiTKRepo.findLoaiTKNhanVien();
+    if (listLoaiTKNhanVien.filter(loaiTK => loaiTK.ma_ltk === request.loai_tk).length === 0) {
+      return FailResult.fail(new UseCaseError(Errors.LoaiTaiKhoanInvalid, { loai_tk: request.loai_tk }));
+    }
     // Thực hiện use case thêm tài khoản 
     const saveTaiKhoan = await this.taoTaiKhoanUseCase.execute({ 
       ten_tk: request.ten_tk,
@@ -71,19 +78,23 @@ export class TaoTaiKhoan implements ICommand<TaoTaiKhoanDTO> {
 
   async commit() {
     try {
-      await Promise.all([
+      let [taikhoanData] = await Promise.all([
         this.taoTaiKhoanUseCase.commit(),
         this.nhanvienRepo.createNhanVien(this.data)
       ])
+
+      let serializedData = this.data.serialize(CreateType.getGroups().toAppRespone); 
+      // dispatch the domain event
+      DomainEvents.dispatchEventsForAggregate(this.data.entityId);
+
+      return {
+        ...serializedData,
+        tai_khoan: taikhoanData
+      }
     } catch (err) {
       this.taoTaiKhoanUseCase.rollback();
       throw err;
     }
-    let serializedData = this.data.serialize(CreateType.getGroups().toAppRespone); 
-    // dispatch the domain event
-    DomainEvents.dispatchEventsForAggregate(this.data.entityId);
-
-    return serializedData;
   }
 
   async rollback() {

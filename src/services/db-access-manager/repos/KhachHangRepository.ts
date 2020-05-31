@@ -1,7 +1,7 @@
 import knex from "knex";
 import { MapperFactory, KhachHangMapper } from "@mappers";
 import { IKhachHangRepository, KhachHang, KhachHangDTO } from "@modules/khachhang";
-import { Result, IDatabaseError, IDbConnection, SuccessResult, IRepositoryError, IDatabaseRepoError } from "@core";
+import { IDbConnection } from "@core";
 
 import BaseKnexRepository from "../BaseKnexRepository";
 
@@ -14,7 +14,8 @@ export default class KhachHangRepository extends BaseKnexRepository<KhachHang> i
   async findKhachHangByCMND(cmnd: string): Promise<KhachHangDTO> {
     try {
       let data = await this.connection.getConnector().select('id').from(this.tableName).where({
-        cmnd: cmnd
+        cmnd: cmnd,
+        record_status: '1'
       }).limit(1);
       return this.mapper.toDTOFromPersistence(data);
     } catch (err) {
@@ -31,7 +32,8 @@ export default class KhachHangRepository extends BaseKnexRepository<KhachHang> i
       const searchResult = await this.connection.getConnector()
         .select("*").from(this.tableName)
         .where(`ho_ten`, 'like', `%${tenKH}%`)
-        .andWhere('cmnd', 'like', `%${cmnd}%`);
+        .andWhere('cmnd', 'like', `%${cmnd}%`)
+        .andWhere('record_status', '=', '1');
       const khachhangData = searchResult.map(khachhang => this.mapper.toDTOFromPersistence(khachhang));
       return khachhangData;
     } catch (err) {
@@ -49,13 +51,15 @@ export default class KhachHangRepository extends BaseKnexRepository<KhachHang> i
 
   protected getPersistenceCondition(persistence: any): object {
     return {
-      id: persistence.id
+      id: persistence.id,
+      record_status: '1'
     }
   }
 
   protected getIdCondition(idFields: any[]): object {
     return {
-      id: idFields[0]
+      id: idFields[0],
+      record_status: '1'
     }
   }
 }

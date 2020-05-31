@@ -99,6 +99,7 @@ export default class App implements IApp {
   }
 
   protected initializeRepositories() {
+    this.dep.registerRepository(DEPConsts.LoaiTaiKhoanRepository);
     this.dep.registerRepository(DEPConsts.TaiKhoanRepository);
     this.dep.registerRepository(DEPConsts.NhaCungCapRepository);
     this.dep.registerRepository(DEPConsts.KhachHangRepository);

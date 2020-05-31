@@ -1,10 +1,9 @@
 import { CreateTaiKhoan } from "@usecases/CreateTaiKhoan";
-import { FailResult, SuccessResult, ICommand, DomainEvents, UseCaseError } from "@core";
+import { FailResult, SuccessResult, ICommand, DomainEvents } from "@core";
 import CreateType from "@create_type";
 import { Dependency, DEPConsts } from "@dep";
 import { KhachHang, IKhachHangRepository } from "@modules/khachhang";
-import { LoaiTaiKhoanConst } from "@modules/taikhoan";
-import ErrorConsts from "./ErrorConsts";
+import { ILoaiTaiKhoanRepository } from "@modules/loaitaikhoan";
 export interface TaoTaiKhoanKhachHangDTO {
 
   ghi_chu?: string;
@@ -24,11 +23,13 @@ export class TaoTaiKhoanKhachHang implements ICommand<TaoTaiKhoanKhachHangDTO> {
   
   private taoTaiKhoanUseCase: CreateTaiKhoan; 
   private khachhangRepo: IKhachHangRepository;
+  private loaiTKRepo: ILoaiTaiKhoanRepository;
   private data: KhachHang;
   private commited: boolean;
 
   constructor() {
     this.khachhangRepo = Dependency.Instance.getRepository(DEPConsts.KhachHangRepository);
+    this.loaiTKRepo = Dependency.Instance.getRepository(DEPConsts.LoaiTaiKhoanRepository);
     this.commited = false;
     this.taoTaiKhoanUseCase = new CreateTaiKhoan();
   }
@@ -42,12 +43,13 @@ export class TaoTaiKhoanKhachHang implements ICommand<TaoTaiKhoanKhachHangDTO> {
   }
   
   async execute(request: TaoTaiKhoanKhachHangDTO) {
+    let loaiTKKhachHang = await this.loaiTKRepo.findLoaiTKKhachHang();
     // Thực hiện use case thêm tài khoản 
     const saveTaiKhoan = await this.taoTaiKhoanUseCase.execute({ 
       ten_tk: request.ten_tk,
       mat_khau: request.mat_khau,
       anh_dai_dien: request.anh_dai_dien,
-      loai_tk: LoaiTaiKhoanConst.KHACHHANG
+      loai_tk: loaiTKKhachHang.ma_ltk
     });
     if (saveTaiKhoan.isFailure) {
       return FailResult.fail(saveTaiKhoan.error);
@@ -64,19 +66,21 @@ export class TaoTaiKhoanKhachHang implements ICommand<TaoTaiKhoanKhachHangDTO> {
 
   async commit() {
     try {
-      await Promise.all([
+      let [taikhoanData] = await Promise.all([
         this.taoTaiKhoanUseCase.commit(),
         this.khachhangRepo.createKhachHang(this.data)
       ])
+      let serializedData = {
+        ...this.data.serialize(CreateType.getGroups().toAppRespone),
+        tai_khoan: taikhoanData
+      }
+      // dispatch the domain event
+      DomainEvents.dispatchEventsForAggregate(this.data.entityId);
+      return serializedData;
     } catch (err) {
       this.taoTaiKhoanUseCase.rollback();
       throw err;
     }
-    let serializedData = this.data.serialize(CreateType.getGroups().toAppRespone); 
-    // dispatch the domain event
-    DomainEvents.dispatchEventsForAggregate(this.data.entityId);
-
-    return serializedData;
   }
 
   async rollback() {

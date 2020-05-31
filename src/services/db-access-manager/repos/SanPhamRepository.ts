@@ -16,8 +16,8 @@ export default class SanPhamRepository extends BaseKnexRepository<SanPham> imple
         .select("*").from(this.tableName)
         .where('ten', 'like', `%${tenSP}%`)
         .andWhere('loai_sp', 'like', `%${loaiSP}%`)
+        .andWhere('record_status', '=', '1')
         .offset(limit.from).limit(limit.count)
-        .debug(true);
 
       const sanphamData = listSanPhams.map(sanpham => this.mapper.toDTOFromPersistence(sanpham));
       return sanphamData;
@@ -36,13 +36,15 @@ export default class SanPhamRepository extends BaseKnexRepository<SanPham> imple
 
   protected getPersistenceCondition(persistence: any): object {
     return {
-      id: persistence.id
+      id: persistence.id,
+      record_status: '1'
     }
   }
   
   protected getIdCondition(idFields: any[]): object {
     return {
-      id: idFields[0]
+      id: idFields[0],
+      record_status: '1'
     }
   }
 }

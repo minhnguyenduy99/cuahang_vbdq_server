@@ -7,3 +7,5 @@ export { default as PhieuRepository} from "./PhieuRepository";
 export { default as CTPhieuRepository } from "./CTPhieuRepository";
 export { default as PhieuBHRepository } from "./PhieuBHRepository";
 export { default as RoleRepository } from "./RoleRepository";
+export { default as LoaiTaiKhoanRepository } from "./LoaiTaiKhoanRepository";
+

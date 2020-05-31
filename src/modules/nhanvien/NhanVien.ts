@@ -9,7 +9,6 @@ import NhanVienCreated from "./NhanVienCreated";
 export interface NhanVienDTO {
   id: string;
   idql: string;
-  chuc_vu: string;
   luong: number;
   ho_ten: string;
   cmnd: string;
@@ -51,10 +50,6 @@ export class NhanVien extends AggrerateRoot<NhanVienProps> {
 
   get quanlyId() {
     return this.props.idql;
-  }
-
-  get chucVu() {
-    return this.props.chucvu;
   }
 
   get luong() {

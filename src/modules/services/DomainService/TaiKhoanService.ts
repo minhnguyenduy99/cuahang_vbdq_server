@@ -1,4 +1,4 @@
-import { Result, IRepositoryError, FailResult, SuccessResult } from "@core";
+import { FailResult, SuccessResult } from "@core";
 import { TaiKhoan, ITaiKhoanRepository } from "@modules/taikhoan";
 import CreateType from "@create_type";
 import { EntityNotFound } from ".";

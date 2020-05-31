@@ -1,38 +1,36 @@
 import uniqid from "uniqid";
 import bcrypt from "bcrypt";
-import { Entity, SuccessResult, FailResult } from "@core";
+import { Entity, SuccessResult, FailResult, InvalidEntity } from "@core";
 import TaiKhoanProps from "./TaiKhoanProps";
 import { plainToClass, classToPlain } from "class-transformer";
 import { validate } from "class-validator";
-import { IRole, RoleInfo } from "@core-modules/authorization";
+import { LoaiTaiKhoan } from "@modules/loaitaikhoan";
 
 export interface TaiKhoanDTO {
   id: string;
   ten_tk?: string;
   mat_khau?: string;
   anh_dai_dien?: string;
-  loai_tk?: number;
+  loai_tk?: string;
 }
 
-export class TaiKhoan extends Entity<TaiKhoanProps> implements IRole {
+export class TaiKhoan extends Entity<TaiKhoanProps> {
 
   private _isPasswordHash: boolean;
+  private loaiTK: LoaiTaiKhoan;
 
-  private constructor(taikhoanProps: TaiKhoanProps) {
+  private constructor(taikhoanProps: TaiKhoanProps, loaiTK?: LoaiTaiKhoan) {
     super(taikhoanProps);
+    if (loaiTK && taikhoanProps.loaiTK !== loaiTK.ma) {
+      throw new InvalidEntity("TaiKhoan", "TaiKhoan", "Loại tài khoản không khớp");
+    }
+    this.loaiTK = loaiTK ?? null;
     if (!taikhoanProps.id) {
       taikhoanProps.id = uniqid()
       this._isPasswordHash = false;
       this._encryptPassword();
     } else {
       this._isPasswordHash = true;
-    }
-  }
-
-  getIdAndRoleId(): RoleInfo {
-    return {
-      id: this.props.id,
-      roleId: this.props.loaiTK
     }
   }
 
@@ -76,11 +74,11 @@ export class TaiKhoan extends Entity<TaiKhoanProps> implements IRole {
     this._isPasswordHash = true;
   }
 
-  static async create(data: any, createType?: string) {
+  static async create(data: any, createType?: string, loaiTK: LoaiTaiKhoan = null) {
     const taiKhoanProps = plainToClass(TaiKhoanProps, data, { groups: [createType] });
     const errors = await validate(taiKhoanProps, { groups: [createType]});
     if (errors.length === 0) {
-      return SuccessResult.ok(new TaiKhoan(taiKhoanProps));
+      return SuccessResult.ok(new TaiKhoan(taiKhoanProps, loaiTK));
     }
     return FailResult.fail(errors);
   }
