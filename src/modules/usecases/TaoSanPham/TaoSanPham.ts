@@ -11,7 +11,6 @@ export interface TaoSanPhamDTO {
   gia_nhap: number;
   gia_ban: number;
   khoi_luong: number;
-  so_luong: number;
   nhacc_id: string;
   anh_dai_dien?: string;
   tieu_chuan?: string;

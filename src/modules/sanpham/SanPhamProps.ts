@@ -8,7 +8,7 @@ export interface SanPhamDTO {
   idsp: string;
   ten_sp: string;
   loai_sp: string;
-  so_luong: number;
+  so_luong?: number;
   gia_nhap: number;
   gia_ban: number;
   anh_dai_dien: number;
@@ -33,10 +33,11 @@ export class SanPhamProps {
   @Expose({ name: "loai_sp" })
   loaiSP: string;
 
-  @IsInt({ groups: CreateType.getAllGroups() })
-  @IsPositive({ groups: CreateType.getAllGroups() })
+  @IsInt({ groups: CreateType.getAllGroupsExcept("createNew") })
+  @IsPositive({ groups: CreateType.getAllGroupsExcept("createNew") })
+  @Transform(StringToNumber, { groups: CreateType.getAllGroupsExcept("createNew") })
+  @IsEmpty({ groups: [CreateType.getGroups().createNew] })
   @Expose({ name: "so_luong"})
-  @Transform(StringToNumber)
   soLuong: number;
 
   @IsNumber({ allowInfinity: false, allowNaN: false})
