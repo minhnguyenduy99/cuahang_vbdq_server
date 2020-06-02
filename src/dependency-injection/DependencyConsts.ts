@@ -1,52 +1,40 @@
-import { 
-  TaiKhoanRepository, 
-  NhaCungCapRepository, 
-  NhanVienRepository,
-  SanPhamRepository,
-  KhachHangRepository,
-  PhieuBHRepository,
-  CTPhieuRepository, 
-  RoleRepository,
-  LoaiTaiKhoanRepository } from "@services/db-access-manager/repos";
-
 import { ImageLoader } from "@services/image-loader";
 import { DatabaseService } from "@services/db-access-manager";
 import { DomainAuthentication } from "@services/authenticate";
 
-import {
-  TaiKhoanService, 
-  NhaCungCapService, 
-  NhanVienService, 
-  KhachHangService, 
-  SanPhamService,
-  CTPhieuBHService,
-  PhieuBHService,
-  AccountAuthenticateService } from "@modules/services/DomainService"
+import { TaiKhoanRepository, TaiKhoanService, AccountAuthenticateService } from "@modules/taikhoan";
+import { LoaiTaiKhoanRepository } from "@modules/loaitaikhoan";
+import { KhachHangRepository, KhachHangService } from "@modules/khachhang";
+import { NhaCungCapRepository, NhaCungCapService } from "@modules/nhacungcap";
+import { NhanVienRepository, NhanVienService } from "@modules/nhanvien";
+import { SanPhamRepository, SanPhamService } from "@modules/sanpham";
+import { PhieuBHRepository, CTPhieuBHRepository } from "@modules/phieubanhang";
+import { PhieuNhapKhoRepository, CTPhieuNKRepository } from "@modules/phieunhapkho";
 
 export default {
-  // Repositories 
+
+  // repos
   TaiKhoanRepository,
+  KhachHangRepository,
+  LoaiTaiKhoanRepository,
   NhaCungCapRepository,
   NhanVienRepository,
   SanPhamRepository,
-  KhachHangRepository,
   PhieuBHRepository,
-  CTPhieuRepository,
-  RoleRepository,
-  LoaiTaiKhoanRepository,
+  CTPhieuBHRepository,
+  PhieuNhapKhoRepository, 
+  CTPhieuNKRepository, 
 
-  // Domain services
+  // domain services
   TaiKhoanService,
-  NhaCungCapService,
-  NhanVienService,
-  KhachHangService,
-  SanPhamService,
-  CTPhieuBHService,
-  PhieuBHService,
   AccountAuthenticateService,
+  NhanVienService,
+  SanPhamService,
+  KhachHangService,
+  NhaCungCapService,
 
-  // Application services
-  DatabaseService,
+  // external services
   ImageLoader,
+  DatabaseService,
   DomainAuthentication
 }

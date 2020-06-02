@@ -1,7 +1,11 @@
 import BaseController from "./BaseController";
 import { RequestHandler } from "express";
-import { TaoPhieuBanHang, GetPhieuBanHangById, GetPhieuBanHang, GetCTPhieuBanHangDTO, GetPhieuBanHangDTO } from "@modules/usecases";
-import authenticationChecking from "../middlewares/authentication-check";
+import { authenticationChecking } from "@middlewares";
+
+import { TaoPhieuBanHang } from "@modules/phieubanhang/usecases/TaoPhieuBanHang";
+import { GetPhieuBanHangById, GetPhieuBanHangByIdDTO } from "@modules/phieubanhang/usecases/GetPhieuBanHangById";
+import { GetPhieuBanHang, GetPhieuBanHangDTO } from "@modules/phieubanhang/usecases/GetPhieuBanHang";
+
 
 export default class PhieuBanHangController extends BaseController {
   
@@ -44,7 +48,7 @@ export default class PhieuBanHangController extends BaseController {
     return async (req, res, next) => {
       const request = {
         phieu_id: req.params.id
-      } as GetCTPhieuBanHangDTO;
+      } as GetPhieuBanHangByIdDTO;
       const queryResult = await this.executeQuery(
         request,
         new GetPhieuBanHangById());

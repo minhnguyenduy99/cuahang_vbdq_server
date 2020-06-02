@@ -1,10 +1,12 @@
 import BaseController from "./BaseController";
 import { RequestHandler } from "express";
-import { INhaCungCapService } from "@modules/services/Shared";
 import { Dependency, DEPConsts } from "@dep";
 import { IImageLoader, FOLDERS } from "@services/image-loader";
 import { ErrorFactory } from "@services/http-error-handles";
-import { TimKiemNhaCungCap, TaoNhaCungCap } from "@modules/usecases";
+
+import { INhaCungCapService } from "@modules/nhacungcap/shared";
+import { TaoNhaCungCap } from "@modules/nhacungcap/usecases/TaoNhaCungCap";
+import { TimKiemNhaCungCap } from "@modules/nhacungcap/usecases/TimKiemNhaCC";
 
 
 export default class NhaCungCapController extends BaseController {

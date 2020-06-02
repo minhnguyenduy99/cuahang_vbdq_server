@@ -1,6 +1,6 @@
 import { IsNotEmpty } from "class-validator";
-import CreateType from "@create_type";
 import { Expose } from "class-transformer";
+import { CreateType } from "@modules/core";
 
 
 export default class LoaiTaiKhoanProps {

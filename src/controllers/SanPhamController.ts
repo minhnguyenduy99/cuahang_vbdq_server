@@ -1,10 +1,13 @@
 import { RequestHandler } from "express";
-import BaseController from "./BaseController";
-import { TaoSanPham, TimKiemSanPham } from "@modules/usecases";
-import { FOLDERS, IImageLoader } from "@services/image-loader";
-import authenticationChecking from "../middlewares/authentication-check";
+import { authenticationChecking } from "@middlewares";
 import { Dependency, DEPConsts } from "@dep";
-import { ISanPhamService } from "@modules/services/Shared";
+import { FOLDERS, IImageLoader } from "@services/image-loader";
+
+import { ISanPhamService } from "@modules/sanpham/shared";
+import { TaoSanPham } from "@modules/sanpham/usecases/TaoSanPham";
+import { TimKiemSanPham } from "@modules/sanpham/usecases/TimKiemSanPham";
+
+import BaseController from "./BaseController";
 
 export default class SanPhamController extends BaseController {
 
@@ -33,7 +36,7 @@ export default class SanPhamController extends BaseController {
       }
       let newSanPham = createSanPhamResult.getValue();
       const source = await this.imageLoader.upload(anh, FOLDERS.SanPham);
-      this.sanphamService.updateAnhSanPham(newSanPham.idsp, source);
+      await this.sanphamService.updateAnhSanPham(newSanPham.idsp, source);
       newSanPham.anh_dai_dien = source;
       res.status(201).json(createSanPhamResult.getValue());
     }

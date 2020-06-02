@@ -8,6 +8,6 @@ export default class IsVNPhoneNumber implements ValidatorConstraintInterface {
   }
   
   defaultMessage?(validationArguments?: ValidationArguments): string {
-    return "Money must be non-negative and divided by 1000";
+    return "The phone number is invalid";
   }
 }

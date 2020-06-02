@@ -1,5 +1,5 @@
-import { Router, RequestHandler, IRouterMatcher } from "express";
-import { IUseCase, ICommand, FailResult, SuccessResult, IQuery } from "@core";
+import { Router, RequestHandler } from "express";
+import { ICommand, FailResult, SuccessResult, IQuery } from "@core";
 import { ErrorFactory } from "@services/http-error-handles";
 
 type HTTPMethod = "use" | "get" | "post" | "put" | "delete";
@@ -40,7 +40,7 @@ export default abstract class BaseController {
   protected method(method: HTTPMethod, handler: RequestHandler, subRoute: string = ""): void {
     this.router[method](`${this.route}${subRoute}`, async (req, res, next) => {
       try {
-        handler(req, res, next);
+        await handler(req, res, next);
       } catch (err) {
         next(ErrorFactory.internalServerError());
       }

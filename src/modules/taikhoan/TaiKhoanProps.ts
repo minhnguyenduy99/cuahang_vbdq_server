@@ -1,6 +1,6 @@
-import { IsString, IsOptional, IsNumber, MaxLength, IsIn, IsEmpty } from "class-validator";
+import { IsString, IsOptional, IsNumber, MaxLength, IsEmpty } from "class-validator";
 import { Expose, Transform } from "class-transformer";
-import CreateType from "../entity-create-type";
+import { CreateType } from "@modules/core";
 
 export default class TaiKhoanProps {
 

@@ -1,11 +1,14 @@
 import { RequestHandler } from "express";
-import BaseController from "./BaseController";
-import { GetNhanVien, TaoTaiKhoan, GetNhanVienRequest } from "@modules/usecases";
+import { Dependency, DEPConsts } from "@dep";
 import { ErrorFactory } from "@services/http-error-handles";
 import { ImageLoader, FOLDERS } from "@services/image-loader";
-import authenticationChecking from "../middlewares/authentication-check";
-import { ITaiKhoanService } from "@modules/services/Shared";
-import { Dependency, DEPConsts } from "@dep";
+import { authenticationChecking } from "@middlewares";
+
+import { GetNhanVien, GetNhanVienRequest } from "@modules/nhanvien/usecases/GetNhanVien";
+import { TaoTaiKhoan } from "@modules/nhanvien/usecases/CreateTaiKhoanNhanVien";
+import { ITaiKhoanService } from "@modules/taikhoan/shared";
+
+import BaseController from "./BaseController";
 
 
 export default class NhanVienController extends BaseController {

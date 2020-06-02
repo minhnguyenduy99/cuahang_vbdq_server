@@ -1,6 +1,6 @@
 import { Expose, Type } from "class-transformer";
 import { IsIn, IsString, IsOptional, IsNotEmpty, IsDate, IsEmpty, Validate, ValidateIf } from "class-validator";
-import CreateType from "../entity-create-type";
+import CreateType from "../core/entity-create-type";
 import { IsCMND, IsVNPhoneNumber, IsMoney } from "../helpers/custom-validator";
 
 export default class NhanVienProps {

@@ -1,26 +1,14 @@
 import uniqid from "uniqid";
-import { Entity, SuccessResult, FailResult, InvalidEntity, DomainEvents, AggrerateRoot } from "@core";
-import { classToPlain, plainToClass } from "class-transformer";
 import { validate } from "class-validator";
+import { classToPlain, plainToClass } from "class-transformer";
+import { SuccessResult, FailResult, InvalidEntity, AggrerateRoot } from "@core";
+import { TaiKhoan } from "@modules/taikhoan";
 import NhanVienProps from "./NhanVienProps";
-import { TaiKhoanDTO, TaiKhoan } from "@modules/taikhoan";
 import NhanVienCreated from "./NhanVienCreated";
+import { NhanVienDTO } from ".";
 
-export interface NhanVienDTO {
-  id: string;
-  idql: string;
-  luong: number;
-  ho_ten: string;
-  cmnd: string;
-  ngay_sinh: Date;
-  gioi_tinh: string;
-  sdt: string;
-  dia_chi: string;
-  ghi_chu: string;
-  tk_id: string;
-}
 
-export class NhanVien extends AggrerateRoot<NhanVienProps> {
+export default class NhanVien extends AggrerateRoot<NhanVienProps> {
 
   private _taiKhoan: TaiKhoan;
 

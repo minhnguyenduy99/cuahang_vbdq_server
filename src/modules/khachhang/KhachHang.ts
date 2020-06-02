@@ -1,9 +1,10 @@
 import uniqid from "uniqid";
-import { KhachHangProps, KhachHangDTO } from "./KhachHangProps";
 import { Entity, SuccessResult, FailResult } from "@core";
 import { classToPlain, plainToClass } from "class-transformer";
 import { validate } from "class-validator";
+import KhachHangProps from "./KhachHangProps";
 import { Phieu } from "@modules/phieu";
+import { KhachHangDTO } from ".";
 
 export default class KhachHang extends Entity<KhachHangProps> {
   

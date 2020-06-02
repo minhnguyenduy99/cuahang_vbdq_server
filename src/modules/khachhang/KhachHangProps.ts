@@ -1,22 +1,9 @@
 import { IsString, IsOptional, IsNotEmpty, IsEmpty, Validate, IsDate } from "class-validator";
-import CreateType from "../entity-create-type";
 import { Expose, Type } from "class-transformer";
-import { IsCMND, IsMoney, IsVNPhoneNumber } from "../helpers/custom-validator";
+import { CreateType } from "@modules/core";
+import { IsCMND, IsMoney, IsVNPhoneNumber } from "@modules/helpers";
 
-
-export interface KhachHangDTO {
-  id: string;
-  ten_kh: string;
-  cmnd: string;
-  ngay_sinh: Date;
-  gioi_tinh: string;
-  dia_chi: string;
-  sdt: string;
-  tong_gia_tri_ban: number;
-  tong_gia_tri_mua: number;
-}
-
-export class KhachHangProps {
+export default class KhachHangProps {
 
   @IsString({ groups: CreateType.getAllGroups() })
   @IsOptional({ groups: [CreateType.getGroups().createNew] })

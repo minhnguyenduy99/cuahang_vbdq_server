@@ -1,1 +1,0 @@
-export { TaoKhachHangDTO, TaoKhachHang } from "./TaoKhachHang";

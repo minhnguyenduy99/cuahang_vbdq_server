@@ -1,9 +1,8 @@
+import { plainToClass, classToPlain } from "class-transformer";
+import { validate } from "class-validator";
 import LoaiTaiKhoanProps from "./LoaiTaiKhoanProps";
 import { Entity, SuccessResult, FailResult } from "@core";
 import { LoaiTaiKhoanDTO } from ".";
-import { plainToClass, classToPlain } from "class-transformer";
-import { validate } from "class-validator";
-
 
 export default class LoaiTaiKhoan extends Entity<LoaiTaiKhoanProps> {
 

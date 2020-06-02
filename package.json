@@ -17,11 +17,10 @@
     "@": "",
     "@core": "dist/src/core/index.js",
     "@core-modules": "dist/src/core/",
+    "@middlewares": "dist/src/middlewares/index.js",
+    "@controllers": "dist/src/controllers/index.js",
     "@modules": "dist/src/modules/",
     "@services": "dist/src/services",
-    "@mappers": "dist/src/mappers/index.js",
-    "@usecases": "dist/src/modules/usecases",
-    "@create_type": "dist/src/modules/entity-create-type.js",
     "@dep": "dist/src/dependency-injection/index.js"
   },
   "author": "",

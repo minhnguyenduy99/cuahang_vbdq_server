@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import { IAuthenticate } from ".";
-import { IAccountAuthenticateService } from "@modules/services/Shared";
+import { IAccountAuthenticateService } from "@modules/taikhoan/shared";
 import AuthenticateResult from "./AuthenticateResult";
 import { ApplicationService, IAppSettings } from "@core";
 import { Dependency, DEPConsts } from "@dep";

@@ -1,11 +1,9 @@
 import knex from "knex";
-import { IDbConnection, Entity, SuccessResult } from "@core";
+import { IDbConnection, Entity } from "@core";
 import { IPersistableRepository } from "@core";
-import { IMapper } from "@mappers";
+import { IMapper } from "@modules/core";
 import { KnexDatabaseError } from "./DatabaseError";
 import KnexDBRepoError from "./KnexDBRepoError";
-
-
 
 export default abstract class BaseKnexRepository<T extends Entity<any>> implements IPersistableRepository<knex> {
 

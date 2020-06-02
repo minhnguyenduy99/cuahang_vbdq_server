@@ -66,6 +66,13 @@ export class DomainServiceError extends BaseAppError {
   }
 }
 
+export class EntityNotFound extends DomainServiceError {
+
+  constructor(type: Function) {
+    super(type, `${type.name} not found`);
+  }
+}
+
 export class InvalidDataError extends DomainServiceError {
   
   protected field: string;

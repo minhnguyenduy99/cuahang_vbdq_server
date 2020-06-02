@@ -1,7 +1,6 @@
 import * as core from "@core";
 import BaseKnexConnection from "./BaseKnexConnection";
-import DBConnectionManager from "./DBConnectionManager";
-import { IDatabaseRepository, ApplicationService, IAppSettings, IDbConnection } from "@core";
+import { IDatabaseRepository, ApplicationService, IAppSettings } from "@core";
 import DbConfigObjectConnection from "./DbConfigObjectConnection";
 
 interface DbConnectionData {

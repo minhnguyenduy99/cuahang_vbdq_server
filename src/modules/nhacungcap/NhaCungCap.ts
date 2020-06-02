@@ -1,20 +1,13 @@
 import uniqid from "uniqid";
-import { Entity, SuccessResult, FailResult } from "@core";
-import NhaCungCapProps from "./NhaCungCapProps";
-import { classToPlain, plainToClass } from "class-transformer";
 import { validate } from "class-validator";
-import { IsImage } from "../helpers/custom-validator";
+import { classToPlain, plainToClass } from "class-transformer";
+import { Entity, SuccessResult, FailResult } from "@core";
+import { IsImage } from "@modules/helpers";
+import NhaCungCapProps from "./NhaCungCapProps";
+import { NhaCungCapDTO } from ".";
 
 
-export interface NhaCungCapDTO {
-  id: string;
-  ten: string;
-  dia_chi: string;
-  anh_dai_dien: string;
-  tong_gia_tri_nhap: number;
-}
-
-export class NhaCungCap extends Entity<NhaCungCapProps> {
+export default class NhaCungCap extends Entity<NhaCungCapProps> {
   
   private constructor(props: NhaCungCapProps) {
     super(props);

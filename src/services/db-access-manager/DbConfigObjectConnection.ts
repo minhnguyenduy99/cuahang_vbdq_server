@@ -1,5 +1,3 @@
-import fs from "fs";
-import path from "path";
 import Knex from "knex";
 import BaseKnexConnection from "./BaseKnexConnection";
 

@@ -1,10 +1,10 @@
 import BaseController from "./BaseController";
-import { RequestHandler, Request } from "express";
-import { TaoKhachHang, TimKiemKhachHang, TimKiemKhachHangDTO, TaoTaiKhoanKhachHang } from "@modules/usecases";
-import { ErrorFactory } from "@services/http-error-handles";
-import { ITaiKhoanService } from "@modules/services/Shared";
+import { RequestHandler } from "express";
 import { Dependency, DEPConsts } from "@dep";
 import { IImageLoader, FOLDERS } from "@services/image-loader";
+import { ITaiKhoanService } from "@modules/taikhoan/shared";
+import { TaoKhachHang, TimKiemKhachHang, TaoTaiKhoanKhachHang, TimKiemKhachHangDTO } from "@modules/khachhang/usecases";
+
 
 export default class KhachHangController extends BaseController {
 

@@ -1,5 +1,4 @@
 // import built-in modules
-import path from 'path';
 import cors from "cors";
 import express from "express";
 import bodyParser from "body-parser";
@@ -7,26 +6,29 @@ import formData from "express-form-data";
 import session from "express-session";
 import "reflect-metadata";
 
-import { IAppSettings, ApplicationMode, IApp } from "@core"
+import { IAppSettings, ApplicationMode, IApp } from "@core";
+import { Dependency, DEPConsts } from '@dep';
 import AppSettings from "./settings/app-settings";
 
 // import middlewares
-import HttpException from "./middlewares/http-exception";
+import { HttpExceptionHandle } from "@middlewares";
 
 // import custom controllers
-import NhanVienController from "./controllers/NhanVienController";
-import SanPhamController from "./controllers/SanPhamController";
-import PhieuBanHangController from "./controllers/PhieuBanHangController";
-import LoginController from "./controllers/LoginController";
-import KhachHangController from "./controllers/KhachHangController";
+import {
+  NhanVienController,
+  SanPhamController,
+  PhieuBanHangController,
+  LoginController,
+  KhachHangController,
+  PhieuNhapKhoController,
+  NhaCungCapController
+} from "@controllers";
 
-import { Dependency, DEPConsts } from '@dep';
-import NhaCungCapController from './controllers/NhaCungCapController';
 
 export default class App implements IApp {
+
   protected settings: IAppSettings;
   protected dep: Dependency;
-
   protected app: express.Application;
 
   constructor(settingFile: string) {
@@ -106,7 +108,9 @@ export default class App implements IApp {
     this.dep.registerRepository(DEPConsts.NhanVienRepository);
     this.dep.registerRepository(DEPConsts.SanPhamRepository);
     this.dep.registerRepository(DEPConsts.PhieuBHRepository);
-    this.dep.registerRepository(DEPConsts.CTPhieuRepository, "CTPHIEUBANHANG");
+    this.dep.registerRepository(DEPConsts.PhieuNhapKhoRepository);
+    this.dep.registerRepository(DEPConsts.CTPhieuBHRepository);
+    this.dep.registerRepository(DEPConsts.CTPhieuNKRepository);
   }
 
   protected initializeControllers(): void {
@@ -114,6 +118,7 @@ export default class App implements IApp {
     this.app.use(new SanPhamController("/sanpham").getRouter());
     this.app.use(new KhachHangController("/khachhang").getRouter());
     this.app.use(new PhieuBanHangController("/phieubanhang").getRouter());
+    this.app.use(new PhieuNhapKhoController("/phieunhapkho").getRouter());
     this.app.use(new LoginController("/login").getRouter());
     this.app.use(new NhaCungCapController("/nhacungcap").getRouter());
     this.app.get("/logout", (req, res, next) => {
@@ -126,7 +131,7 @@ export default class App implements IApp {
   }
 
   protected initializeErrorHandles() {
-    this.app.use(HttpException);
+    this.app.use(HttpExceptionHandle());
   }
 
   protected isDevelopmentMode() {
