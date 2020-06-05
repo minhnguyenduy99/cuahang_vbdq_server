@@ -35,7 +35,7 @@ export default class GetPhieuBanHangById implements IQuery<GetPhieuBanHangByIdDT
 
   async getCTPhieuDetail(phieuId: string) {
     let listCTPhieuDTO = (await this.ctphieuRepo.findAllCTPhieu(phieuId)) as ChiTietPhieuBHDTO[];
-    let listSanPham = await Promise.all(listCTPhieuDTO.map(ctphieu => this.sanphamRepo.getSanPhamById(ctphieu.sp_id)));
+    let listSanPham = await Promise.all(listCTPhieuDTO.map(ctphieu => this.sanphamRepo.getSanPhamById(ctphieu.sp_id, true)));
     return listSanPham.map((sanpham, index) => {
       let ctphieu = listCTPhieuDTO[index];
       return {
