@@ -75,6 +75,10 @@ export default class SanPham extends Entity<SanPhamProps> implements IPurchasabl
     return this.props.giaBan;
   }
 
+  get anhDaiDien() {
+    return this.props.anhDaiDien;
+  }
+
   static async create(data: any, createType: string, nhaCungCap?: NhaCungCap) {
     let dataDTO = plainToClass(SanPhamProps, data, { groups: [createType], excludeExtraneousValues: true });
     const errors = await validate(dataDTO, { groups: [createType] });

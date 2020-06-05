@@ -10,7 +10,7 @@ export default interface ISanPhamService extends IDomainService {
 
   findSanPhamByNhaCC(nhaccId: string): Promise<SanPham[]>;
 
-  updateAnhSanPham(sanphamId: string, source: string): Promise<void>;
+  updateAnhSanPham(sanpham: SanPham, imageFile: any): Promise<boolean>;
 
   persist(sanpham: SanPham): Promise<void>;
 

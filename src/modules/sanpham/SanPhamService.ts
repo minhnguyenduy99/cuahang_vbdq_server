@@ -5,14 +5,17 @@ import { CreateType } from "@modules/core";
 import { PhieuBanHangCreated } from "@modules/phieubanhang";
 import { ISanPhamService } from "./shared";
 import { PhieuNhapKhoCreated } from "@modules/phieunhapkho";
+import { IImageLoader } from "@services/image-loader";
 
 
 export default class SanPhamService implements ISanPhamService { 
   
   private repo: ISanPhamRepository;
+  private imageLoader: IImageLoader;
 
   constructor() {
     this.repo = Dependency.Instance.getRepository(DEPConsts.SanPhamRepository);
+    this.imageLoader = Dependency.Instance.getApplicationSerivce(DEPConsts.ImageLoader);
     
     // register event handler to Phieu's creation events
     DomainEvents.register(this.onPhieuBanHangCreated.bind(this), PhieuBanHangCreated.name);
@@ -38,11 +41,14 @@ export default class SanPhamService implements ISanPhamService {
     return this.repo.persist(sanpham);
   }
 
-  async updateAnhSanPham(sanphamId: string, source: string) {
-    const sanphamDTO = await this.repo.getSanPhamById(sanphamId);
-    let sanpham = (await SanPham.create(sanphamDTO, CreateType.getGroups().loadFromPersistence)).getValue();
-    sanpham.updateAnhDaiDien(source);
+  async updateAnhSanPham(sanpham: SanPham, file: any) {
+    if (!this.imageLoader.isFileAllowed(file)) {
+      return false;
+    }
+    let url = await this.imageLoader.upload(file, "SANPHAM");
+    sanpham.updateAnhDaiDien(url);
     await this.persist(sanpham);
+    return true;
   }
 
   async updateSanPhamInfo(sanPham: SanPham, updateInfo: any) {

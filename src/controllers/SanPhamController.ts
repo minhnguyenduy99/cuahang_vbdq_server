@@ -1,27 +1,19 @@
 import { RequestHandler } from "express";
 import { authenticationChecking, authorizeUser } from "@middlewares";
-import { Dependency, DEPConsts } from "@dep";
-import { FOLDERS, IImageLoader } from "@services/image-loader";
-
-import { ISanPhamService } from "@modules/sanpham/shared";
 import { TaoSanPham } from "@modules/sanpham/usecases/TaoSanPham";
 import { TimKiemSanPham } from "@modules/sanpham/usecases/TimKiemSanPham";
 import { UpdateSanPham } from "@modules/sanpham/usecases/UpdateSanPham";
 import { XoaSanPham } from "@modules/sanpham/usecases/XoaSanPham";
 
 import BaseController from "./BaseController";
+import { UpdateAnhSanPhamDTO, UpdateAnhSanPham  } from "@modules/sanpham/usecases/UpdateAnhSanPham";
 
 
 
 export default class SanPhamController extends BaseController {
 
-  private sanphamService: ISanPhamService;
-  private imageLoader: IImageLoader;
-
   constructor(route: string) {
     super(route);
-    this.sanphamService = Dependency.Instance.getDomainService(DEPConsts.SanPhamService);
-    this.imageLoader = Dependency.Instance.getApplicationSerivce(DEPConsts.ImageLoader);
   }
   
   protected initializeRoutes(): void {
@@ -31,20 +23,15 @@ export default class SanPhamController extends BaseController {
     this.method("get", this.searchSanPham());
     this.method("put", this.updateSanPham(), "/:sp_id");
     this.method("delete", this.deleteSanPham(), "/:sp_id");
+    this.method("put", this.updateAnhDaiDien(), "/anhdaidien/:sp_id");
   }
 
   private createSanPham(): RequestHandler {
     return async (req, res, next) => {
-      const anh = req.body.anh_dai_dien;
-      req.body.anh_dai_dien = null;
       const createSanPhamResult = await this.executeCommand(req.body, new TaoSanPham());
       if (createSanPhamResult.isFailure) {
         return next(createSanPhamResult.error);
       }
-      let newSanPham = createSanPhamResult.getValue();
-      const source = await this.imageLoader.upload(anh, FOLDERS.SanPham);
-      await this.sanphamService.updateAnhSanPham(newSanPham.idsp, source);
-      newSanPham.anh_dai_dien = source;
       res.status(201).json(createSanPhamResult.getValue());
     }
   }
@@ -84,6 +71,20 @@ export default class SanPhamController extends BaseController {
   private deleteSanPham(): RequestHandler {
     return async (req, res, next) => {
       let result = await this.executeCommand(req.params.sp_id, new XoaSanPham());
+      if (result.isFailure) {
+        return next(result.error);
+      }
+      return res.status(200).json(result.getValue());
+    }
+  }
+
+  private updateAnhDaiDien(): RequestHandler {
+    return async (req, res, next) => {
+      let request = {
+        idsp: req.params.sp_id,
+        imageFile: req.body.anh_dai_dien
+      } as UpdateAnhSanPhamDTO;
+      let result = await this.executeCommand(request, new UpdateAnhSanPham());
       if (result.isFailure) {
         return next(result.error);
       }
