@@ -25,8 +25,8 @@ export default class SanPhamService implements ISanPhamService {
     return results.map(result => result.getValue());
   }
 
-  async findSanPhamById(sanphamId: string) {
-    let sanphamDTO = await this.repo.getSanPhamById(sanphamId);
+  async findSanPhamById(sanphamId: string, findDeleted?: boolean) {
+    let sanphamDTO = await this.repo.getSanPhamById(sanphamId, findDeleted);
     if (!sanphamDTO) {
       return FailResult.fail(new EntityNotFound(SanPham));
     }
@@ -43,6 +43,21 @@ export default class SanPhamService implements ISanPhamService {
     let sanpham = (await SanPham.create(sanphamDTO, CreateType.getGroups().loadFromPersistence)).getValue();
     sanpham.updateAnhDaiDien(source);
     await this.persist(sanpham);
+  }
+
+  async updateSanPhamInfo(sanPham: SanPham, updateInfo: any) {
+    let sanphamDTO = sanPham.serialize();
+    let createUpdateSanPham = await SanPham.create({
+      ...sanphamDTO,
+      ...updateInfo,
+      idsp: undefined,
+      so_luong: undefined
+    }, CreateType.getGroups().createNew);
+    if (createUpdateSanPham.isFailure) {
+      return createUpdateSanPham;
+    }
+    createUpdateSanPham.getValue().updateSoLuong(sanphamDTO.so_luong);
+    return createUpdateSanPham;
   }
 
   private async onPhieuBanHangCreated(event: PhieuBanHangCreated) {

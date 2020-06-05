@@ -10,12 +10,11 @@ export default class SanPhamRepository extends BaseKnexRepository<SanPham> imple
     super(connection, new SanPhamMapper(), "SANPHAM");
   }
 
-  async getSanPhamByIdNhaCC(nhaccId: string): Promise<SanPhamDTO[]> {
+  async getSanPhamByIdNhaCC(nhaccId: string, findDeleted?: boolean): Promise<SanPhamDTO[]> {
     try {
       let datas = await this.connection.getConnector().select("*").from(this.tableName).where({
         id_nhacc: nhaccId,
-        record_status: '1'
-      });
+      }).whereIn("record_status", findDeleted ? ["0", "1"] : ["1"]);
       return datas.map(data => this.mapper.toDTOFromPersistence(data));
     } catch (err) {
       throw this.knexDatabaseFailed(err);
@@ -37,13 +36,36 @@ export default class SanPhamRepository extends BaseKnexRepository<SanPham> imple
       throw this.knexDatabaseFailed(err);
     }
   }
+
+  async deleteSanPham(sanpham: string | SanPham): Promise<void> {
+    try {
+      let sanphamId;
+      if (sanpham instanceof SanPham) {
+        sanphamId = sanpham.getId();
+      } else {
+        sanphamId = sanpham;
+      }
+      await this.connection.getConnector().update({
+        record_status: '0'
+      }).table(this.tableName).where(this.getIdCondition([sanphamId]))
+    } catch (err) {
+      throw this.knexDatabaseFailed(err);
+    }
+  }
   
   async createSanPham(sanpham: SanPham): Promise<void> {
     return this.create(sanpham);
   }
 
-  async getSanPhamById(sanphamId: string): Promise<SanPhamDTO> {
-    return this.findById( [sanphamId] );
+  async getSanPhamById(sanphamId: string, findDeleted?: boolean): Promise<SanPhamDTO> {
+    try {
+      let persistence = await this.connection.getConnector().select("*").from(this.tableName)
+        .where("id", "=", sanphamId)
+        .whereIn("record_status", findDeleted ? ["0", "1"] : ["1"]).limit(1);
+      return this.mapper.toDTOFromPersistence(persistence[0]);
+    } catch (err) {
+      throw this.knexDatabaseFailed(err);
+    }
   }
 
   protected getPersistenceCondition(persistence: any): object {

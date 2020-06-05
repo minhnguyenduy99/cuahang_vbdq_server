@@ -6,8 +6,12 @@ import { FOLDERS, IImageLoader } from "@services/image-loader";
 import { ISanPhamService } from "@modules/sanpham/shared";
 import { TaoSanPham } from "@modules/sanpham/usecases/TaoSanPham";
 import { TimKiemSanPham } from "@modules/sanpham/usecases/TimKiemSanPham";
+import { UpdateSanPham } from "@modules/sanpham/usecases/UpdateSanPham";
+import { XoaSanPham } from "@modules/sanpham/usecases/XoaSanPham";
 
 import BaseController from "./BaseController";
+
+
 
 export default class SanPhamController extends BaseController {
 
@@ -25,6 +29,8 @@ export default class SanPhamController extends BaseController {
     this.method("use", authorizeUser());
     this.method("post", this.createSanPham());
     this.method("get", this.searchSanPham());
+    this.method("put", this.updateSanPham(), "/:sp_id");
+    this.method("delete", this.deleteSanPham(), "/:sp_id");
   }
 
   private createSanPham(): RequestHandler {
@@ -58,6 +64,30 @@ export default class SanPhamController extends BaseController {
         return next(searchSanPhamResult.error);
       }
       res.status(200).json(searchSanPhamResult.getValue());
+    }
+  }
+
+  private updateSanPham(): RequestHandler {
+    return async (req, res, next) => {
+      let request = {
+        idsp: req.params.sp_id,
+        ...req.body
+      }
+      let result = await this.executeCommand(request, new UpdateSanPham());
+      if (result.isFailure) {
+        return next(result.error);
+      }
+      return res.status(200).json(result.getValue());
+    }
+  }
+
+  private deleteSanPham(): RequestHandler {
+    return async (req, res, next) => {
+      let result = await this.executeCommand(req.params.sp_id, new XoaSanPham());
+      if (result.isFailure) {
+        return next(result.error);
+      }
+      return res.status(200).json(result.getValue());
     }
   }
 }

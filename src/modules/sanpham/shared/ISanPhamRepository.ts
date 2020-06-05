@@ -8,9 +8,11 @@ export default interface ISanPhamRepository {
 
   searchSanPham(tenSP: string, loaiSP: string, limit: LimitResult): Promise<SanPhamDTO[]>;
 
-  getSanPhamById(sanphamId: string): Promise<SanPhamDTO>;
+  getSanPhamById(sanphamId: string, findDeleted?: boolean): Promise<SanPhamDTO>;
 
   persist(sanpham: SanPham): Promise<void>;
 
-  getSanPhamByIdNhaCC(nhaccId: string): Promise<SanPhamDTO[]>;
+  getSanPhamByIdNhaCC(nhaccId: string, findDeleted?: boolean): Promise<SanPhamDTO[]>;
+
+  deleteSanPham(sanpham: SanPham | string): Promise<void>;
 }
