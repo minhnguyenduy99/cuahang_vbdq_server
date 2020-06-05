@@ -1,6 +1,7 @@
 import { ImageLoader } from "@services/image-loader";
 import { DatabaseService } from "@services/db-access-manager";
-import { DomainAuthentication } from "@services/authenticate";
+import { AuthorizationService } from "@services/authorization";
+import { Tokenizer } from "@services/tokenizer";
 
 import { TaiKhoanRepository, TaiKhoanService, AccountAuthenticateService } from "@modules/taikhoan";
 import { LoaiTaiKhoanRepository } from "@modules/loaitaikhoan";
@@ -10,6 +11,7 @@ import { NhanVienRepository, NhanVienService } from "@modules/nhanvien";
 import { SanPhamRepository, SanPhamService } from "@modules/sanpham";
 import { PhieuBHRepository, CTPhieuBHRepository } from "@modules/phieubanhang";
 import { PhieuNhapKhoRepository, CTPhieuNKRepository } from "@modules/phieunhapkho";
+import { RoleRepository, RoleService } from "@modules/roles";
 
 export default {
 
@@ -23,7 +25,8 @@ export default {
   PhieuBHRepository,
   CTPhieuBHRepository,
   PhieuNhapKhoRepository, 
-  CTPhieuNKRepository, 
+  CTPhieuNKRepository,
+  RoleRepository,
 
   // domain services
   TaiKhoanService,
@@ -32,9 +35,11 @@ export default {
   SanPhamService,
   KhachHangService,
   NhaCungCapService,
+  RoleService,
 
   // external services
   ImageLoader,
   DatabaseService,
-  DomainAuthentication
+  AuthorizationService,
+  Tokenizer
 }

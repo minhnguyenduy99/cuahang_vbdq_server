@@ -21,7 +21,7 @@ export interface ServiceType<T extends IApplicationService> extends Type<T> {
 }
 
 export interface DomainServiceType<T extends IDomainService> extends Type<T> {
-  new (): T;
+  new (...args: any[]): T;
 }
 
 
@@ -47,10 +47,11 @@ export class Dependency {
    * Register the database service for the application
    * @param type 
    */
-  setDatabaseService<T extends IDatabaseService>(type: ServiceType<T>) {
+  async setDatabaseService<T extends IDatabaseService>(type: ServiceType<T>) {
     this.registerApplicationService(type);
     this.dbService = this.getApplicationSerivce(type);
     this.dbConnection = this.dbService.getDbConnection();
+    this.dbService.start();
   }
   
   register<T>(instance: T) {
@@ -65,8 +66,8 @@ export class Dependency {
     DomainService.createService(type);
   }
 
-  getDomainService<T>(type: DomainServiceType<T>) {
-    return DomainService.getService(type);
+  getDomainService<T>(type: DomainServiceType<T>, ...args: any[]) {
+    return DomainService.getService(type, args);
   }
   
   registerApplicationService<T>(type: ServiceType<T>) {

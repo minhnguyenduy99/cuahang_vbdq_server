@@ -4,7 +4,7 @@ import { IAppSettings } from ".";
 
 export type ServiceCreateType<T extends IApplicationService> = new (settings: IAppSettings, ...args: any[]) => T;
 
-export default abstract class ApplicationService<SettingsData> {
+export default abstract class ApplicationService<SettingsData> implements IApplicationService {
   static services: { [serviceName: string]: IApplicationService } = {};
 
   protected serviceData: SettingsData;

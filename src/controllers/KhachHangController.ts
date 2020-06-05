@@ -4,6 +4,7 @@ import { Dependency, DEPConsts } from "@dep";
 import { IImageLoader, FOLDERS } from "@services/image-loader";
 import { ITaiKhoanService } from "@modules/taikhoan/shared";
 import { TaoKhachHang, TimKiemKhachHang, TaoTaiKhoanKhachHang, TimKiemKhachHangDTO } from "@modules/khachhang/usecases";
+import { authenticationChecking, authorizeUser } from "@middlewares";
 
 
 export default class KhachHangController extends BaseController {
@@ -18,6 +19,8 @@ export default class KhachHangController extends BaseController {
   }
   
   protected initializeRoutes(): void {
+    this.method("use", authenticationChecking());
+    this.method("use", authorizeUser());
     this.method("post", this.taoTaiKhoanKhachHang(), "/dangky");
     this.method("get", this.findKhachHang(), "/search");
     this.method("get", this.findKhachHangById(), "/:kh_id");

@@ -1,6 +1,6 @@
 import BaseController from "./BaseController";
 import { RequestHandler } from "express";
-import { authenticationChecking } from "@middlewares";
+import { authenticationChecking, authorizeUser } from "@middlewares";
 import { TaoPhieuNhapKho } from "@modules/phieunhapkho/usecases/TaoPhieuNhapkho";
 import { GetPhieuNhapKhoById } from "@modules/phieunhapkho/usecases/GetPhieuNhapKhoById";
 import { TimKiemPhieuNhapKho, TimKiemPhieuNhapKhoDTO } from "@modules/phieunhapkho/usecases/TimKiemPhieuNhapKho";
@@ -13,7 +13,8 @@ export default class PhieuNhapKhoController extends BaseController {
   }
   
   protected initializeRoutes(): void {
-    // this.method("use", authenticationChecking());
+    this.method("use", authenticationChecking());
+    this.method("use", authorizeUser());
     this.method("post", this.createPhieu());
     this.method("get", this.findPhieu());
     this.method("get", this.findPhieuById(), "/:id");

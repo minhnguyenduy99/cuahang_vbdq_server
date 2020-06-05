@@ -1,9 +1,14 @@
-import { IDomainService, Result } from "@core";
-import { TaiKhoanDTO } from "..";
+import { IDomainService } from "@core";
+import AuthenticateResult from "./AuthenticateResult";
+import VertifyResult from "./VertifyResult";
 
 export default interface IAccountAuthenticateService extends IDomainService {
 
-  authenticate(tenDangNhap: string, matKhau: string): Promise<Result<TaiKhoanDTO, InvalidAuthentication>>;
+  authenticate(tenDangNhap: string, matKhau: string): Promise<AuthenticateResult>;
+
+  isUserAuthenticated(taikhoanId: string): Promise<boolean>;
+
+  vertify(token: string): Promise<VertifyResult>;
 }
 
 export class InvalidAuthentication extends Error {

@@ -7,6 +7,7 @@ import { ErrorFactory } from "@services/http-error-handles";
 import { INhaCungCapService } from "@modules/nhacungcap/shared";
 import { TaoNhaCungCap } from "@modules/nhacungcap/usecases/TaoNhaCungCap";
 import { TimKiemNhaCungCap } from "@modules/nhacungcap/usecases/TimKiemNhaCC";
+import { authorizeUser, authenticationChecking } from "@middlewares";
 
 
 export default class NhaCungCapController extends BaseController {
@@ -21,6 +22,8 @@ export default class NhaCungCapController extends BaseController {
   }
   
   protected initializeRoutes(): void {
+    this.method("use", authenticationChecking());
+    this.method("use", authorizeUser());
     this.method("post", this.createNhaCungCap());
     this.method("get", this.findNhaCungCap(), "/search");
   }

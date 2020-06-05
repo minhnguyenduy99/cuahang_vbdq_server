@@ -9,6 +9,7 @@ import "reflect-metadata";
 import { IAppSettings, ApplicationMode, IApp } from "@core";
 import { Dependency, DEPConsts } from '@dep';
 import AppSettings from "./settings/app-settings";
+import initializeModule from "./settings/initializeModule";
 
 // import middlewares
 import { HttpExceptionHandle } from "@middlewares";
@@ -37,10 +38,15 @@ export default class App implements IApp {
     this.dep = Dependency.create(this.settings);
 
     this.app = express();
-    this.initializeDatabaseService();
-    this.initializeRepositories();
-    this.initializeApplicationService();
+  }
 
+  async initialize() {
+    await this.initializeApplicationService();
+    
+    this.initializeRepositories();
+
+    await initializeModule(this.dep);
+    
     if (this.isDevelopmentMode()) {
       this.developmentMiddlewares();
     }
@@ -51,8 +57,6 @@ export default class App implements IApp {
   }
 
   async start() {
-    await this.startApplicationService();
-
     const host = this.settings.getValue("host");
     const port = this.settings.getValue("port");
     this.app.listen(port, host, () => {
@@ -60,17 +64,13 @@ export default class App implements IApp {
     })
   }
 
-  protected async startApplicationService() {
-    await this.dep.getApplicationSerivce(DEPConsts.DatabaseService).start();
-  }
-
-  protected initializeApplicationService() {
-    this.dep.registerApplicationService(DEPConsts.DomainAuthentication);
-    this.dep.registerApplicationService(DEPConsts.ImageLoader);
-  }
-
-  protected initializeDatabaseService() {
-    this.dep.setDatabaseService(DEPConsts.DatabaseService);
+  protected async initializeApplicationService() {
+    await Promise.all([
+      this.dep.setDatabaseService(DEPConsts.DatabaseService),
+      this.dep.registerApplicationService(DEPConsts.ImageLoader),
+      this.dep.registerApplicationService(DEPConsts.AuthorizationService),
+      this.dep.registerApplicationService(DEPConsts.Tokenizer)
+    ]);
   }
 
   protected developmentMiddlewares() {
@@ -101,6 +101,7 @@ export default class App implements IApp {
   }
 
   protected initializeRepositories() {
+    this.dep.registerRepository(DEPConsts.RoleRepository);
     this.dep.registerRepository(DEPConsts.LoaiTaiKhoanRepository);
     this.dep.registerRepository(DEPConsts.TaiKhoanRepository);
     this.dep.registerRepository(DEPConsts.NhaCungCapRepository);

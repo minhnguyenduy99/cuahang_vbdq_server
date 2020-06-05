@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { authenticationChecking } from "@middlewares";
+import { authenticationChecking, authorizeUser } from "@middlewares";
 import { Dependency, DEPConsts } from "@dep";
 import { FOLDERS, IImageLoader } from "@services/image-loader";
 
@@ -21,7 +21,8 @@ export default class SanPhamController extends BaseController {
   }
   
   protected initializeRoutes(): void {
-    // this.method("use", authenticationChecking());
+    this.method("use", authenticationChecking());
+    this.method("use", authorizeUser());
     this.method("post", this.createSanPham());
     this.method("get", this.searchSanPham());
   }

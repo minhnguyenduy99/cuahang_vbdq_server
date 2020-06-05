@@ -1,4 +1,4 @@
-import { IAppError } from "../application";
+import { IAppError } from "../../core/application";
 
 
 export default class UnauthorizedError implements IAppError {

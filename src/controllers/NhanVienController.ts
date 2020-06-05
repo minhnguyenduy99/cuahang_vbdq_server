@@ -2,7 +2,7 @@ import { RequestHandler } from "express";
 import { Dependency, DEPConsts } from "@dep";
 import { ErrorFactory } from "@services/http-error-handles";
 import { ImageLoader, FOLDERS } from "@services/image-loader";
-import { authenticationChecking } from "@middlewares";
+import { authenticationChecking, authorizeUser } from "@middlewares";
 
 import { GetNhanVien, GetNhanVienRequest } from "@modules/nhanvien/usecases/GetNhanVien";
 import { TaoTaiKhoan } from "@modules/nhanvien/usecases/CreateTaiKhoanNhanVien";
@@ -25,6 +25,7 @@ export default class NhanVienController extends BaseController {
   
   protected initializeRoutes(): void {
     this.method("use", authenticationChecking());
+    this.method("use", authorizeUser());
     this.method("get", this.getNhanVienById(), "/:nv_id");
     this.method("post", this.createNhanVien());
   }

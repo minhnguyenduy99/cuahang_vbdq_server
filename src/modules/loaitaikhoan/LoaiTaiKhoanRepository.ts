@@ -11,6 +11,17 @@ export default class LoaiTaiKhoanRepository extends BaseKnexRepository<LoaiTaiKh
     super(connection, new LoaiTaiKhoanMapper(), "LOAITAIKHOAN");
   }
 
+  async createLoaiTaiKhoan(loaiTK: LoaiTaiKhoan | string, tenLTK?: string): Promise<void> {
+    if (!tenLTK) {
+      return this.create(loaiTK as LoaiTaiKhoan);
+    }
+    try {
+      await this.connection.getConnector().insert({ ma_ltk: loaiTK, ten_ltk: tenLTK }).into(this.tableName);
+    } catch (err) {
+      throw this.knexDatabaseFailed(err);
+    }
+  }
+
   async findLoaiTKKhachHang(): Promise<LoaiTaiKhoanDTO> {
     try {
       let data = await this.connection.getConnector().select("*").from(this.tableName).where({
@@ -41,7 +52,7 @@ export default class LoaiTaiKhoanRepository extends BaseKnexRepository<LoaiTaiKh
     }
   }
 
-  findLTKByMa(maLTK: number): Promise<LoaiTaiKhoanDTO> {
+  findLTKByMa(maLTK: string): Promise<LoaiTaiKhoanDTO> {
     return this.findById([maLTK]) as Promise<LoaiTaiKhoanDTO>;
   }
 

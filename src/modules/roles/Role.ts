@@ -1,7 +1,7 @@
-import { Entity, SuccessResult, FailResult } from "../application";
+import { Entity, SuccessResult, FailResult } from "@core";
 import RoleProps from "./RoleProps";
 import { classToPlain, plainToClass } from "class-transformer";
-import RoleDTO from "./RoleDTO";
+import RoleDTO from "./shared/RoleDTO";
 import { validate } from "class-validator";
 
 export default class Role extends Entity<RoleProps> {

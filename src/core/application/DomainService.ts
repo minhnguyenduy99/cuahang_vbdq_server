@@ -1,9 +1,11 @@
 import { IDomainService } from "@core";
 
 
-export default class DomainService {
+export default class DomainService implements IDomainService {
 
   private static services: { [serviceName: string]: IDomainService } = {};
+
+  protected initialize(): Promise<void> { return; }
 
   static getService<T extends IDomainService>(type: new (...args: any[]) => T, ...args: any[]) {
     let service = this.services[type.name] as T;

@@ -1,10 +1,9 @@
 import Knex from "knex";
 import { IDbConnection } from "@core";
-import { IRoleRepository, Role } from "@core-modules/authorization";
 import { BaseKnexRepository } from "@services/db-access-manager";
+import IRoleRepository from "./shared/IRoleRepository";
 import RoleMapper from "./RoleMapper";
-
-
+import Role from "./Role";
 
 export default class RoleRepository extends BaseKnexRepository<Role> implements IRoleRepository {
 
@@ -12,18 +11,8 @@ export default class RoleRepository extends BaseKnexRepository<Role> implements 
     super(connection, new RoleMapper(), "ROLE");
   }
 
-  async updateRoles(userId: number, roles: string[]) {
-    try {
-      let rolesStr = roles.reduce(function (pre, cur) {
-        if (!pre) return pre
-        return pre + ',' + cur
-      })
-      this.connection.getConnector().table(this.tableName).update({
-        roles: rolesStr
-      }).where({ id: userId })
-    } catch (err) {
-      throw this.knexDatabaseFailed(err);
-    }
+  createRole(role: Role): Promise<void> {
+    return this.create(role);
   }
 
   protected getPersistenceCondition(persistence: any): object {

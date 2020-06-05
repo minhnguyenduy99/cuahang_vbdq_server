@@ -1,5 +1,6 @@
 import { IMapper } from "@modules/core";
-import { Role, RoleDTO } from "@core-modules/authorization";
+import Role from "./Role";
+import RoleDTO from "./shared/RoleDTO";
 
 export default class RoleMapper implements IMapper<Role> {
   
@@ -13,8 +14,8 @@ export default class RoleMapper implements IMapper<Role> {
     }
     return {
       id: data.id,
-      name: data.name,
-      roles: data.roles
+      role: data.role,
+      resources: data.resources
     } as RoleDTO;
   }
   

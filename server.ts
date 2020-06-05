@@ -9,6 +9,7 @@ import App from "./src/app";
   console.log(`MODE: ${process.env.MODE}`);
 
   const app = new App(process.env.SETTING_FILE);
+  app.initialize();
   app.start();
 
 })();

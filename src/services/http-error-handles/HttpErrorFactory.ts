@@ -1,5 +1,4 @@
 import { IDatabaseError, IAppError, UseCaseError, DomainServiceError } from "@core";
-import { UnauthorizedError } from "@core-modules/authorization";
 import { ValidationError } from "class-validator";
 import { InvalidFieldErrorInfo, HttpInvalidFieldError } from "./HttpInvalidFieldError";
 import { HTTP_ERROR_CODE, BaseHttpError } from "./BaseHttpError";
@@ -45,8 +44,8 @@ class HttpErrorFactory {
     return new HttpDomainServiceError(domainError, code);
   }
 
-  public unauthorized(appErr: UnauthorizedError | IAppError = new UnauthorizedError()) {
-    return new BaseHttpError(appErr.message, HTTP_ERROR_CODE.bad_request);
+  public unauthorized() {
+    return new BaseHttpError("User is unauthorized", HTTP_ERROR_CODE.bad_request);
   }
 
   public unauthenticated(message?: string) {
