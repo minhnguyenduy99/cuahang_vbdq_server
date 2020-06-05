@@ -1,6 +1,6 @@
 {
   "mode": "production",
-  "host": "45.32.118.249",
+  "host": "chvbdq.herokuapp.com",
   "port": 80,
   "dbConnection": {
     "name": "remote",
