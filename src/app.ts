@@ -12,7 +12,7 @@ import AppSettings from "./settings/app-settings";
 import initializeModule from "./settings/initializeModule";
 
 // import middlewares
-import { HttpExceptionHandle } from "@middlewares";
+import { HttpExceptionHandle, authenticationChecking } from "@middlewares";
 
 // import custom controllers
 import {
@@ -24,6 +24,7 @@ import {
   PhieuNhapKhoController,
   NhaCungCapController
 } from "@controllers";
+import { ErrorFactory } from "./services";
 
 
 export default class App implements IApp {
@@ -122,12 +123,16 @@ export default class App implements IApp {
     this.app.use(new PhieuNhapKhoController("/phieunhapkho").getRouter());
     this.app.use(new LoginController("/login").getRouter());
     this.app.use(new NhaCungCapController("/nhacungcap").getRouter());
-    this.app.get("/logout", (req, res, next) => {
-      req.session.destroy((err) => {
-        if (err) 
-          console.log(err);
-      });
-      res.status(200).json({ code: 200, message: "Logout successfully" });
+    this.app.get("/logout", authenticationChecking(), async (req, res, next) => {
+      let authenticate = req.body.authenticate
+      if (!authenticate) {
+        return next(ErrorFactory.unauthenticated());
+      }
+      let authorize = this.dep.getApplicationSerivce(DEPConsts.AuthorizationService);
+      await authorize.removeUser(authenticate.tk_id);
+      return res.status(200).json({ 
+        message: "Logout"
+      })
     })
   }
 
