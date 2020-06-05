@@ -8,4 +8,6 @@ export default interface IImageLoader {
    * @returns The location of the stored file
    */
   upload(file: any, folder: string): Promise<string>;
+
+  isFileAllowed(file: any): boolean;
 }

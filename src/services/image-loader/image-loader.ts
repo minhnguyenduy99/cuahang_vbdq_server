@@ -27,18 +27,25 @@ export class ImageLoader extends ApplicationService<SettingsData> implements IIm
     return settings.getValue("remoteImageServer") as SettingsData;
   }
 
+  isFileAllowed(file: any): boolean {
+    if (!file) {
+      return false;
+    }
+    let parts = file ? file.name.split('.') : [""];
+    let ext = parts[parts.length - 1];
+    return ALLOW_IMAGE_EXT.includes(ext);
+  }
+
   async upload(file: any, folder: string) {
     try {
-      let parts = file ? file.name.split('.') : [""]
-      let ext = parts[parts.length - 1]
-      if (!ALLOW_IMAGE_EXT.includes(ext)) {
+      if (!this.isFileAllowed(file)) {
         return this.loadDefaultImage(folder);
       }
       const result = await cloudinary_v2.uploader.upload(file.path, { folder: folder });
       return result.url;
     } catch (err) {
       console.log(err);
-      return this.loadDefaultImage(folder);
+      throw err;
     }
   }
 
