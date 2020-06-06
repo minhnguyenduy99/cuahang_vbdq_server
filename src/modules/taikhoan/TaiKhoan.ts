@@ -5,6 +5,8 @@ import TaiKhoanProps from "./TaiKhoanProps";
 import { plainToClass, classToPlain } from "class-transformer";
 import { validate } from "class-validator";
 import { LoaiTaiKhoan } from "@modules/loaitaikhoan";
+import { CreateType } from "../core";
+import { excludeEmpty } from "@modules/helpers";
 
 export interface TaiKhoanDTO {
   id: string;
@@ -51,7 +53,7 @@ export class TaiKhoan extends Entity<TaiKhoanProps> {
   }
   
   get loaiTaiKhoan() {
-    return this.props.loaiTK;
+    return this.props.loaiTK.toString();
   }
 
   async isMatKhauValid(matkhau: string) {
@@ -59,12 +61,44 @@ export class TaiKhoan extends Entity<TaiKhoanProps> {
     return compare;
   }
 
-  serialize(type: string) {
-    return classToPlain(this.props, { groups: [type] }) as TaiKhoanDTO;
+  serialize(type?: string) {
+    return classToPlain(this.props, { groups: [type || CreateType.getGroups().toAppRespone] }) as TaiKhoanDTO;
   }
 
   updateAnhDaiDien(imageUrl: string) {
     this.props.anhDaiDien = imageUrl;
+  }
+
+  updateMatKhau(newMatKhau: string) {
+    if (!newMatKhau || newMatKhau.length > 20) {
+      return false;
+    }
+    this.props.matKhau = newMatKhau;
+    this._encryptPassword();
+    return true;
+  }
+
+  updateTenTaiKhoan(newTenTK: string) {
+    if (!newTenTK || newTenTK.length > 20) {
+      return false;
+    }
+    this.props.tenTaiKhoan = newTenTK;
+    return true;
+  }
+
+  async update(dto: TaiKhoanDTO) {
+    delete dto.id;
+    let updateProps = plainToClass(TaiKhoanProps, dto, { groups: [CreateType.getGroups().update], excludeExtraneousValues: true });
+    updateProps = excludeEmpty(updateProps);
+    const errors = await validate(updateProps, { groups: [CreateType.getGroups().update]});
+    if (errors.length > 0) {
+      return FailResult.fail(errors);
+    }
+    Object.assign(this.props, updateProps);
+    if (updateProps.matKhau) {
+      this._encryptPassword();
+    }
+    return SuccessResult.ok(this);
   }
 
   private _encryptPassword() {

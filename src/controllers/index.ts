@@ -6,3 +6,4 @@ export { default as NhanVienController } from "./NhanVienController";
 export { default as PhieuBanHangController } from "./PhieuBanHangController";
 export { default as PhieuNhapKhoController } from "./PhieuNhapKhoController";
 export { default as SanPhamController} from "./SanPhamController";
+export { default as TaiKhoanController } from "./TaiKhoanController";

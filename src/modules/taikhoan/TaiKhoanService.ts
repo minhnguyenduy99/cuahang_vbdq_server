@@ -1,15 +1,33 @@
-import { FailResult, SuccessResult, EntityNotFound } from "@core";
+import { FailResult, SuccessResult, EntityNotFound, InvalidEntity } from "@core";
 import { TaiKhoan, ITaiKhoanRepository } from "@modules/taikhoan";
 import { CreateType } from "@modules/core";
 import { Dependency, DEPConsts } from "@dep";
 import ITaiKhoanService from "./shared/ITaiKhoanService";
+import { IImageLoader, FOLDERS } from "@services/image-loader";
 
 export default class TaiKhoanService implements ITaiKhoanService {
   
   private repo: ITaiKhoanRepository;
+  private imageLoader: IImageLoader;
 
   constructor() {
     this.repo = Dependency.Instance.getRepository(DEPConsts.TaiKhoanRepository);  
+    this.imageLoader = Dependency.Instance.getApplicationSerivce(DEPConsts.ImageLoader);
+  }
+
+  async updateTaiKhoan(taiKhoan: TaiKhoan, data: any) {
+    if (!taiKhoan) {
+      return FailResult.fail(new InvalidEntity("TaiKhoan", "TaiKhoan"));
+    }
+    let update = await taiKhoan.update(data);
+    if (update.isFailure || (update.isSuccess && !data.anh_dai_dien)) {
+      return update;
+    }
+    let result = await this.updateAnhDaiDien(taiKhoan, data.anh_dai_dien);
+    if (result.isFailure) {
+      return result;
+    }
+    return update;
   }
 
   async findTaiKhoanById(taikhoanId: string) {
@@ -30,14 +48,24 @@ export default class TaiKhoanService implements ITaiKhoanService {
     return SuccessResult.ok(taikhoan.getValue());
   }
 
-  async updateAnhDaiDien(taikhoanId: string, imageUrl: string) {
-    const findTaikhoan = await this.findTaiKhoanById(taikhoanId);
-    if (findTaikhoan.isFailure) {
-      return FailResult.fail(findTaikhoan.error);
+  async updateAnhDaiDien(taikhoanParam: string | TaiKhoan, imageFile: any) {
+    let taiKhoan: TaiKhoan;
+    if (taikhoanParam instanceof String) {
+      const findTaikhoan = await this.findTaiKhoanById(taikhoanParam as string);
+      if (findTaikhoan.isFailure) {
+        return FailResult.fail(findTaikhoan.error);
+      }
+      taiKhoan = findTaikhoan.getValue(); 
+    } else {
+      taiKhoan = taikhoanParam as TaiKhoan;
     }
-    const taikhoan = findTaikhoan.getValue();
-    taikhoan.updateAnhDaiDien(imageUrl);
-    await this.persist(taikhoan);
+    let isImageAllowed = this.imageLoader.isFileAllowed(imageFile);
+    if (!isImageAllowed) {
+      return FailResult.fail(new Error("Hình ảnh không hợp lệ"));
+    }
+    let folder = taiKhoan.loaiTaiKhoan === "0" ? FOLDERS.KhachHang : FOLDERS.NhanVien;
+    let url = await this.imageLoader.upload(imageFile, folder);
+    taiKhoan.updateAnhDaiDien(url);
     return SuccessResult.ok(null);
   }
   
