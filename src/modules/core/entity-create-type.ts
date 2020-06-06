@@ -5,7 +5,9 @@ class TransformationType {
     createNew: "CREATE_NEW",
     loadFromPersistence: "LOAD_FROM_PERSISTENCE",
     toPersistence: "TO_PERSISTENCE",
-    toAppRespone: "TO_APP_RESPONE"
+    toAppRespone: "TO_APP_RESPONE",
+    exposeAll: "EXPOSE_ALL",
+    update: "UPDATE"
   }
 
   private allGroupsValues = Object.values(this.groups);
