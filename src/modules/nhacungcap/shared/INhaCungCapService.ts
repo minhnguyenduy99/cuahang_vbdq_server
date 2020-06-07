@@ -10,7 +10,7 @@ export default interface INhaCungCapService extends IDomainService {
 
   findNhaCungCapById(nhaccId: string): Promise<Result<NhaCungCap, EntityNotFound>>;
 
-  updateAnhDaiDien(nhacungcapId: string, imageSource: string): Promise<void>;
+  updateAnhDaiDien(nhacungcap: string | NhaCungCap, imageFile: "usedefault" | any): Promise<Result<void, any | Error>>;
 
   persist(nhacungcap: NhaCungCap): Promise<void>;
 }

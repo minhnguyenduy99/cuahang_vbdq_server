@@ -4,15 +4,19 @@ import { CreateType } from "@modules/core";
 import { NhaCungCap, INhaCungCapRepository } from "@modules/nhacungcap";
 import { INhaCungCapService } from "./shared";
 import { ISanPhamRepository, SanPham } from "@modules/sanpham";
+import { IImageLoader, FOLDERS } from "@services/image-loader";
 
 export default class NhaCungCapService implements INhaCungCapService {
   
   private repo: INhaCungCapRepository;
   private sanphamRepo: ISanPhamRepository;
+  private imageLoader: IImageLoader;
+  
   
   constructor() {
     this.repo = Dependency.Instance.getRepository(DEPConsts.NhaCungCapRepository);
     this.sanphamRepo = Dependency.Instance.getRepository(DEPConsts.SanPhamRepository);
+    this.imageLoader = Dependency.Instance.getApplicationSerivce(DEPConsts.ImageLoader);
   }
 
   async findAllSanPhams(nhaccId: string): Promise<SanPham[]> {
@@ -30,13 +34,26 @@ export default class NhaCungCapService implements INhaCungCapService {
     return SuccessResult.ok(createNhaCungCap.getValue());
   }
 
-  async updateAnhDaiDien(nhacungcapId: string, imageSource: string) {
-    let nhacungcapDTO = await this.repo.getNhaCungCapById(nhacungcapId); 
-    const createNhaCC = await NhaCungCap.create(nhacungcapDTO, CreateType.getGroups().loadFromPersistence);
-    const nhacc = createNhaCC.getValue();
-    nhacc.updateAnhDaiDien(imageSource);
-    // persist changes to repository collection
-    this.persist(nhacc);
+  async updateAnhDaiDien(nhacungcapParam: string | NhaCungCap, imageFile: "usedefault" | any) {
+    let nhaCungCap: NhaCungCap;
+    if (nhacungcapParam instanceof String) {
+      const findNhaCungCap = await this.findNhaCungCapById(nhacungcapParam as string);
+      if (findNhaCungCap.isFailure) {
+        return FailResult.fail(findNhaCungCap.error);
+      }
+      nhaCungCap = findNhaCungCap.getValue(); 
+    } else {
+      nhaCungCap = nhacungcapParam as NhaCungCap;
+    }
+    if (imageFile !== "usedefault") {
+      let isImageAllowed = this.imageLoader.isFileAllowed(imageFile);
+      if (!isImageAllowed) {
+        return FailResult.fail(new Error("Hình ảnh không hợp lệ"));
+      }
+    }
+    let url = await this.imageLoader.upload(imageFile, FOLDERS.SanPham);
+    nhaCungCap.updateAnhDaiDien(url);
+    return SuccessResult.ok(null);
   }
 
   persist(nhacungcap: NhaCungCap): Promise<void> {
