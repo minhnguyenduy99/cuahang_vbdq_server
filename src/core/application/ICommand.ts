@@ -9,5 +9,5 @@ export default interface ICommand<IRequest> extends IUseCase<IRequest, Result<vo
   
   commit(): Promise<any>;
 
-  getData(): Entity<any> | Entity<any>[];
+  getData(): Entity<any> | Entity<any>[] | any;
 }
