@@ -48,7 +48,7 @@ export default class TaiKhoanService implements ITaiKhoanService {
     return SuccessResult.ok(taikhoan.getValue());
   }
 
-  async updateAnhDaiDien(taikhoanParam: string | TaiKhoan, imageFile: any) {
+  async updateAnhDaiDien(taikhoanParam: string | TaiKhoan, imageFile: any | "usedefault") {
     let taiKhoan: TaiKhoan;
     if (taikhoanParam instanceof String) {
       const findTaikhoan = await this.findTaiKhoanById(taikhoanParam as string);
@@ -59,9 +59,11 @@ export default class TaiKhoanService implements ITaiKhoanService {
     } else {
       taiKhoan = taikhoanParam as TaiKhoan;
     }
-    let isImageAllowed = this.imageLoader.isFileAllowed(imageFile);
-    if (!isImageAllowed) {
-      return FailResult.fail(new Error("Hình ảnh không hợp lệ"));
+    if (imageFile !== "usedefault") {
+      let isImageAllowed = this.imageLoader.isFileAllowed(imageFile);
+      if (!isImageAllowed) {
+        return FailResult.fail(new Error("Hình ảnh không hợp lệ"));
+      }
     }
     let folder = taiKhoan.loaiTaiKhoan === "0" ? FOLDERS.KhachHang : FOLDERS.NhanVien;
     let url = await this.imageLoader.upload(imageFile, folder);

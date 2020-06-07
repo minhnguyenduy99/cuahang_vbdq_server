@@ -10,7 +10,7 @@ export default interface ITaiKhoanService extends IDomainService {
 
   findTaiKhoanByTenDangNhap(tenDangNhap: string): Promise<Result<TaiKhoan, EntityNotFound>>;
 
-  updateAnhDaiDien(taikhoan: string | TaiKhoan, imageFile: any): Promise<Result<any, EntityNotFound | Error>>;
+  updateAnhDaiDien(taikhoan: string | TaiKhoan, imageFile: any | "usedefault"): Promise<Result<any, EntityNotFound | Error>>;
   
   updateTaiKhoan(taiKhoan: TaiKhoan, data: any): Promise<Result<TaiKhoan, ValidationError[] | any>>;
 

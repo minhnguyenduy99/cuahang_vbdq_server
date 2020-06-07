@@ -6,5 +6,9 @@ export default {
   LoaiTaiKhoanInvalid: {
     code: "TKE002",
     message: "Loại tài khoản không hợp lệ"
+  },
+  AnhDaiDienInvalid: {
+    code: "TKE003",
+    message: "Ảnh đại diện không hợp lệ"
   }
 }

@@ -4,16 +4,19 @@ import { CreateType } from "@modules/core";
 import { Dependency, DEPConsts } from "@dep";
 import Errors from "./ErrorConsts";
 import CreateTaiKhoanDTO from "./CreateTaiKhoanDTO";
+import { ITaiKhoanService } from "../../shared";
 
 
 export default class CreateTaiKhoan implements ICommand<CreateTaiKhoanDTO> {
 
   private repo: ITaiKhoanRepository;
+  private taikhoanService: ITaiKhoanService;
   private data: TaiKhoan;
   private commited: boolean;
 
   constructor() {
     this.repo = Dependency.Instance.getRepository(DEPConsts.TaiKhoanRepository); 
+    this.taikhoanService = Dependency.Instance.getDomainService(DEPConsts.TaiKhoanService);
     this.commited = false;
   }
 
@@ -26,14 +29,18 @@ export default class CreateTaiKhoan implements ICommand<CreateTaiKhoanDTO> {
   }
   
   async execute(request: CreateTaiKhoanDTO) {
+    const isTaiKhoanExists = await this.repo.taiKhoanExists(request.ten_tk);
+    if (isTaiKhoanExists) {
+      return FailResult.fail(new UseCaseError(Errors.TaiKhoanExists));
+    }
     const result = await TaiKhoan.create(request, CreateType.getGroups().createNew);
     if (result.isFailure) {
       return FailResult.fail(result.error);
     }
     const taikhoan = result.getValue();
-    const isTaiKhoanExists = await this.repo.taiKhoanExists(taikhoan.tenTaiKhoan);
-    if (isTaiKhoanExists) {
-      return FailResult.fail(new UseCaseError(Errors.TaiKhoanExists));
+    let updateAnhResult = await this.taikhoanService.updateAnhDaiDien(taikhoan, request.anh_dai_dien);
+    if (updateAnhResult.isFailure) {
+      return FailResult.fail(new UseCaseError(Errors.AnhDaiDienInvalid));
     }
     this.data = taikhoan;
     return SuccessResult.ok(null);
