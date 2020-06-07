@@ -35,6 +35,12 @@ export default class UpdateSanPham implements ICommand<UpdateSanPhamDTO> {
     if (result.isFailure) {
       return FailResult.fail(result.error);
     }
+    if (request.anh_dai_dien) {
+      let updateAnhSuccess = await this.sanphamService.updateAnhSanPham(result.getValue(), request.anh_dai_dien);
+      if (!updateAnhSuccess) {
+        return FailResult.fail(new UseCaseError(Errors.AnhKhongHopLe));
+      }
+    }
     this.oldSanPhamId = findSanPham.getValue().getId();
     this.data = result.getValue();
     return SuccessResult.ok(null);

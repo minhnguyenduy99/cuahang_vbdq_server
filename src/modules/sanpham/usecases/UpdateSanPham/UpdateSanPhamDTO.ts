@@ -8,4 +8,5 @@ export default interface UpdateSanPhamDTO {
   gia_ban?: number;
   khoi_luong?: number;
   tieu_chuan?: string;
+  anh_dai_dien: any;
 }
