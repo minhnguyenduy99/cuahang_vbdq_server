@@ -1,3 +1,4 @@
+import URL from "url";
 import cloudinary from "cloudinary";
 import { IAppSettings, ApplicationService } from "@core";
 import IImageLoader from "./IImageLoader";
@@ -21,6 +22,23 @@ export class ImageLoader extends ApplicationService<SettingsData> implements IIm
     super(appSettings);
     this.config();
     this.defaultFolders = this.serviceData.folders;
+  }
+
+  async delete(url: string): Promise<boolean> {
+    let imageURL = URL.parse(url);
+    let partsOfPathName = imageURL.pathname.split(/[/'/.]/);
+    let imageId = partsOfPathName[partsOfPathName.length - 2];
+    try {
+      let value = await cloudinary.v2.api.delete_resources([imageId], (err, result) => {
+        if (err) 
+          console.error(err);
+        else 
+          console.log(result);
+      });
+      return true;
+    } catch (err) {
+      return false;
+    }
   }
 
   protected getAppSettings(settings: IAppSettings): SettingsData {

@@ -25,6 +25,19 @@ export default abstract class BaseKnexRepository<T extends Entity<any>> implemen
     }
   }
 
+  async findLimit(from: number, count?: number): Promise<any[]> {
+    try {
+      let query = this.connection.getConnector()
+        .select("*").from(this.tableName)
+        .where("record_status", "=", "1")
+        .offset(from).limit(count);
+      let result = await (count ? query.limit(count) : query);
+      return result.map(persistence => this.mapper.toDTOFromPersistence(persistence));
+    } catch (err) {
+      throw this.knexDatabaseFailed(err);
+    }
+  }
+
   async findById(idObject: any = []): Promise<any> {
     try {
       const result = await this.connection.getConnector()

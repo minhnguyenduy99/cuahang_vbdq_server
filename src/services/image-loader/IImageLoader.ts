@@ -9,5 +9,7 @@ export default interface IImageLoader {
    */
   upload(file: "usedefault" | any, folder: string): Promise<string>;
 
+  delete(url: string): Promise<boolean>;
+
   isFileAllowed(file: any): boolean;
 }
