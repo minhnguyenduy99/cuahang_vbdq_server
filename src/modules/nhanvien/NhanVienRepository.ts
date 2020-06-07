@@ -10,6 +10,14 @@ export default class NhanVienRepository extends BaseKnexRepository<NhanVien> imp
     super(connection, new NhanVienMapper(), "NHANVIEN");
   }
 
+  findNhanVienByLimit(from: number, count?: number): Promise<NhanVienDTO[]> {
+    return this.findLimit(from, count);
+  }
+
+  update(nhanvien: NhanVien): Promise<void> {
+    return this.persist(nhanvien);
+  }
+
   async getNhanVienByCMND(cmnd: string): Promise<NhanVienDTO> {
     try {
       const nhanvien = await this.connection.getConnector().select("*").from(this.tableName).where({
@@ -23,9 +31,10 @@ export default class NhanVienRepository extends BaseKnexRepository<NhanVien> imp
 
   async deleteNhanVien(nhanvienId: string) {
     try {
-      await this.connection.getConnector().table(this.tableName).delete().where({
-        id: nhanvienId
-      })
+      await this.connection.getConnector()
+        .update({ record_status: '0'})
+        .table(this.tableName)
+        .where(this.getIdCondition([nhanvienId]))
     } catch (err) {
       throw this.knexDatabaseFailed(err);
     }
@@ -35,8 +44,17 @@ export default class NhanVienRepository extends BaseKnexRepository<NhanVien> imp
     return this.create(nhanvien);
   }
   
-  async getNhanVienById(id: string): Promise<NhanVienDTO> {
-    return this.findById( [id] );
+  async getNhanVienById(id: string, findDeleted?: boolean): Promise<NhanVienDTO> {
+    try {
+      const result = await this.connection.getConnector()
+        .select("*").from(this.tableName)
+        .where(this.getIdCondition([id]))
+        .whereIn("record_status", findDeleted ? ['0', '1'] : ['1'])
+        .limit(1);
+      return this.mapper.toDTOFromPersistence(result[0]);
+    } catch (err) {
+      throw this.knexDatabaseFailed(err);
+    }
   }
 
   protected getPersistenceCondition(persistence: any): object {

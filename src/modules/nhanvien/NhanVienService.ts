@@ -12,6 +12,14 @@ export default class NhanVienService implements INhanVienService {
     this.repo = Dependency.Instance.getRepository(DEPConsts.NhanVienRepository);
   }
 
+  persist(nhanvien: NhanVien): Promise<void> {
+    return this.repo.update(nhanvien);
+  }
+
+  updateNhanVien(nhanvien: NhanVien, updateInfo: any) {
+    return nhanvien.update(updateInfo);
+  }
+
   async getNhanVienById(nhanvienId: string) {
     const nhanvienDTO = await this.repo.getNhanVienById(nhanvienId);
     if (!nhanvienDTO) {
