@@ -1,5 +1,4 @@
 import BaseController from "./BaseController";
-import { IAuthenticate } from "@services/authenticate";
 import { RequestHandler } from "express";
 import { ErrorFactory } from "@services/http-error-handles";
 import { Dependency, DEPConsts } from "@dep";
@@ -18,7 +17,7 @@ export default class LoginController extends BaseController {
   }
 
   protected initializeRoutes(): void {
-    this.method("post", this.authenticateNhanVien(), "/nhanvien");
+    this.method("post", this.authenticateNhanVien());
   }
 
   private authenticateNhanVien(): RequestHandler {

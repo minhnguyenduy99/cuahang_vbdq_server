@@ -22,7 +22,8 @@ import {
   LoginController,
   KhachHangController,
   PhieuNhapKhoController,
-  NhaCungCapController
+  NhaCungCapController,
+  TaiKhoanController
 } from "@controllers";
 import { ErrorFactory } from "./services";
 
@@ -72,6 +73,9 @@ export default class App implements IApp {
       this.dep.registerApplicationService(DEPConsts.AuthorizationService),
       this.dep.registerApplicationService(DEPConsts.Tokenizer)
     ]);
+
+    // temporarily remove authorization
+    this.dep.getApplicationSerivce(DEPConsts.AuthorizationService).useAuthorization(true);
   }
 
   protected developmentMiddlewares() {
@@ -123,6 +127,7 @@ export default class App implements IApp {
     this.app.use(new PhieuNhapKhoController("/phieunhapkho").getRouter());
     this.app.use(new LoginController("/login").getRouter());
     this.app.use(new NhaCungCapController("/nhacungcap").getRouter());
+    this.app.use(new TaiKhoanController("/taikhoan").getRouter());
     this.app.get("/logout", authenticationChecking(), async (req, res, next) => {
       let authenticate = req.body.authenticate
       if (!authenticate) {
