@@ -7,7 +7,7 @@ export default interface IImageLoader {
    * @param folder The folder location to store the file
    * @returns The location of the stored file
    */
-  upload(file: any, folder: string): Promise<string>;
+  upload(file: "usedefault" | any, folder: string): Promise<string>;
 
   isFileAllowed(file: any): boolean;
 }

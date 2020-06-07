@@ -28,7 +28,7 @@ export class ImageLoader extends ApplicationService<SettingsData> implements IIm
   }
 
   isFileAllowed(file: any): boolean {
-    if (!file) {
+    if (!file || !file.name) {
       return false;
     }
     let parts = file ? file.name.split('.') : [""];
@@ -36,9 +36,9 @@ export class ImageLoader extends ApplicationService<SettingsData> implements IIm
     return ALLOW_IMAGE_EXT.includes(ext);
   }
 
-  async upload(file: any, folder: string) {
+  async upload(file: "usedefault" | any, folder: string) {
     try {
-      if (!this.isFileAllowed(file)) {
+      if (file === "usedefault") {
         return this.loadDefaultImage(folder);
       }
       const result = await cloudinary_v2.uploader.upload(file.path, { folder: folder });
