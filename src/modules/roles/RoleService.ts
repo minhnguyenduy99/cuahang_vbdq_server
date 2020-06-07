@@ -19,7 +19,7 @@ export default class RoleService extends DomainService implements IRoleService {
   public async initialize() {
     await Promise.all(ROLES.map((role, index) => {
       return Promise.all([
-        this.loaiTKRepo.createLoaiTaiKhoan(index.toString(), role.role),
+        // this.loaiTKRepo.createLoaiTaiKhoan(index.toString(), role.role),
         this.authService.addRole(role.role, <any>role.resources)
       ])
     }));

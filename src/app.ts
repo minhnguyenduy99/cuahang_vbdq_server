@@ -75,7 +75,7 @@ export default class App implements IApp {
     ]);
 
     // temporarily remove authorization
-    this.dep.getApplicationSerivce(DEPConsts.AuthorizationService).useAuthorization(true);
+    this.dep.getApplicationSerivce(DEPConsts.AuthorizationService).useAuthorization(false);
   }
 
   protected developmentMiddlewares() {
