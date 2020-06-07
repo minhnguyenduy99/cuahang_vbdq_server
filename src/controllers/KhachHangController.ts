@@ -1,30 +1,25 @@
 import BaseController from "./BaseController";
 import { RequestHandler } from "express";
-import { Dependency, DEPConsts } from "@dep";
-import { IImageLoader, FOLDERS } from "@services/image-loader";
-import { ITaiKhoanService } from "@modules/taikhoan/shared";
-import { TaoKhachHang, TimKiemKhachHang, TaoTaiKhoanKhachHang, TimKiemKhachHangDTO } from "@modules/khachhang/usecases";
 import { authenticationChecking, authorizeUser } from "@middlewares";
+
+import { TaoKhachHang, TimKiemKhachHang, TaoTaiKhoanKhachHang, TimKiemKhachHangDTO } from "@modules/khachhang/usecases";
+import { CapNhatKhachHangDTO, CapNhatKhachHang } from "@modules/khachhang/usecases/CapNhatKhachHang";
+import { XoaKhachHang } from "@modules/khachhang/usecases/XoaKhachHang";
+import { TimKiemKhachHangPage, TimKiemKhachHangPageDTO } from "@modules/khachhang/usecases/TimKiemKhachHangPage";
 
 
 export default class KhachHangController extends BaseController {
-
-  private taikhoanService: ITaiKhoanService;
-  private imageLoader: IImageLoader;
-
-  constructor(route: string) {
-    super(route);
-    this.taikhoanService = Dependency.Instance.getDomainService(DEPConsts.TaiKhoanService);
-    this.imageLoader = Dependency.Instance.getApplicationSerivce(DEPConsts.ImageLoader);
-  }
   
   protected initializeRoutes(): void {
     this.method("use", authenticationChecking());
     this.method("use", authorizeUser());
     this.method("post", this.taoTaiKhoanKhachHang(), "/dangky");
     this.method("get", this.findKhachHang(), "/search");
+    this.method("get", this.findKhachHangByPage(), "/page");
     this.method("get", this.findKhachHangById(), "/:kh_id");
     this.method("post", this.taoKhachHang());
+    this.method("put", this.updateKhachHang(), "/:kh_id");
+    this.method("delete", this.deleteKhachHang(), "/:kh_id");
   }
 
   private taoKhachHang(): RequestHandler {
@@ -61,6 +56,20 @@ export default class KhachHangController extends BaseController {
     }
   }
 
+  private findKhachHangByPage(): RequestHandler {
+    return async (req, res, next) => {
+      const request = {
+        count: req.query.count,
+        from: req.query.from
+      } as TimKiemKhachHangPageDTO;
+      const timKiemKhachHang = await this.executeQuery(request, new TimKiemKhachHangPage());
+      if (timKiemKhachHang.isFailure) {
+        return next(timKiemKhachHang.error);
+      }
+      return res.status(200).json(timKiemKhachHang.getValue());
+    }
+  }
+
   private findKhachHangById(): RequestHandler {
     return async (req, res, next) => {
       const idKH = req.params.kh_id;
@@ -70,6 +79,30 @@ export default class KhachHangController extends BaseController {
       }
       const khachhang = timKiemKhachHang.getValue();
       return res.status(200).json(khachhang); 
+    }
+  }
+
+  private updateKhachHang(): RequestHandler {
+    return async (req, res, next) => {
+      let request = {
+        id: req.params.kh_id,
+        ...req.body
+      } as CapNhatKhachHangDTO;
+      const updateResult = await this.executeCommand(request, new CapNhatKhachHang());
+      if (updateResult.isFailure) {
+        return next(updateResult.error);
+      }
+      return res.status(200).json(updateResult.getValue()); 
+    }
+  }
+
+  private deleteKhachHang(): RequestHandler {
+    return async (req, res, next) => {
+      const deleteResult = await this.executeCommand(req.params.kh_id, new XoaKhachHang());
+      if (deleteResult.isFailure) {
+        return next(deleteResult.error);
+      }
+      return res.status(204).json(deleteResult.getValue()); 
     }
   }
 }

@@ -6,7 +6,7 @@ import { IsCMND, IsMoney, IsVNPhoneNumber } from "@modules/helpers";
 export default class KhachHangProps {
 
   @IsString({ groups: CreateType.getAllGroups() })
-  @IsOptional({ groups: [CreateType.getGroups().createNew] })
+  @IsOptional({ groups: [CreateType.getGroups().createNew, CreateType.getGroups().update] })
   @Expose({ groups: CreateType.getAllGroups() })
   id: string;
 

@@ -17,6 +17,11 @@ export default class KhachHangService implements IKhachHangService {
     DomainEvents.register(this.onPhieuBanHangCreated.bind(this), PhieuCreated.name);
   }
 
+  async updateKhachHang(khachHang: KhachHang, updateInfo: any) {
+    let updateKhachHang = await khachHang.update(updateInfo);
+    return updateKhachHang;
+  }
+
   persist(khachhang: KhachHang): Promise<void> {
     return this.khachhangRepo.update(khachhang);
   }
