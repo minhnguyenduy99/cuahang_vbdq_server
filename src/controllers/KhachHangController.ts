@@ -39,17 +39,11 @@ export default class KhachHangController extends BaseController {
 
   private taoTaiKhoanKhachHang(): RequestHandler {
     return async (req, res, next) => {
-      let imageFile = req.body.anh_dai_dien;
-      req.body.anh_dai_dien = null;
       const taoTaiKhoanKH = await this.executeCommand(req.body, new TaoTaiKhoanKhachHang());
       if (taoTaiKhoanKH.isFailure) {
         return next(taoTaiKhoanKH.error);
       }
-      let createdTaiKhoan = taoTaiKhoanKH.getValue();
-      let url = await this.imageLoader.upload(imageFile, FOLDERS.KhachHang);
-      await this.taikhoanService.updateAnhDaiDien(createdTaiKhoan.id, url);
-      createdTaiKhoan.anh_dai_dien = url;
-      res.status(201).json(createdTaiKhoan);
+      res.status(201).json(taoTaiKhoanKH.getValue());
     }
   }
 
