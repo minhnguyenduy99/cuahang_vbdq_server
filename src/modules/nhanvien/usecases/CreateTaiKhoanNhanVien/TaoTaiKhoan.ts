@@ -38,14 +38,14 @@ export default class TaoTaiKhoan implements ICommand<TaoTaiKhoanDTO> {
       return FailResult.fail(new UseCaseError(Errors.LoaiTaiKhoanInvalid, { loai_tk: request.loai_tk }));
     }
     // Thực hiện use case thêm tài khoản 
-    const saveTaiKhoan = await this.taoTaiKhoanUseCase.execute({ 
+    const taoTaiKhoan = await this.taoTaiKhoanUseCase.execute({ 
       ten_tk: request.ten_tk,
       mat_khau: request.mat_khau,
       anh_dai_dien: request.anh_dai_dien,
       loai_tk: request.loai_tk
     });
-    if (saveTaiKhoan.isFailure) {
-      return FailResult.fail(saveTaiKhoan.error);
+    if (taoTaiKhoan.isFailure) {
+      return FailResult.fail(taoTaiKhoan.error);
     }
     const isNhanVienExists = await this.isNhanVienExists(request.cmnd);
     if (isNhanVienExists) {
@@ -71,7 +71,6 @@ export default class TaoTaiKhoan implements ICommand<TaoTaiKhoanDTO> {
       let serializedData = this.data.serialize(CreateType.getGroups().toAppRespone); 
       // dispatch the domain event
       DomainEvents.dispatchEventsForAggregate(this.data.entityId);
-
       return {
         ...serializedData,
         tai_khoan: taikhoanData
