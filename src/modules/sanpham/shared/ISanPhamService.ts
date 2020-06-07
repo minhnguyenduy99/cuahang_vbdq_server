@@ -14,5 +14,5 @@ export default interface ISanPhamService extends IDomainService {
 
   persist(sanpham: SanPham): Promise<void>;
 
-  updateSanPhamInfo(sanPham: SanPham, updateInfo: any): Promise<SuccessResult<SanPham> | FailResult<ValidationError[]>>;
+  updateSanPhamInfo(sanPham: SanPham, imageFile: "usedefault" | any): Promise<SuccessResult<SanPham> | FailResult<ValidationError[]>>;
 }

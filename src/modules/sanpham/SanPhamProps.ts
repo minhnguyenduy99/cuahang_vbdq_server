@@ -41,8 +41,6 @@ export default class SanPhamProps {
   @Transform(StringToNumber)
   giaBan: number;
 
-  @IsOptional({ groups: [CreateType.getGroups().createNew] })
-  @Validate(IsImage, { groups: CreateType.getAllGroupsExcept("createNew") })
   @Expose({ name: "anh_dai_dien" })
   anhDaiDien: string;
 

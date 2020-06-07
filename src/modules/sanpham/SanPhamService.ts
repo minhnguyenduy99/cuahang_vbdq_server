@@ -41,13 +41,14 @@ export default class SanPhamService implements ISanPhamService {
     return this.repo.persist(sanpham);
   }
 
-  async updateAnhSanPham(sanpham: SanPham, file: any) {
-    if (!this.imageLoader.isFileAllowed(file)) {
-      return false;
+  async updateAnhSanPham(sanpham: SanPham, imageFile: "usedefault" | any) {
+    if (imageFile !== "usedefault") {
+      if (!this.imageLoader.isFileAllowed(imageFile)) {
+        return false;
+      }
     }
-    let url = await this.imageLoader.upload(file, "SANPHAM");
+    let url = await this.imageLoader.upload(imageFile, "SANPHAM");
     sanpham.updateAnhDaiDien(url);
-    await this.persist(sanpham);
     return true;
   }
 

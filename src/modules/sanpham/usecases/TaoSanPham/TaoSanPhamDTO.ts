@@ -6,7 +6,7 @@ export default interface TaoSanPhamDTO {
   gia_ban: number;
   khoi_luong: number;
   nhacc_id: string;
-  anh_dai_dien?: any;
+  anh_dai_dien: any;
   tieu_chuan?: string;
   ghi_chu?: string;
 }

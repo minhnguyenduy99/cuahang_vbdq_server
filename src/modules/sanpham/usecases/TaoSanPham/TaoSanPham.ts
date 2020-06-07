@@ -13,7 +13,6 @@ export default class TaoSanPham implements ICommand<TaoSanPhamDTO> {
   private nhacungcapRepo: INhaCungCapRepository;
   private sanphamService: ISanPhamService;
   private data: SanPham;
-  private imageFile: any;
   private commited: boolean;
 
   constructor() {
@@ -33,26 +32,25 @@ export default class TaoSanPham implements ICommand<TaoSanPhamDTO> {
 
   async execute(request: TaoSanPhamDTO) {
     // Tìm kiếm nhà cung cấp
-    const nhaCungCap = await this.getNhaCungCap(request.nhacc_id);
-    if (nhaCungCap.isFailure) {
-      return FailResult.fail(nhaCungCap.error);
+    let nhaCungCap = await this.nhacungcapRepo.getNhaCungCapById(request.nhacc_id);
+    if (!nhaCungCap) {
+      return FailResult.fail(new UseCaseError(Errors.NhaCungCapNotFound));
     }
-    this.imageFile = request.anh_dai_dien;
-    request.anh_dai_dien = null;
     // Kiểm tra sản phẩm
-    const createSanPhamResult = await SanPham.create(request, CreateType.getGroups().createNew, nhaCungCap.getValue()); 
+    const createSanPhamResult = await SanPham.create(request, CreateType.getGroups().createNew); 
     if (createSanPhamResult.isFailure) {
       return FailResult.fail(createSanPhamResult.error);
+    }
+    let updateAnhSuccess = await this.sanphamService.updateAnhSanPham(createSanPhamResult.getValue(), request.anh_dai_dien)
+    if (!updateAnhSuccess) {
+      return FailResult.fail(new UseCaseError(Errors.AnhDaiDienInvalid));
     }
     this.data = createSanPhamResult.getValue();
     return SuccessResult.ok(null);
   }
 
   async commit(): Promise<SanPhamDTO> {
-    await Promise.all([
-      this.sanphamRepo.createSanPham(this.data),
-      this.sanphamService.updateAnhSanPham(this.data, this.imageFile)
-    ]);
+    await this.sanphamRepo.createSanPham(this.data),
     this.commited = true;
     return this.data.serialize();
   }
