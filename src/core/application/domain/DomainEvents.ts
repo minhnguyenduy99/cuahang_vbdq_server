@@ -131,6 +131,6 @@ export default class DomainEvents {
         handler(event);
       }
     }
-    this.handlersMap[eventClassName] = [];
+    // this.handlersMap[eventClassName] = [];
   }
 }
