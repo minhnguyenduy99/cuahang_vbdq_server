@@ -8,9 +8,11 @@ export default interface ITaiKhoanRepository {
 
   findTaiKhoan(tenTaiKhoan: string): Promise<TaiKhoanDTO>;
 
-  findTaiKhoanById(taikhoanId: string): Promise<TaiKhoanDTO>;
+  findTaiKhoanById(taikhoanId: string, findDeleted?: boolean): Promise<TaiKhoanDTO>;
 
-  deleteTaiKhoan(taikhoanId: string): Promise<void>;
+  findTaiKhoanByLimit(from: number, count?: number): Promise<TaiKhoanDTO[]>;
+
+  deleteTaiKhoan(taikhoanId: string): Promise<boolean>;
 
   updateTaiKhoan(taikhoan: TaiKhoan): Promise<void>;
 }

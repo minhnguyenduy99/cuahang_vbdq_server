@@ -33,7 +33,7 @@ export default class UpdateTaiKhoan implements ICommand<UpdateTaiKhoanDTO> {
       this.taikhoanService.findTaiKhoanById(request.id),
       request.ten_tk ? this.taikhoanRepo.findTaiKhoan(request.ten_tk) : null
     ]);
-    if (findTKByUserName) {
+    if (findTKByUserName && findTKByUserName.id !== request.id) {
       return FailResult.fail(new UseCaseError(Errors.TenDangNhapTonTai, { ten_tk: request.ten_tk }));
     }
     if (findTKById.isFailure) {

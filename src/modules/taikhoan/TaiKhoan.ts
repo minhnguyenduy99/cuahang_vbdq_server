@@ -1,12 +1,13 @@
 import uniqid from "uniqid";
 import bcrypt from "bcrypt";
-import { Entity, SuccessResult, FailResult, InvalidEntity } from "@core";
+import { Entity, SuccessResult, FailResult, InvalidEntity, AggrerateRoot } from "@core";
 import TaiKhoanProps from "./TaiKhoanProps";
 import { plainToClass, classToPlain } from "class-transformer";
 import { validate } from "class-validator";
 import { LoaiTaiKhoan } from "@modules/loaitaikhoan";
 import { CreateType } from "../core";
 import { excludeEmpty } from "@modules/helpers";
+import TaiKhoanDeleted from "./shared/TaiKhoanDeleted";
 
 export interface TaiKhoanDTO {
   id: string;
@@ -16,7 +17,7 @@ export interface TaiKhoanDTO {
   loai_tk?: string;
 }
 
-export class TaiKhoan extends Entity<TaiKhoanProps> {
+export class TaiKhoan extends AggrerateRoot<TaiKhoanProps> {
 
   private _isPasswordHash: boolean;
   private loaiTK: LoaiTaiKhoan;
@@ -34,6 +35,7 @@ export class TaiKhoan extends Entity<TaiKhoanProps> {
     } else {
       this._isPasswordHash = true;
     }
+    this.addDomainEvent(new TaiKhoanDeleted(this));
   }
 
   get id() {

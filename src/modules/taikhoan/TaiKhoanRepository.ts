@@ -11,15 +11,20 @@ export default class TaiKhoanRepository extends BaseKnexRepository<TaiKhoan> imp
     super(connection, new TaiKhoanMapper(), "TAIKHOAN");
   }
 
+  findTaiKhoanByLimit(from: number, count?: number): Promise<TaiKhoanDTO[]> {
+    return this.findLimit(from, count);
+  }
+
   updateTaiKhoan(taikhoan: TaiKhoan): Promise<void> {
     return this.persist(taikhoan);
   }
 
   async deleteTaiKhoan(taikhoanId: string) {
     try {
-      await this.connection.getConnector().table(this.tableName).delete().where({
-        id: taikhoanId
-      })
+      let result = await this.connection.getConnector().update({
+        record_status: '0'
+      }).table(this.tableName).where(this.getIdCondition([taikhoanId]));
+      return result === 1;
     }catch(err) {
       throw this.knexDatabaseFailed(err);
     }
@@ -36,8 +41,17 @@ export default class TaiKhoanRepository extends BaseKnexRepository<TaiKhoan> imp
     }
   }
 
-  async findTaiKhoanById(taikhoanId: string): Promise<TaiKhoanDTO> {
-    return this.findById( [taikhoanId] );
+  async findTaiKhoanById(taikhoanId: string, findDeleted?: boolean): Promise<TaiKhoanDTO> {
+    try {
+      let result = await this.connection.getConnector()
+        .select("*").from(this.tableName)
+        .whereIn("record_status", findDeleted ? ['0', '1'] : ['1'])
+        .andWhere(this.getIdCondition([taikhoanId])).limit(1);
+
+      return this.mapper.toDTOFromPersistence(result[0]);
+    } catch (err) {
+      throw this.knexDatabaseFailed(err);
+    }
   }
 
   async taiKhoanExists(tenTaiKhoan: string): Promise<boolean> {
