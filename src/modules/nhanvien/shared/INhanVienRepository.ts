@@ -6,6 +6,8 @@ export default interface INhanVienRepository {
 
   getNhanVienByCMND(cmnd: string): Promise<NhanVienDTO>;
 
+  findNhanVienByTaiKhoan(taikhoanId: string): Promise<NhanVienDTO>;
+
   createNhanVien(nhanvien: NhanVien): Promise<void>;
 
   deleteNhanVien(id: string): Promise<void>;

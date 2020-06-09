@@ -10,6 +10,19 @@ export default class NhanVienRepository extends BaseKnexRepository<NhanVien> imp
     super(connection, new NhanVienMapper(), "NHANVIEN");
   }
 
+  async findNhanVienByTaiKhoan(taikhoanId: string): Promise<NhanVienDTO> {
+    try {
+      let result = await this.connection.getConnector()
+        .select("*").from(this.tableName)
+        .where("tk_id", "=", taikhoanId)
+        .andWhere("record_status", "=", "1")
+        .limit(1);
+      return result.length === 0 ? null : this.mapper.toDTOFromPersistence(result[0]);
+    } catch (err) {
+      throw this.knexDatabaseFailed(err);
+    }
+  }
+
   findNhanVienByLimit(from: number, count?: number): Promise<NhanVienDTO[]> {
     return this.findLimit(from, count);
   }

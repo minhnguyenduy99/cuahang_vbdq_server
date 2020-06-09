@@ -1,8 +1,9 @@
-import { FailResult, SuccessResult, EntityNotFound } from "@core";
+import { FailResult, SuccessResult, EntityNotFound, DomainEvents } from "@core";
 import { INhanVienRepository, NhanVien } from "@modules/nhanvien";
 import { CreateType } from "@modules/core";
 import { Dependency, DEPConsts } from "@dep";
 import { INhanVienService } from "./shared";
+import { TaiKhoanDeleted } from "../taikhoan";
 
 export default class NhanVienService implements INhanVienService {
   
@@ -10,6 +11,8 @@ export default class NhanVienService implements INhanVienService {
 
   constructor() {
     this.repo = Dependency.Instance.getRepository(DEPConsts.NhanVienRepository);
+
+    DomainEvents.register(this.onTaiKhoanDeleted.bind(this), TaiKhoanDeleted.name);
   }
 
   persist(nhanvien: NhanVien): Promise<void> {
@@ -27,5 +30,13 @@ export default class NhanVienService implements INhanVienService {
     }
     const createNhanVien = await NhanVien.create(nhanvienDTO, CreateType.getGroups().loadFromPersistence);
     return SuccessResult.ok(createNhanVien.getValue());
+  }
+
+  private async onTaiKhoanDeleted(event: TaiKhoanDeleted) {
+    let nhanvien = await this.repo.findNhanVienByTaiKhoan(event.taikhoan.id);
+    if (!nhanvien) {
+      return;
+    }
+    await this.repo.deleteNhanVien(nhanvien.id);
   }
 }
