@@ -28,12 +28,12 @@ class TransformationType {
     return this.allGroupsValues;
   }
 
-  getAllGroupsExcept(excludeGroupKey: string) {
-    const allGroupKey = this.getAllGroupKeys();
-    const excludeGroupIndex = allGroupKey.indexOf(excludeGroupKey);
-    const allGroups = Object.values(this.groups);
-    allGroups.splice(excludeGroupIndex, 1);
-    return allGroups
+  getAllGroupsExcept(...excludeGroupKey: string[]) {
+    let newGroups: { [key: string]: string } = { ...this.groups };
+    excludeGroupKey.forEach(group => {
+      delete newGroups[group];
+    })
+    return Object.values(newGroups);
   }
 }
 
