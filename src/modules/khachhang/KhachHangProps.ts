@@ -46,4 +46,8 @@ export default class KhachHangProps {
   @Validate(IsMoney, { groups: CreateType.getAllGroupsExcept("createNew") })
   @Expose({ name: "tong_gia_tri_mua" })
   tongGiaTriMua: number;
+
+  @IsOptional({ groups: CreateType.getAllGroups() })
+  @Expose({ name: "tk_id"})
+  taikhoanId: string;
 }

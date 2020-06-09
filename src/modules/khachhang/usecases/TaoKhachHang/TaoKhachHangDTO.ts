@@ -4,5 +4,6 @@ export default interface TaoKhachHangDTO {
   ngay_sinh: Date,
   gioi_tinh: string;
   sdt: string;
+  tk_id?: string;
   dia_chi?: string;
 }

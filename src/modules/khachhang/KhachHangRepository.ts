@@ -1,5 +1,5 @@
 import knex from "knex";
-import { IDbConnection, LimitResult } from "@core";
+import { IDbConnection } from "@core";
 import { IKhachHangRepository, KhachHang, KhachHangDTO } from "@modules/khachhang";
 import { BaseKnexRepository } from "@services/db-access-manager";
 import KhachHangMapper from "./KhachHangMapper";
@@ -8,6 +8,19 @@ export default class KhachHangRepository extends BaseKnexRepository<KhachHang> i
  
   constructor(connection: IDbConnection<knex>) {
     super(connection, new KhachHangMapper(), "KHACHHANG");
+  }
+
+  async findKhachHangByTaiKhoan(taikhoanId: string): Promise<KhachHangDTO> {
+    try {
+      let result = await this.connection.getConnector()
+        .select("*").from(this.tableName)
+        .where("tk_id", "=", taikhoanId)
+        .andWhere("record_status", "=", "1")
+        .limit(1);
+      return result.length === 0 ? null : this.mapper.toDTOFromPersistence(result[0]);
+    } catch (err) {
+      throw this.knexDatabaseFailed(err);
+    }
   }
 
   async searchKhachHangLimit(from: number, count?: number): Promise<KhachHangDTO[]> {

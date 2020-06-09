@@ -9,4 +9,5 @@ export default interface KhachHangDTO {
   sdt: string;
   tong_gia_tri_ban: number;
   tong_gia_tri_mua: number;
+  tk_id: string;
 }

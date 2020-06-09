@@ -13,6 +13,7 @@ export default class KhachHangMapper implements IMapper<KhachHang> {
     }
     return {
       id: data.id,
+      tk_id: data.tk_id,
       ten_kh: data.ho_ten,
       cmnd: data.cmnd,
       gioi_tinh: data.gioi_tinh,
@@ -28,6 +29,7 @@ export default class KhachHangMapper implements IMapper<KhachHang> {
     const dto = khachhang.serialize(CreateType.getGroups().toPersistence);
     return {
       id: dto.id,
+      tk_id: dto.tk_id,
       ho_ten: dto.ten_kh,
       cmnd: dto.cmnd,
       tong_gia_tri_ban: dto.tong_gia_tri_ban,

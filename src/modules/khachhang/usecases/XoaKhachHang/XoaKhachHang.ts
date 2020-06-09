@@ -2,16 +2,21 @@ import { ICommand, FailResult, UseCaseError, SuccessResult } from "@core";
 import { IKhachHangRepository } from "@modules/khachhang/shared";
 import { Dependency, DEPConsts } from "@dep";
 import Errors from "./ErrorConsts";
+import { KhachHangDTO } from "../..";
+import { DeleteTaiKhoan } from "@modules/taikhoan/usecases/DeleteTaiKhoan";
 
 
 export default class XoaKhachHang implements ICommand<string> {
   
   private commited: boolean;
-  private data: string;
+  private data: KhachHangDTO;
   private khachhangRepo: IKhachHangRepository;
+  private deleteTaiKhoanUseCase: DeleteTaiKhoan;
+  private doesKhachHangHasTaiKhoan: boolean = true;
 
   constructor() {
     this.khachhangRepo = Dependency.Instance.getRepository(DEPConsts.KhachHangRepository);
+    this.deleteTaiKhoanUseCase = new DeleteTaiKhoan();
   }
   
   isCommit(): boolean {
@@ -19,13 +24,16 @@ export default class XoaKhachHang implements ICommand<string> {
   }
 
   async commit(): Promise<{ id: string }> {
-    await this.khachhangRepo.deleteKhachHang(this.data);
+    await Promise.all([
+      this.khachhangRepo.deleteKhachHang(this.data.id),
+      this.doesKhachHangHasTaiKhoan ? this.deleteTaiKhoanUseCase.commit() : null
+    ])
     return {
-      id: this.data
+      id: this.data.id
     };
   }
 
-  getData(): string {
+  getData(): KhachHangDTO {
     return this.data;
   }
 
@@ -34,7 +42,11 @@ export default class XoaKhachHang implements ICommand<string> {
     if (!khachhang) {
       return FailResult.fail(new UseCaseError(Errors.KhachHangKhongTonTai, { id: khachhangId }));
     }
-    this.data = khachhang.id;
+    let result = await this.deleteTaiKhoanUseCase.execute(khachhang.tk_id);
+    if (result.isFailure) {
+      this.doesKhachHangHasTaiKhoan = false;
+    }
+    this.data = khachhang;
     return SuccessResult.ok(null);
   }
 }
