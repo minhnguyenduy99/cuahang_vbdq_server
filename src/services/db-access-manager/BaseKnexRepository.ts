@@ -7,6 +7,8 @@ import KnexDBRepoError from "./KnexDBRepoError";
 
 export default abstract class BaseKnexRepository<T extends Entity<any>> implements IPersistableRepository<knex> {
 
+  protected isRecordMode: boolean = false;
+
   constructor(
     public readonly connection: IDbConnection<knex>, 
     protected mapper: IMapper<T>,
@@ -57,6 +59,24 @@ export default abstract class BaseKnexRepository<T extends Entity<any>> implemen
     } catch (err) {
       throw this.knexDatabaseFailed(err);
     }
+  }
+
+  async count(countDeleted: boolean = false) {
+    try {
+      let query = this.connection.getConnector()
+        .count("*").from(this.tableName)
+      if (this.isRecordMode && !countDeleted){
+        query = query.where("record_status", "=", "1");
+      } 
+      let result = await query.first();
+      return result["count(*)"] as number;
+    } catch (err) {
+      throw this.knexDatabaseFailed(err);
+    }
+  }
+
+  protected useRecordMode(use: boolean = false) {
+    this.isRecordMode = use;
   }
 
   protected knexDatabaseFailed(err: any) {
