@@ -7,6 +7,7 @@ import { XoaSanPham } from "@modules/sanpham/usecases/XoaSanPham";
 
 import BaseController from "./BaseController";
 import { UpdateAnhSanPhamDTO, UpdateAnhSanPham  } from "@modules/sanpham/usecases/UpdateAnhSanPham";
+import { Dependency, DEPConsts } from "@dep";
 
 
 
@@ -21,6 +22,7 @@ export default class SanPhamController extends BaseController {
     this.method("use", authorizeUser());
     this.method("post", this.createSanPham());
     this.method("get", this.searchSanPham());
+    this.method("get", this.getSoLuong(), "/soluong");
     this.method("put", this.updateSanPham(), "/:sp_id");
     this.method("delete", this.deleteSanPham(), "/:sp_id");
     this.method("put", this.updateAnhDaiDien(), "/anhdaidien/:sp_id");
@@ -89,6 +91,16 @@ export default class SanPhamController extends BaseController {
         return next(result.error);
       }
       return res.status(200).json(result.getValue());
+    }
+  }
+
+  private getSoLuong(): RequestHandler {
+    return async (req, res, next) => {
+      let sanphamRepo = Dependency.Instance.getRepository(DEPConsts.SanPhamRepository);
+      let result = await sanphamRepo.count();
+      return res.status(200).json({
+        so_luong: result
+      });
     }
   }
 }

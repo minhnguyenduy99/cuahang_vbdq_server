@@ -2,6 +2,8 @@ import { NhaCungCap, NhaCungCapDTO } from "@modules/nhacungcap";
 
 export default interface INhaCungCapRepository {
 
+  getTongSoLuong(): Promise<number>;
+
   createNhaCungCap(nhacungcap: NhaCungCap): Promise<void>;
 
   nhaCungCapExists(tenNhaCungCap: string): Promise<boolean>;

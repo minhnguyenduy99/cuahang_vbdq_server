@@ -8,6 +8,11 @@ export default class NhanVienRepository extends BaseKnexRepository<NhanVien> imp
 
   constructor(connection: IDbConnection<Knex>) {
     super(connection, new NhanVienMapper(), "NHANVIEN");
+    this.useRecordMode(true);
+  }
+
+  getTongSoLuong(): Promise<number> {
+    return this.count();
   }
 
   async findNhanVienByTaiKhoan(taikhoanId: string): Promise<NhanVienDTO> {

@@ -9,6 +9,7 @@ export default class TaiKhoanRepository extends BaseKnexRepository<TaiKhoan> imp
 
   constructor(connection: IDbConnection<Knex>) {
     super(connection, new TaiKhoanMapper(), "TAIKHOAN");
+    this.useRecordMode(true);
   }
 
   findTaiKhoanByLimit(from: number, count?: number): Promise<TaiKhoanDTO[]> {

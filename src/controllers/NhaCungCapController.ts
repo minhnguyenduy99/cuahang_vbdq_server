@@ -3,6 +3,7 @@ import { RequestHandler } from "express";
 import { TaoNhaCungCap } from "@modules/nhacungcap/usecases/TaoNhaCungCap";
 import { TimKiemNhaCungCap } from "@modules/nhacungcap/usecases/TimKiemNhaCC";
 import { authorizeUser, authenticationChecking } from "@middlewares";
+import { Dependency, DEPConsts } from "@dep";
 
 
 export default class NhaCungCapController extends BaseController {
@@ -12,6 +13,7 @@ export default class NhaCungCapController extends BaseController {
     this.method("use", authorizeUser());
     this.method("post", this.createNhaCungCap());
     this.method("get", this.findNhaCungCap(), "/search");
+    this.method("get", this.getSoLuong(), "/soluong");
   }
 
   private createNhaCungCap(): RequestHandler {
@@ -31,6 +33,16 @@ export default class NhaCungCapController extends BaseController {
         return next(usecaseResult.error);
       }
       res.status(200).json(usecaseResult.getValue());
+    }
+  }
+
+  private getSoLuong(): RequestHandler {
+    return async (req, res, next) => {
+      let nhacungcapRepo = Dependency.Instance.getRepository(DEPConsts.NhaCungCapRepository);
+      let result = await nhacungcapRepo.count();
+      return res.status(200).json({
+        so_luong: result
+      });
     }
   }
 } 

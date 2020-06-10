@@ -10,6 +10,10 @@ export default class NhaCungCapRepository extends BaseKnexRepository<NhaCungCap>
     super(connection, new NhaCungCapMapper(), "NHACUNGCAP");
   }
 
+  getTongSoLuong(): Promise<number> {
+    return this.count();
+  }
+
   update(nhacungcap: NhaCungCap): Promise<void> {
     return this.persist(nhacungcap);
   }

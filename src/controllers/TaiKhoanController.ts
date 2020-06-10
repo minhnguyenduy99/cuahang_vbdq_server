@@ -4,12 +4,14 @@ import { UpdateTaiKhoan } from "@modules/taikhoan/usecases/UpdateTaiKhoan";
 import { GetTaiKhoanById } from "@modules/taikhoan/usecases/GetTaiKhoanById";
 import { FindTaiKhoanPageDTO, FindTaiKhoanPage } from "@modules/taikhoan/usecases/FindTaiKhoanByPage";
 import { DeleteTaiKhoan } from "@modules/taikhoan/usecases/DeleteTaiKhoan";
+import { Dependency, DEPConsts } from "@dep";
 
 
 export default class TaiKhoanController extends BaseController {
   
   protected initializeRoutes(): void {
     this.method("put", this.updateTaiKhoan(), "/:id");
+    this.method("get", this.getSoLuong(), "/soluong");
     this.method("get", this.findTaiKhoanByPage(), "/page");
     this.method("get", this.findTaiKhoanById(), "/:tk_id");
     this.method("delete", this.deleteTaiKhoan(), "/:tk_id");
@@ -60,6 +62,16 @@ export default class TaiKhoanController extends BaseController {
         return next(usecaseResult.error);
       }
       return res.status(204).json();
+    }
+  }
+
+  private getSoLuong(): RequestHandler {
+    return async (req, res, next) => {
+      let taikhoanRepo = Dependency.Instance.getRepository(DEPConsts.TaiKhoanRepository);
+      let result = await taikhoanRepo.count();
+      return res.status(200).json({
+        so_luong: result
+      });
     }
   }
 }

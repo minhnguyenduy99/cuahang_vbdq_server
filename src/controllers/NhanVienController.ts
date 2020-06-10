@@ -7,6 +7,7 @@ import BaseController from "./BaseController";
 import { UpdateNhanVienDTO, UpdateNhanVien } from "@modules/nhanvien/usecases/UpdateNhanVien";
 import { DeleteNhanVien } from "@modules/nhanvien/usecases/DeleteNhanVien";
 import { FindNhanVienPage, FindNhanVienPageDTO } from "@modules/nhanvien/usecases/FindNhanVienByPage";
+import { Dependency, DEPConsts } from "@dep";
 
 
 export default class NhanVienController extends BaseController {
@@ -14,6 +15,7 @@ export default class NhanVienController extends BaseController {
   protected initializeRoutes(): void {
     this.method("use", authenticationChecking());
     this.method("use", authorizeUser());
+    this.method("get", this.getSoLuong(), "/soluong");
     this.method("get", this.findNhanVienByPage(), "/page");
     this.method("get", this.getNhanVienById(), "/:nv_id");
     this.method("post", this.createNhanVien());
@@ -83,6 +85,16 @@ export default class NhanVienController extends BaseController {
         return next(result.error);
       }
       return res.status(204).json();
+    }
+  }
+
+  private getSoLuong(): RequestHandler {
+    return async (req, res, next) => {
+      let nhanvienRepo = Dependency.Instance.getRepository(DEPConsts.NhanVienRepository);
+      let result = await nhanvienRepo.count();
+      return res.status(200).json({
+        so_luong: result
+      });
     }
   }
 }

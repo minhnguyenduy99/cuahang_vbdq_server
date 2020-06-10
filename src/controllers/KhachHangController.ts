@@ -6,6 +6,7 @@ import { TaoKhachHang, TimKiemKhachHang, TaoTaiKhoanKhachHang, TimKiemKhachHangD
 import { CapNhatKhachHangDTO, CapNhatKhachHang } from "@modules/khachhang/usecases/CapNhatKhachHang";
 import { XoaKhachHang } from "@modules/khachhang/usecases/XoaKhachHang";
 import { TimKiemKhachHangPage, TimKiemKhachHangPageDTO } from "@modules/khachhang/usecases/TimKiemKhachHangPage";
+import { Dependency, DEPConsts } from "@dep";
 
 
 export default class KhachHangController extends BaseController {
@@ -14,6 +15,7 @@ export default class KhachHangController extends BaseController {
     this.method("use", authenticationChecking());
     this.method("use", authorizeUser());
     this.method("post", this.taoTaiKhoanKhachHang(), "/dangky");
+    this.method("get", this.getSoLuong(), "/soluong");
     this.method("get", this.findKhachHang(), "/search");
     this.method("get", this.findKhachHangByPage(), "/page");
     this.method("get", this.findKhachHangById(), "/:kh_id");
@@ -103,6 +105,16 @@ export default class KhachHangController extends BaseController {
         return next(deleteResult.error);
       }
       return res.status(204).json(deleteResult.getValue()); 
+    }
+  }
+
+  private getSoLuong(): RequestHandler {
+    return async (req, res, next) => {
+      let khachhangRepo = Dependency.Instance.getRepository(DEPConsts.KhachHangRepository);
+      let result = await khachhangRepo.count();
+      return res.status(200).json({
+        so_luong: result
+      });
     }
   }
 }

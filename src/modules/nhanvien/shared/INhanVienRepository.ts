@@ -2,6 +2,8 @@ import { NhanVien, NhanVienDTO } from "../";
 
 export default interface INhanVienRepository {
 
+  getTongSoLuong(): Promise<number>;
+
   getNhanVienById(id: string, findDeleted?: boolean): Promise<NhanVienDTO>;
 
   getNhanVienByCMND(cmnd: string): Promise<NhanVienDTO>;

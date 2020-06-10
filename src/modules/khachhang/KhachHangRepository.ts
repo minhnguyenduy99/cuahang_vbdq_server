@@ -8,6 +8,7 @@ export default class KhachHangRepository extends BaseKnexRepository<KhachHang> i
  
   constructor(connection: IDbConnection<knex>) {
     super(connection, new KhachHangMapper(), "KHACHHANG");
+    this.useRecordMode(true);
   }
 
   async findKhachHangByTaiKhoan(taikhoanId: string): Promise<KhachHangDTO> {

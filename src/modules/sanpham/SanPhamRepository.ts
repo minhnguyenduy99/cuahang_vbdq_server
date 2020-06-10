@@ -8,6 +8,11 @@ export default class SanPhamRepository extends BaseKnexRepository<SanPham> imple
 
   constructor(connection: IDbConnection<knex>) {
     super(connection, new SanPhamMapper(), "SANPHAM");
+    this.useRecordMode(true);
+  }
+
+  async getSoLuong() {
+    return this.count();
   }
 
   async getSanPhamByIdNhaCC(nhaccId: string, findDeleted?: boolean): Promise<SanPhamDTO[]> {

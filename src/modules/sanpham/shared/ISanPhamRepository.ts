@@ -4,6 +4,8 @@ import SanPhamDTO from "./SanPhamDTO";
 
 export default interface ISanPhamRepository {
 
+  getSoLuong(): Promise<number>;
+
   createSanPham(sanpham: SanPham): Promise<void>;
 
   searchSanPham(tenSP: string, loaiSP: string, limit: LimitResult): Promise<SanPhamDTO[]>;
