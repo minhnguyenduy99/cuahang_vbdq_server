@@ -5,12 +5,14 @@ import { GetTaiKhoanById } from "@modules/taikhoan/usecases/GetTaiKhoanById";
 import { FindTaiKhoanPageDTO, FindTaiKhoanPage } from "@modules/taikhoan/usecases/FindTaiKhoanByPage";
 import { DeleteTaiKhoan } from "@modules/taikhoan/usecases/DeleteTaiKhoan";
 import { Dependency, DEPConsts } from "@dep";
+import { SearchTaiKhoanDTO, SearchTaiKhoan } from "@modules/taikhoan/usecases/SearchTaiKhoan";
 
 
 export default class TaiKhoanController extends BaseController {
   
   protected initializeRoutes(): void {
     this.method("put", this.updateTaiKhoan(), "/:id");
+    this.method("get", this.searchTaiKhoan(), "/search");
     this.method("get", this.getSoLuong(), "/soluong");
     this.method("get", this.findTaiKhoanByPage(), "/page");
     this.method("get", this.findTaiKhoanById(), "/:tk_id");
@@ -48,6 +50,21 @@ export default class TaiKhoanController extends BaseController {
         count: req.query.count
       } as FindTaiKhoanPageDTO;
       let usecaseResult = await this.executeQuery(limit, new FindTaiKhoanPage());
+      if (usecaseResult.isFailure) {
+        return next(usecaseResult.error);
+      }
+      return res.status(201).json(usecaseResult.getValue());
+    }
+  }
+
+  private searchTaiKhoan(): RequestHandler {
+    return async (req, res, next) => {
+      let request = {
+        ten_dang_nhap: req.query.ten_dang_nhap,
+        from: req.query.from,
+        count: req.query.count
+      } as SearchTaiKhoanDTO;
+      let usecaseResult = await this.executeQuery(request, new SearchTaiKhoan());
       if (usecaseResult.isFailure) {
         return next(usecaseResult.error);
       }

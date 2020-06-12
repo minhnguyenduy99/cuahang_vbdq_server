@@ -12,6 +12,31 @@ export default class TaiKhoanRepository extends BaseKnexRepository<TaiKhoan> imp
     this.useRecordMode(true);
   }
 
+  async getCountSearch(tenTaiKhoan: string): Promise<number> {
+    try {
+      let result = await this.connection.getConnector()
+        .count("*").from(this.tableName)
+        .where(`ten_dang_nhap`, 'like', `%${tenTaiKhoan}%`)
+        .andWhere("record_status", "=", "1").first();
+      return result["count(*)"];
+    } catch (err) {
+      throw this.knexDatabaseFailed(err);
+    }
+  }
+
+  async searchTaiKhoan(tenTaiKhoan: string, from: number, count: number = 100) {
+    try {
+      let result = await this.connection.getConnector()
+        .select("*").from(this.tableName)
+        .where("ten_dang_nhap", "like", `%${tenTaiKhoan}%`)
+        .andWhere("record_status", "=", "1")
+        .offset(from).limit(count);
+      return result.map((dto => this.mapper.toDTOFromPersistence(dto)));
+    } catch (err) {
+      throw this.knexDatabaseFailed(err);
+    }
+  }
+
   findTaiKhoanByLimit(from: number, count?: number): Promise<TaiKhoanDTO[]> {
     return this.findLimit(from, count);
   }

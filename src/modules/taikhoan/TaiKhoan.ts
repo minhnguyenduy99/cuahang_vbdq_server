@@ -8,16 +8,9 @@ import { LoaiTaiKhoan } from "@modules/loaitaikhoan";
 import { CreateType } from "../core";
 import { excludeEmpty } from "@modules/helpers";
 import TaiKhoanDeleted from "./shared/TaiKhoanDeleted";
+import { TaiKhoanDTO } from "./shared";
 
-export interface TaiKhoanDTO {
-  id: string;
-  ten_tk?: string;
-  mat_khau?: string;
-  anh_dai_dien?: string;
-  loai_tk?: string;
-}
-
-export class TaiKhoan extends AggrerateRoot<TaiKhoanProps> {
+export default class TaiKhoan extends AggrerateRoot<TaiKhoanProps> {
 
   private _isPasswordHash: boolean;
   private loaiTK: LoaiTaiKhoan;

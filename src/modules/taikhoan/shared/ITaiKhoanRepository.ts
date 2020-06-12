@@ -1,8 +1,13 @@
-import { TaiKhoan, TaiKhoanDTO } from "../TaiKhoan";
+import TaiKhoan from "../TaiKhoan";
+import TaiKhoanDTO from "./TaiKhoanDTO";
 
 export default interface ITaiKhoanRepository {
   
   createTaiKhoan(taikhoan: TaiKhoan): Promise<void>;
+
+  searchTaiKhoan(tenTaiKhoan: string, from: number, count?: number): Promise<TaiKhoanDTO[]>;
+
+  getCountSearch(tenTaiKhoan: string): Promise<number>;
 
   taiKhoanExists(tenTaiKhoan: string): Promise<boolean>;
 

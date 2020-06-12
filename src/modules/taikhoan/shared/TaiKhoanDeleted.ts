@@ -1,5 +1,5 @@
 import { IDomainEvent, UniqueEntityID } from "@core";
-import { TaiKhoan } from "../TaiKhoan";
+import TaiKhoan from "../TaiKhoan";
 
 
 export default class TaiKhoanDeleted implements IDomainEvent {

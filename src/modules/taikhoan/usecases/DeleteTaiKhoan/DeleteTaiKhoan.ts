@@ -1,7 +1,7 @@
 import { ICommand, FailResult, UseCaseError, SuccessResult, DomainEvents } from "@core";
 import { ITaiKhoanService, ITaiKhoanRepository } from "../../shared";
 import { Dependency, DEPConsts } from "@dep";
-import { TaiKhoan } from "../../TaiKhoan";
+import TaiKhoan from "../../TaiKhoan";
 
 
 export default class DeleteTaiKhoan implements ICommand<string> {
