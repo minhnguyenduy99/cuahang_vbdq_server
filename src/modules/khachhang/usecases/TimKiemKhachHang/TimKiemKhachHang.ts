@@ -24,7 +24,7 @@ export default class TimKiemKhachHang implements IQuery<TimKiemKhachHangDTO> {
     return SuccessResult.ok(convertData);
   }
   
-  async execute(request: TimKiemKhachHangDTO): Promise<Result<KhachHangDTO[] | KhachHangDTO, ValidationError[] | UseCaseError>> {
+  async execute(request: TimKiemKhachHangDTO) {
     const validateResult = await this.validate(request);
     if (validateResult.isFailure) {
       return FailResult.fail(validateResult.error);
@@ -34,6 +34,13 @@ export default class TimKiemKhachHang implements IQuery<TimKiemKhachHangDTO> {
       let khachhang = await this.repo.findKhachHangById(searchReq.id);
       return khachhang ? SuccessResult.ok(khachhang) : FailResult.fail(new UseCaseError(Errors.KhachHangNotFound))
     }
-    return SuccessResult.ok(await this.repo.searchKhachHang(searchReq.ten, searchReq.cmnd));
+    let [listKhachHang, totalCount] = await Promise.all([
+      this.repo.searchKhachHang(searchReq.ten, searchReq.cmnd, searchReq.from, searchReq.count),
+      this.repo.getSoLuongSearch(searchReq.ten, searchReq.cmnd)
+    ])
+    return SuccessResult.ok({
+      ds_khachhang: listKhachHang,
+      total_count: totalCount
+    });
   }
 }

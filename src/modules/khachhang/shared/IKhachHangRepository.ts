@@ -8,7 +8,9 @@ export default interface IKhachHangRepository {
 
   findKhachHangByTaiKhoan(taikhoanId: string): Promise<KhachHangDTO>;
 
-  searchKhachHang(tenKH: string, cmnd: string): Promise<KhachHangDTO[]>;
+  searchKhachHang(tenKH: string, cmnd: string, from: number, count?: number): Promise<KhachHangDTO[]>;
+
+  getSoLuongSearch(tenKH: string, cmnd: string): Promise<number>;
 
   update(khachhang: KhachHang): Promise<void>;
 

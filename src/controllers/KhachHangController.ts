@@ -48,7 +48,9 @@ export default class KhachHangController extends BaseController {
     return async (req, res, next) => {
       const request = {
         ten_kh: req.query.ten_kh,
-        cmnd: req.query.cmnd
+        cmnd: req.query.cmnd,
+        from: req.query.from,
+        count: req.query.count
       } as TimKiemKhachHangDTO;
       const timKiemKhachHang = await this.executeQuery(request, new TimKiemKhachHang());
       if (timKiemKhachHang.isFailure) {

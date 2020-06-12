@@ -11,6 +11,19 @@ export default class KhachHangRepository extends BaseKnexRepository<KhachHang> i
     this.useRecordMode(true);
   }
 
+  async getSoLuongSearch(tenKH: string, cmnd: string): Promise<number> {
+    try {
+      let result = await this.connection.getConnector()
+        .count("*").from(this.tableName)
+        .where(`ho_ten`, 'like', `%${tenKH}%`)
+        .andWhere('cmnd', 'like', `%${cmnd}%`)
+        .andWhere("record_status", "=", "1").first();
+      return result["count(*)"];
+    } catch (err) {
+      throw this.knexDatabaseFailed(err);
+    }
+  }
+
   async findKhachHangByTaiKhoan(taikhoanId: string): Promise<KhachHangDTO> {
     try {
       let result = await this.connection.getConnector()
@@ -44,13 +57,14 @@ export default class KhachHangRepository extends BaseKnexRepository<KhachHang> i
     return this.persist(khachhang);
   }
 
-  async searchKhachHang(tenKH: string = "", cmnd: string = ""): Promise<KhachHangDTO[]> {
+  async searchKhachHang(tenKH: string = "", cmnd: string = "", from: number, count: number = 100): Promise<KhachHangDTO[]> {
     try {
       const searchResult = await this.connection.getConnector()
         .select("*").from(this.tableName)
         .where(`ho_ten`, 'like', `%${tenKH}%`)
         .andWhere('cmnd', 'like', `%${cmnd}%`)
-        .andWhere('record_status', '=', '1');
+        .andWhere('record_status', '=', '1')
+        .offset(from).limit(count);
       const khachhangData = searchResult.map(khachhang => this.mapper.toDTOFromPersistence(khachhang));
       return khachhangData;
     } catch (err) {
