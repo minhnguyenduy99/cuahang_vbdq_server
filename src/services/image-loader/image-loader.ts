@@ -1,37 +1,82 @@
+import URL from "url";
 import cloudinary from "cloudinary";
-import { IApplicationService } from "@modules/services/ApplicationService";
+import { IAppSettings, ApplicationService } from "@core";
+import IImageLoader from "./IImageLoader";
+import { ALLOW_IMAGE_EXT } from "./shared";
 
 const cloudinary_v2 = cloudinary.v2;
 
-interface UploadFile {
-
+interface SettingsData {
+  url?: string;
+  name?: string;
+  apiKey?: string;
+  apiSecret?: string;
+  folders: {[folderName: string]: string};
 }
 
-export default class ImageLoader implements IApplicationService {
+export class ImageLoader extends ApplicationService<SettingsData> implements IImageLoader {
+  
+  protected defaultFolders: { [folderName: string]: string} = {};
 
-  async start(): Promise<boolean> {
-    await this.config();
-    return true;
+  constructor(appSettings: IAppSettings) {
+    super(appSettings);
+    this.config();
+    this.defaultFolders = this.serviceData.folders;
   }
 
-  async end(): Promise<void> {
-    throw new Error("Method not implemented.");
-  }
-
-  async upload(file: any) {
+  async delete(url: string): Promise<boolean> {
+    let imageURL = URL.parse(url);
+    let partsOfPathName = imageURL.pathname.split(/[/'/.]/);
+    let imageId = partsOfPathName[partsOfPathName.length - 2];
     try {
-      const result = await cloudinary_v2.uploader.upload(file.path);
-      return result.url;
+      let value = await cloudinary.v2.api.delete_resources([imageId], (err, result) => {
+        if (err) 
+          console.error(err);
+        else 
+          console.log(result);
+      });
+      return true;
     } catch (err) {
-      console.log(err);
+      return false;
     }
   }
 
+  protected getAppSettings(settings: IAppSettings): SettingsData {
+    return settings.getValue("remoteImageServer") as SettingsData;
+  }
+
+  isFileAllowed(file: any): boolean {
+    if (!file || !file.name) {
+      return false;
+    }
+    let parts = file ? file.name.split('.') : [""];
+    let ext = parts[parts.length - 1];
+    return ALLOW_IMAGE_EXT.includes(ext);
+  }
+
+  async upload(file: "usedefault" | any, folder: string) {
+    try {
+      if (file === "usedefault") {
+        return this.loadDefaultImage(folder);
+      }
+      const result = await cloudinary_v2.uploader.upload(file.path, { folder: folder });
+      return result.url;
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  }
+
+  private loadDefaultImage(folder: string) {
+    return this.defaultFolders[folder] ?? null;
+  }
+
   private config() {
+    const { apiKey, apiSecret, name } = this.serviceData;
     cloudinary_v2.config({
-      cloud_name: 'dml8e1w0z', 
-      api_key: '221949179788151', 
-      api_secret: 'T2O9uzGP6JzsLwsyEp-YqwMWPHI',
+      cloud_name: name, 
+      api_key: apiKey, 
+      api_secret: apiSecret
     })
   }
 }

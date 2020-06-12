@@ -1,16 +1,16 @@
 // import from core
 import IDatabaseRepository from "./IDatabaseRepository";
-import IService from "../application/IService";
 import IDbConnection from "./IDbConnection";
+import { IApplicationService } from "../application";
 
-export default interface IDatabaseService extends IService{
+export default interface IDatabaseService extends IApplicationService {
+
+  getDbConnection(): IDbConnection<any>;
 
   createRepository<T extends IDatabaseRepository<any>>(
     type: new (connection: IDbConnection<any>, tableName?: string) => T, tableName?: string) : T;
 
-  addConnection(connection: IDbConnection<any>): void;
-
-  setDefaultConnection(name: string): void;
-
-  destroyConnection(connection: IDbConnection<any>): Promise<boolean>;
+  start(): Promise<boolean>;
+  
+  end(): Promise<void>;
 }

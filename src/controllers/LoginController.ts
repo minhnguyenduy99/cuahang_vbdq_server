@@ -1,39 +1,34 @@
 import BaseController from "./BaseController";
-import { IAuthenticate } from "@services/authenticate";
 import { RequestHandler } from "express";
-import { DomainAuthentication } from "@services/authenticate";
-import { DomainAuthenticateService, ApplicationService } from "@modules/services/ApplicationService";
 import { ErrorFactory } from "@services/http-error-handles";
-import { ITaiKhoanRepository } from "@modules/taikhoan";
+import { Dependency, DEPConsts } from "@dep";
+import { IRoleService } from "@modules/roles/shared";
+import { IAccountAuthenticateService } from "@modules/taikhoan/shared";
 
 export default class LoginController extends BaseController {
   
-  private authenticate: IAuthenticate<any>;
+  private authenticate: IAccountAuthenticateService;
+  private authorization: IRoleService;
   
-  constructor(route: string, repo: ITaiKhoanRepository) {
+  constructor(route: string) {
     super(route);
-    this.authenticate = new DomainAuthentication(
-      ApplicationService.getService(DomainAuthenticateService, repo));
+    this.authenticate = Dependency.Instance.getDomainService(DEPConsts.AccountAuthenticateService);
+    this.authorization = Dependency.Instance.getDomainService(DEPConsts.RoleService);
   }
 
   protected initializeRoutes(): void {
-    this.router.post(`${this.route}/nhanvien`, this.authenticateNhanVien());
+    this.method("post", this.authenticateNhanVien());
   }
 
   private authenticateNhanVien(): RequestHandler {
     return async (req, res, next) => {
-      const authenticateData = {
-        username: req.body.ten_dang_nhap,
-        password: req.body.mat_khau,
-        rememberPassword: req.body.remember_password
-      };
-      const result = await this.authenticate.authenticate(authenticateData);
+      let { ten_dang_nhap: username, mat_khau: password } = req.body;
+      const result = await this.authenticate.authenticate(username, password);
       if (!result.valid) {
         return next(ErrorFactory.unauthenticated(result.message));
       }
-      if (authenticateData.rememberPassword) {
-        req.session.tk_id = result.data.id;
-      }
+      let { id, loai_tk } = result.data;
+      this.authorization.addUserRole(id, loai_tk);
       res.status(200).json(result);
     }
   }

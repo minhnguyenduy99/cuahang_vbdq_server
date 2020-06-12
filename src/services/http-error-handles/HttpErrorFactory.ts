@@ -1,14 +1,14 @@
 import { IDatabaseError, IAppError, UseCaseError, DomainServiceError } from "@core";
+import { ValidationError } from "class-validator";
 import { InvalidFieldErrorInfo, HttpInvalidFieldError } from "./HttpInvalidFieldError";
 import { HTTP_ERROR_CODE, BaseHttpError } from "./BaseHttpError";
 import { HttpDatabaseError } from "./HttpDatabaseError";
-import { ValidationError } from "class-validator";
 import { HttpUseCaseError } from "./HttpUseCaseError";
 import HttpDomainServiceError from "./HttpDomainError";
 
 class HttpErrorFactory {
 
-  public error(error: UseCaseError<any> | ValidationError[] | ValidationError | IDatabaseError | DomainServiceError) {
+  public error(error: UseCaseError | ValidationError[] | ValidationError | IDatabaseError | DomainServiceError) {
     if (error instanceof UseCaseError) {
       return new HttpUseCaseError(error);
     }
@@ -44,8 +44,8 @@ class HttpErrorFactory {
     return new HttpDomainServiceError(domainError, code);
   }
 
-  public unauthorized(appErr: IAppError) {
-    return new BaseHttpError(appErr.message, HTTP_ERROR_CODE.bad_request);
+  public unauthorized() {
+    return new BaseHttpError("User is unauthorized", HTTP_ERROR_CODE.bad_request);
   }
 
   public unauthenticated(message?: string) {

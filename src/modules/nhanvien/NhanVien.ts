@@ -1,27 +1,16 @@
 import uniqid from "uniqid";
-import { Entity, SuccessResult, FailResult, InvalidEntity, DomainEvents, AggrerateRoot } from "@core";
-import { classToPlain, plainToClass } from "class-transformer";
 import { validate } from "class-validator";
+import { classToPlain, plainToClass } from "class-transformer";
+import { SuccessResult, FailResult, InvalidEntity, AggrerateRoot } from "@core";
+import { TaiKhoan } from "@modules/taikhoan";
 import NhanVienProps from "./NhanVienProps";
-import { TaiKhoanDTO, TaiKhoan } from "@modules/taikhoan";
 import NhanVienCreated from "./NhanVienCreated";
+import { NhanVienDTO } from ".";
+import { CreateType } from "@modules/core";
+import { excludeEmpty } from "@modules/helpers";
 
-export interface NhanVienDTO {
-  id: string;
-  idql: string;
-  chuc_vu: string;
-  luong: number;
-  ho_ten: string;
-  cmnd: string;
-  ngay_sinh: Date;
-  gioi_tinh: string;
-  sdt: string;
-  dia_chi: string;
-  ghi_chu: string;
-  tk_id: string;
-}
 
-export class NhanVien extends AggrerateRoot<NhanVienProps> {
+export default class NhanVien extends AggrerateRoot<NhanVienProps> {
 
   private _taiKhoan: TaiKhoan;
 
@@ -51,10 +40,6 @@ export class NhanVien extends AggrerateRoot<NhanVienProps> {
 
   get quanlyId() {
     return this.props.idql;
-  }
-
-  get chucVu() {
-    return this.props.chucvu;
   }
 
   get luong() {
@@ -97,8 +82,20 @@ export class NhanVien extends AggrerateRoot<NhanVienProps> {
     return this._taiKhoan;
   }
 
-  serialize(type: string) {
-    return classToPlain(this.props, { groups: [type] }) as NhanVienDTO;
+  async update(dto: any) {
+    delete dto.id;
+    let updateProps = plainToClass(NhanVienProps, dto, { groups: [CreateType.getGroups().update], excludeExtraneousValues: true });
+    updateProps = excludeEmpty(updateProps);
+    const errors = await validate(updateProps, { groups: [CreateType.getGroups().createNew]});
+    if (errors.length > 0) {
+      return FailResult.fail(errors);
+    }
+    Object.assign(this.props, updateProps);
+    return SuccessResult.ok(this);
+  }
+
+  serialize(type?: string) {
+    return classToPlain(this.props, { groups: [type || CreateType.getGroups().toAppRespone] }) as NhanVienDTO;
   }
 
   static async create(data: any, createType: string, taikhoan?: TaiKhoan) {

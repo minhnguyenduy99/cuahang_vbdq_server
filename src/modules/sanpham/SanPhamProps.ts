@@ -1,24 +1,12 @@
 import { Expose, Transform } from "class-transformer";
 import { IsPositive, IsInt, IsNumber, IsDivisibleBy, IsString, IsOptional, IsNotEmpty, IsNegative, IsEmpty, Validate } from "class-validator";
-import CreateType from "../entity-create-type";
-import { StringToNumber } from "../helpers/CustomTransform";
+import CreateType from "../core/entity-create-type";
+import { StringToNumber } from "@modules/helpers";
 import { IsImage } from "../helpers/custom-validator";
 
-export interface SanPhamDTO {
-  idsp: string;
-  ten_sp: string;
-  loai_sp: string;
-  so_luong: number;
-  gia_nhap: number;
-  gia_ban: number;
-  anh_dai_dien: number;
-  khoi_luong: number;
-  nhacc_id: string;
-  tieu_chuan: string;
-  ghi_chu: string;
-}
 
-export class SanPhamProps {
+
+export default class SanPhamProps {
   
   @IsString({ groups: CreateType.getAllGroupsExcept("createNew") })
   @IsEmpty({ groups: [CreateType.getGroups().createNew] })
@@ -33,10 +21,10 @@ export class SanPhamProps {
   @Expose({ name: "loai_sp" })
   loaiSP: string;
 
-  @IsInt({ groups: CreateType.getAllGroups() })
-  @IsPositive({ groups: CreateType.getAllGroups() })
+  @IsInt({ groups: CreateType.getAllGroupsExcept("createNew") })
+  @Transform(StringToNumber, { groups: CreateType.getAllGroupsExcept("createNew") })
+  @IsEmpty({ groups: [CreateType.getGroups().createNew] })
   @Expose({ name: "so_luong"})
-  @Transform(StringToNumber)
   soLuong: number;
 
   @IsNumber({ allowInfinity: false, allowNaN: false})
@@ -53,8 +41,6 @@ export class SanPhamProps {
   @Transform(StringToNumber)
   giaBan: number;
 
-  @IsOptional({ groups: [CreateType.getGroups().createNew] })
-  @Validate(IsImage, { groups: CreateType.getAllGroupsExcept("createNew") })
   @Expose({ name: "anh_dai_dien" })
   anhDaiDien: string;
 

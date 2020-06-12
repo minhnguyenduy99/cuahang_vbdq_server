@@ -1,36 +1,25 @@
-import { IsString, IsOptional, IsNumber, MaxLength, IsIn, IsEmpty } from "class-validator";
-import { Expose, Transform } from "class-transformer";
-import CreateType from "../entity-create-type";
+import { MaxLength, IsEmpty } from "class-validator";
+import { Expose } from "class-transformer";
+import { CreateType } from "@modules/core";
 
 export default class TaiKhoanProps {
 
-  @IsEmpty({ groups: [CreateType.getGroups().createNew] })
-  @IsString({ groups: CreateType.getAllGroupsExcept("createNew") })
+  @IsEmpty({ groups: [CreateType.getGroups().createNew, CreateType.getGroups().update] })
   @Expose({ groups: CreateType.getAllGroups() })
   id: string;
 
-  @IsString({ groups: CreateType.getAllGroups() })
   @Expose({ name: "ten_tk", groups: CreateType.getAllGroupsExcept("toAppRespone") })
   @MaxLength(20, { groups: CreateType.getAllGroups() })
   tenTaiKhoan: string;
 
-  @IsString({ groups: CreateType.getAllGroups() })
   @MaxLength(20, { groups: [CreateType.getGroups().createNew] })
-  @Expose({ name: "mat_khau", groups: CreateType.getAllGroupsExcept("toAppRespone") })
+  @Expose({ name: "mat_khau", groups: CreateType.getAllGroupsExcept("toAppRespone", "exposeAll") })
   matKhau: string;
 
   @Expose({ name: "anh_dai_dien", groups: CreateType.getAllGroups() })
-  @IsOptional({ groups: [CreateType.getGroups().createNew] })
   anhDaiDien: string;
 
-  @IsNumber({ allowNaN: false, allowInfinity: false }, { groups: CreateType.getAllGroups() })
-  @Transform((val) => {
-    if (typeof val === "string") {
-      return parseInt(val)
-    }
-    return val
-  })
+  @IsEmpty({ groups: [CreateType.getGroups().update] })
   @Expose({ name: "loai_tk", groups: CreateType.getAllGroups() })
-  // @IsIn([0, 1, 2], { groups: CreateType.getAllGroups() })
-  loaiTK: number;
+  loaiTK: string;
 }

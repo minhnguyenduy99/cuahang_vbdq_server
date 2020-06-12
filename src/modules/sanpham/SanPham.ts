@@ -1,14 +1,13 @@
 import uniqid from "uniqid";
 import { classToPlain, plainToClass } from "class-transformer";
 import { validate } from "class-validator";
-
 import { Entity, SuccessResult, FailResult, InvalidEntity } from "@core";
-import { ChiTietPhieu } from "@modules/phieu";
 import { NhaCungCap } from "@modules/nhacungcap";
+import { IPurchasable } from "@modules/core";
+import SanPhamProps from "./SanPhamProps";
+import SanPhamDTO from "./shared/SanPhamDTO";
 
-import { SanPhamProps, SanPhamDTO } from "./SanPhamProps";
-
-export default class SanPham extends Entity<SanPhamProps> {
+export default class SanPham extends Entity<SanPhamProps> implements IPurchasable {
 
   private nhaCC: NhaCungCap;
 
@@ -31,11 +30,13 @@ export default class SanPham extends Entity<SanPhamProps> {
     this.nhaCC = nhacungcap;
   }
 
-  updateSoLuong(ctphieu: ChiTietPhieu) {
-    if (this.sanPhamId !== ctphieu.sanphamId) {
-      return;
+  updateSoLuong(soLuong: number) {
+    if (soLuong < 0 || !Number.isInteger(soLuong)) {
+      return false;
     }
-    this.props.soLuong -= ctphieu.soLuong;
+    this.props.soLuong = soLuong;
+    this._isStateChanged = true;
+    return true;
   }
 
   updateAnhDaiDien(source: string) {
@@ -44,6 +45,18 @@ export default class SanPham extends Entity<SanPhamProps> {
   
   serialize() {
     return classToPlain(this.props) as SanPhamDTO;
+  }
+
+  getId() {
+    return this.props.id;
+  }
+
+  getGiaTriBan() {
+    return this.props.giaBan;
+  }
+
+  getGiaTriMua() {
+    return this.props.giaNhap;
   }
 
   get nhaCungCap() {
@@ -60,6 +73,10 @@ export default class SanPham extends Entity<SanPhamProps> {
 
   get giaBan() {
     return this.props.giaBan;
+  }
+
+  get anhDaiDien() {
+    return this.props.anhDaiDien;
   }
 
   static async create(data: any, createType: string, nhaCungCap?: NhaCungCap) {

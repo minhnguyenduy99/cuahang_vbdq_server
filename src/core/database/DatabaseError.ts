@@ -1,5 +1,4 @@
 
-import { BaseAppError } from "../application/core-error";
 import { IDatabaseError } from "@core";
 
 
@@ -12,6 +11,7 @@ export default class DatabaseError implements IDatabaseError {
     this.type = type;
     this.message = message;
   }
+
 
   getErrorInfo() {
     return {

@@ -1,21 +1,12 @@
-import { IsString, IsOptional, IsNotEmpty, ValidateIf, IsNumberString, IsNumber, IsEmpty, Matches, Validate } from "class-validator";
-import CreateType from "../entity-create-type";
-import { Expose } from "class-transformer";
-import { IsCMND, IsMoney } from "../helpers/custom-validator";
+import { IsString, IsOptional, IsNotEmpty, IsEmpty, Validate, IsDate } from "class-validator";
+import { Expose, Type } from "class-transformer";
+import { CreateType } from "@modules/core";
+import { IsCMND, IsMoney, IsVNPhoneNumber } from "@modules/helpers";
 
-
-export interface KhachHangDTO {
-  id: string;
-  ten_kh: string;
-  cmnd: string;
-  tong_gia_tri_ban: number;
-  tong_gia_tri_mua: number;
-}
-
-export class KhachHangProps {
+export default class KhachHangProps {
 
   @IsString({ groups: CreateType.getAllGroups() })
-  @IsOptional({ groups: [CreateType.getGroups().createNew] })
+  @IsOptional({ groups: [CreateType.getGroups().createNew, CreateType.getGroups().update] })
   @Expose({ groups: CreateType.getAllGroups() })
   id: string;
 
@@ -29,6 +20,23 @@ export class KhachHangProps {
   @Expose({ groups: CreateType.getAllGroups() })
   cmnd: string;
 
+  @Expose({ name: "ngay_sinh" })
+  @Type(() => Date)
+  @IsDate({ groups: CreateType.getAllGroups() })
+  ngaySinh: Date;
+
+  @Expose({ name: "gioi_tinh"})
+  gioiTinh: string;
+
+  @Validate(IsVNPhoneNumber, { groups: CreateType.getAllGroups() })
+  @Expose()
+  sdt: string;
+
+  @IsOptional({ groups: CreateType.getAllGroups() })
+  @IsString({ groups: CreateType.getAllGroups() })
+  @Expose({ name: "dia_chi" })
+  diachi: string;
+
   @IsEmpty({ groups: [CreateType.getGroups().createNew] })
   @Validate(IsMoney, { groups: CreateType.getAllGroupsExcept("createNew") })
   @Expose({ name: "tong_gia_tri_ban" })
@@ -38,4 +46,8 @@ export class KhachHangProps {
   @Validate(IsMoney, { groups: CreateType.getAllGroupsExcept("createNew") })
   @Expose({ name: "tong_gia_tri_mua" })
   tongGiaTriMua: number;
+
+  @IsOptional({ groups: CreateType.getAllGroups() })
+  @Expose({ name: "tk_id"})
+  taikhoanId: string;
 }

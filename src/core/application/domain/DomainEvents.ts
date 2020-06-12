@@ -122,7 +122,7 @@ export default class DomainEvents {
    * @desc Invokes all of the subscribers to a particular domain event.
    */
 
-  private static dispatch (event: IDomainEvent): void {
+  public static dispatch (event: IDomainEvent): void {
     const eventClassName: string = event.constructor.name;
 
     if (this.handlersMap[eventClassName]) {
@@ -131,6 +131,6 @@ export default class DomainEvents {
         handler(event);
       }
     }
-    this.handlersMap[eventClassName] = [];
+    // this.handlersMap[eventClassName] = [];
   }
 }

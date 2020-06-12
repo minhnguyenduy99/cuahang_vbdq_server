@@ -1,27 +1,22 @@
-import uniqid from "uniqid";
-import { IUseCase, FailResult, SuccessResult, ICommand, Entity, Result, IDatabaseError } from "@core";
-import { ITaiKhoanRepository } from "../..";
-import { TaiKhoan, TaiKhoanDTO } from "../../TaiKhoan";
-import TaiKhoanExistsError from "./TaiKhoanExistsError";
-import CreateType from "@create_type";
+import { FailResult, SuccessResult, ICommand, UseCaseError } from "@core";
+import { TaiKhoan, TaiKhoanDTO, ITaiKhoanRepository } from "@modules/taikhoan";
+import { CreateType } from "@modules/core";
+import { Dependency, DEPConsts } from "@dep";
+import Errors from "./ErrorConsts";
+import CreateTaiKhoanDTO from "./CreateTaiKhoanDTO";
+import { ITaiKhoanService } from "../../shared";
 
- 
-export interface CreateTaiKhoanDTO {
-  
-  ten_tk: string;
-  mat_khau: string;
-  anh_dai_dien: string;
-  loai_tk: number;
-}
 
-export class CreateTaiKhoan implements ICommand<CreateTaiKhoanDTO> {
+export default class CreateTaiKhoan implements ICommand<CreateTaiKhoanDTO> {
 
   private repo: ITaiKhoanRepository;
+  private taikhoanService: ITaiKhoanService;
   private data: TaiKhoan;
   private commited: boolean;
 
-  constructor(repo: ITaiKhoanRepository) {
-    this.repo = repo; 
+  constructor() {
+    this.repo = Dependency.Instance.getRepository(DEPConsts.TaiKhoanRepository); 
+    this.taikhoanService = Dependency.Instance.getDomainService(DEPConsts.TaiKhoanService);
     this.commited = false;
   }
 
@@ -34,29 +29,27 @@ export class CreateTaiKhoan implements ICommand<CreateTaiKhoanDTO> {
   }
   
   async execute(request: CreateTaiKhoanDTO) {
+    const isTaiKhoanExists = await this.repo.taiKhoanExists(request.ten_tk);
+    if (isTaiKhoanExists) {
+      return FailResult.fail(new UseCaseError(Errors.TaiKhoanExists));
+    }
     const result = await TaiKhoan.create(request, CreateType.getGroups().createNew);
     if (result.isFailure) {
       return FailResult.fail(result.error);
     }
     const taikhoan = result.getValue();
-    const isTaiKhoanExists = await this.repo.taiKhoanExists(taikhoan.tenTaiKhoan);
-    if (isTaiKhoanExists.isFailure) {
-      return FailResult.fail(isTaiKhoanExists.error);
-    }
-    if (isTaiKhoanExists.getValue()) {
-      return FailResult.fail(new TaiKhoanExistsError());
+    let updateAnhResult = await this.taikhoanService.updateAnhDaiDien(taikhoan, request.anh_dai_dien);
+    if (updateAnhResult.isFailure) {
+      return FailResult.fail(new UseCaseError(Errors.AnhDaiDienInvalid));
     }
     this.data = taikhoan;
     return SuccessResult.ok(null);
   }
 
-  async commit(): Promise<Result<TaiKhoanDTO, IDatabaseError>> {
-    const commitResult = await await this.repo.createTaiKhoan(this.data);
-    if (commitResult.isSuccess) {
-      this.commited = true;
-      return SuccessResult.ok(this.data.serialize(CreateType.getGroups().toAppRespone));
-    }
-    return FailResult.fail(commitResult.error);
+  async commit(): Promise<TaiKhoanDTO> {
+    await this.repo.createTaiKhoan(this.data);
+    this.commited = true;
+    return this.data.serialize(CreateType.getGroups().toAppRespone);
   }
 
   rollback(): Promise<void> {

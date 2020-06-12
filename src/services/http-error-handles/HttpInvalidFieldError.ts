@@ -8,6 +8,7 @@ export interface InvalidFieldErrorInfo {
 
 export class HttpInvalidFieldError extends BaseHttpError {
   readonly fields: InvalidFieldErrorInfo[];
+  readonly error_code: string = "INV_001";
 
   constructor(fields: InvalidFieldErrorInfo[], code: number = HTTP_ERROR_CODE.bad_request) {
     super("Invalid data", code);
@@ -18,7 +19,8 @@ export class HttpInvalidFieldError extends BaseHttpError {
     return {
       message: this.message,
       code: this.code,
-      errorFields: this.fields
+      error_code: this.error_code,
+      error_fields: this.fields
     }
   }
 }

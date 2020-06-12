@@ -1,6 +1,5 @@
 import { IDomainEvent, UniqueEntityID } from "@core";
-import { NhanVien } from "./NhanVien";
-
+import NhanVien from "./NhanVien";
 
 export default class NhanVienCreated implements IDomainEvent {
   dateTimeOccurred: Date;

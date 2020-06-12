@@ -1,6 +1,8 @@
-import { Router } from "express";
-import { IUseCase, ICommand, FailResult, SuccessResult, IQuery } from "@core";
+import { Router, RequestHandler } from "express";
+import { ICommand, FailResult, SuccessResult, IQuery } from "@core";
 import { ErrorFactory } from "@services/http-error-handles";
+
+type HTTPMethod = "use" | "get" | "post" | "put" | "delete";
 
 export default abstract class BaseController {
 
@@ -23,11 +25,8 @@ export default abstract class BaseController {
     if (executeResult.isFailure) {
       return FailResult.fail(ErrorFactory.error(executeResult.error));
     }
-    const commitResult = await command.commit();
-    if (commitResult.isFailure) {
-      return FailResult.fail(ErrorFactory.databaseError(commitResult.error));
-    }
-    return SuccessResult.ok(commitResult.getValue());
+    const result = await command.commit();
+    return SuccessResult.ok(result);
   }
 
   protected async executeQuery<T>(request: T, query: IQuery<T>) {
@@ -36,6 +35,16 @@ export default abstract class BaseController {
       return FailResult.fail(ErrorFactory.error(executeResult.error));
     }
     return SuccessResult.ok(executeResult.getValue());
+  }
+
+  protected method(method: HTTPMethod, handler: RequestHandler, subRoute: string = ""): void {
+    this.router[method](`${this.route}${subRoute}`, async (req, res, next) => {
+      try {
+        await handler(req, res, next);
+      } catch (err) {
+        next(ErrorFactory.internalServerError());
+      }
+    }); 
   }
 
   protected abstract initializeRoutes(): void;

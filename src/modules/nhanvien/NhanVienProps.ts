@@ -1,6 +1,6 @@
-import { Expose, Type, TransformClassToPlain, TransformPlainToClass } from "class-transformer";
-import { IsIn, IsNumber, IsPositive, IsDivisibleBy, IsString, IsOptional, IsNotEmpty, IsDateString, IsDate, IsDefined, IsEmpty, Validate, ValidateIf } from "class-validator";
-import CreateType from "../entity-create-type";
+import { Expose, Type } from "class-transformer";
+import { IsIn, IsString, IsOptional, IsNotEmpty, IsDate, IsEmpty, Validate, ValidateIf } from "class-validator";
+import CreateType from "../core/entity-create-type";
 import { IsCMND, IsVNPhoneNumber, IsMoney } from "../helpers/custom-validator";
 
 export default class NhanVienProps {
@@ -14,10 +14,6 @@ export default class NhanVienProps {
   @IsOptional({ groups: CreateType.getAllGroups() })
   @Expose()
   idql: string;
-
-  @IsIn(["NHANVIEN", "KHACHHANG"], { groups: CreateType.getAllGroups() })
-  @Expose({ name: "chuc_vu"})
-  chucvu: string;
 
   @IsOptional({ groups: [CreateType.getGroups().createNew] })
   @Validate(IsMoney, { groups: CreateType.getAllGroupsExcept("createNew") })

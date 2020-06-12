@@ -13,7 +13,5 @@ export default abstract class BaseKnexConnection implements core.IDbConnection<K
     return this.knex;
   }
 
-  connect(): Promise<boolean> {
-    throw new Error("Method not implemented.");
-  }
+  abstract connect(): Promise<boolean>;
 }
