@@ -1,13 +1,14 @@
 import { RequestHandler } from "express";
+import { Dependency, DEPConsts } from "@dep";
 import { ErrorFactory } from "@services/http-error-handles";
+import BaseController from "./BaseController";
 import { authenticationChecking, authorizeUser } from "@middlewares";
 import { GetNhanVien, GetNhanVienRequest } from "@modules/nhanvien/usecases/GetNhanVien";
 import { TaoTaiKhoan } from "@modules/nhanvien/usecases/CreateTaiKhoanNhanVien";
-import BaseController from "./BaseController";
 import { UpdateNhanVienDTO, UpdateNhanVien } from "@modules/nhanvien/usecases/UpdateNhanVien";
 import { DeleteNhanVien } from "@modules/nhanvien/usecases/DeleteNhanVien";
 import { FindNhanVienPage, FindNhanVienPageDTO } from "@modules/nhanvien/usecases/FindNhanVienByPage";
-import { Dependency, DEPConsts } from "@dep";
+import { FindNhanVienDTO, FindNhanVien } from "@modules/nhanvien/usecases/FindNhanVien";
 
 
 export default class NhanVienController extends BaseController {
@@ -16,6 +17,7 @@ export default class NhanVienController extends BaseController {
     this.method("use", authenticationChecking());
     this.method("use", authorizeUser());
     this.method("get", this.getSoLuong(), "/soluong");
+    this.method("get", this.searchNhanVien(), "/search");
     this.method("get", this.findNhanVienByPage(), "/page");
     this.method("get", this.getNhanVienById(), "/:nv_id");
     this.method("post", this.createNhanVien());
@@ -97,4 +99,19 @@ export default class NhanVienController extends BaseController {
       });
     }
   }
+
+  private searchNhanVien(): RequestHandler {
+    return async (req, res, next) => {
+      let request = {
+        ten_nv: req.query.ten_nv,
+        from: req.query.from,
+        count: req.query.count
+      } as FindNhanVienDTO;
+      let result = await this.executeQuery(request, new FindNhanVien())
+      if (result.isFailure) {
+        return next(result.error);
+      }
+      return res.status(200).json(result.getValue());
+    }
+  } 
 }

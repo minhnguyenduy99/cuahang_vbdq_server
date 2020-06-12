@@ -8,6 +8,10 @@ export default interface INhanVienRepository {
 
   getNhanVienByCMND(cmnd: string): Promise<NhanVienDTO>;
 
+  searchNhanVien(tenNV: string, from: number, count?: number): Promise<NhanVienDTO[]>;
+
+  getSearchCount(tenNV: string): Promise<number>;
+
   findNhanVienByTaiKhoan(taikhoanId: string): Promise<NhanVienDTO>;
 
   createNhanVien(nhanvien: NhanVien): Promise<void>;
