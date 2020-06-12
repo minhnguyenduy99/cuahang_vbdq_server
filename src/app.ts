@@ -59,8 +59,8 @@ export default class App implements IApp {
   }
 
   async start() {
-    const host = this.settings.getValue("host");
-    const port = this.settings.getValue("port");
+    const host = this.isProductionMode() ? "0.0.0.0" : this.settings.getValue("host");
+    const port = this.isProductionMode() ? process.env.PORT : this.settings.getValue("port");
     this.app.listen(port, host, () => {
       console.log(`The application is listening at ${host}:${port}...`);
     })
