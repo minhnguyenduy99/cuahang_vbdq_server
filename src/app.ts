@@ -4,6 +4,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import formData from "express-form-data";
 import session from "express-session";
+import morgan from "morgan";
 import "reflect-metadata";
 
 import { IAppSettings, ApplicationMode, IApp } from "@core";
@@ -48,10 +49,6 @@ export default class App implements IApp {
     this.initializeRepositories();
 
     await initializeModule(this.dep);
-    
-    if (this.isDevelopmentMode()) {
-      this.developmentMiddlewares();
-    }
 
     this.initializeMiddlewares();
     this.initializeControllers();
@@ -78,11 +75,8 @@ export default class App implements IApp {
     this.dep.getApplicationSerivce(DEPConsts.AuthorizationService).useAuthorization(false);
   }
 
-  protected developmentMiddlewares() {
-    // this.app.use(morgan("dev"));
-  }
-
   protected initializeMiddlewares(): void {
+    this.app.use(morgan("dev"));
     this.app.use(cors({
       origin: "*",
       allowedHeaders: "*"

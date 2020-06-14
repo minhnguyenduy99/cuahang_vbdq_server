@@ -38,7 +38,6 @@
     "@typescript-eslint/eslint-plugin": "^2.25.0",
     "@typescript-eslint/parser": "^2.25.0",
     "eslint": "^6.8.0",
-    "morgan": "^1.10.0",
     "nodemon": "^2.0.2",
     "tslint": "^6.1.0",
     "typescript": "^3.8.3"
@@ -59,6 +58,7 @@
     "jsonwebtoken": "^8.5.1",
     "knex": "^0.20.13",
     "module-alias": "^2.2.2",
+    "morgan": "^1.10.0",
     "mysql": "^2.18.1",
     "reflect-metadata": "^0.1.13",
     "shallow-equal-object": "^1.1.1",
