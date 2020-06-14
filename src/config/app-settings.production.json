@@ -1,0 +1,26 @@
+{
+  "mode": "production",
+  "host": "chvbdq.herokuapp.com",
+  "port": 80,
+  "dbConnection": {
+    "name": "remote",
+    "host": "remotemysql.com",
+    "user": "9EM7tlUpmN",
+    "password": "ip9Jgn5iDB",
+    "database": "9EM7tlUpmN",
+    "port": 3306
+  },
+  "authPrivateKey": "relife_server_secret_key",
+  "remoteImageServer": {
+    "url": "cloudinary://221949179788151:T2O9uzGP6JzsLwsyEp-YqwMWPHI@dml8e1w0z",
+    "name": "dml8e1w0z",
+    "apiKey": "221949179788151",
+    "apiSecret": "T2O9uzGP6JzsLwsyEp-YqwMWPHI",
+    "folders": {
+      "KHACHHANG": "https://res.cloudinary.com/dml8e1w0z/image/upload/v1590805732/KHACHHANG/customer_default_zziupl.png",
+      "NHANVIEN": "https://res.cloudinary.com/dml8e1w0z/image/upload/v1590805794/NHANVIEN/staff_default_gdisvx.jpg",
+      "SANPHAM": "https://res.cloudinary.com/dml8e1w0z/image/upload/v1590805891/SANPHAM/product_default_ykti8h.png",
+      "NHACUNGCAP": "https://res.cloudinary.com/dml8e1w0z/image/upload/v1590805567/NHACUNGCAP/provider_default_jnhmu5.png"
+    }
+  }
+}
