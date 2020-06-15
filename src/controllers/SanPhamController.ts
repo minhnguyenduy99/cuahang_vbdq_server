@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { authenticationChecking, authorizeUser } from "@middlewares";
+import { authenticationChecking, authorizeUser, fileHandler } from "@middlewares";
 import { TaoSanPham } from "@modules/sanpham/usecases/TaoSanPham";
 import { TimKiemSanPham } from "@modules/sanpham/usecases/TimKiemSanPham";
 import { UpdateSanPham } from "@modules/sanpham/usecases/UpdateSanPham";
@@ -8,8 +8,6 @@ import { XoaSanPham } from "@modules/sanpham/usecases/XoaSanPham";
 import BaseController from "./BaseController";
 import { UpdateAnhSanPhamDTO, UpdateAnhSanPham  } from "@modules/sanpham/usecases/UpdateAnhSanPham";
 import { Dependency, DEPConsts } from "@dep";
-
-
 
 export default class SanPhamController extends BaseController {
 
@@ -20,7 +18,8 @@ export default class SanPhamController extends BaseController {
   protected initializeRoutes(): void {
     this.method("use", authenticationChecking());
     this.method("use", authorizeUser());
-    this.method("post", this.createSanPham());
+    // this.router.post(this.route, fileHandler('anh_dai_dien'), this.createSanPham());
+    this.methodHandlers("post", "", this.createSanPham(), ...fileHandler("anh_dai_dien"));
     this.method("get", this.searchSanPham());
     this.method("get", this.getSoLuong(), "/soluong");
     this.method("put", this.updateSanPham(), "/:sp_id");

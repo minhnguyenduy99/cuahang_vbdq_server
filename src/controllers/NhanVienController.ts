@@ -2,7 +2,7 @@ import { RequestHandler } from "express";
 import { Dependency, DEPConsts } from "@dep";
 import { ErrorFactory } from "@services/http-error-handles";
 import BaseController from "./BaseController";
-import { authenticationChecking, authorizeUser } from "@middlewares";
+import { authenticationChecking, authorizeUser, fileHandler } from "@middlewares";
 import { GetNhanVien, GetNhanVienRequest } from "@modules/nhanvien/usecases/GetNhanVien";
 import { TaoTaiKhoan } from "@modules/nhanvien/usecases/CreateTaiKhoanNhanVien";
 import { UpdateNhanVienDTO, UpdateNhanVien } from "@modules/nhanvien/usecases/UpdateNhanVien";
@@ -20,7 +20,7 @@ export default class NhanVienController extends BaseController {
     this.method("get", this.searchNhanVien(), "/search");
     this.method("get", this.findNhanVienByPage(), "/page");
     this.method("get", this.getNhanVienById(), "/:nv_id");
-    this.method("post", this.createNhanVien());
+    this.methodHandlers("post", "", this.createNhanVien(), ...fileHandler("anh_dai_dien"));
     this.method("put", this.updateNhanVien(), "/:nv_id");
     this.method("delete", this.deleteNhanVien(), "/:nv_id");
   }

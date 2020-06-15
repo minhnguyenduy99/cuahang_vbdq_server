@@ -2,7 +2,7 @@ import BaseController from "./BaseController";
 import { RequestHandler } from "express";
 import { TaoNhaCungCap } from "@modules/nhacungcap/usecases/TaoNhaCungCap";
 import { TimKiemNhaCungCap } from "@modules/nhacungcap/usecases/TimKiemNhaCC";
-import { authorizeUser, authenticationChecking } from "@middlewares";
+import { authorizeUser, authenticationChecking, fileHandler } from "@middlewares";
 import { Dependency, DEPConsts } from "@dep";
 
 
@@ -11,7 +11,7 @@ export default class NhaCungCapController extends BaseController {
   protected initializeRoutes(): void {
     this.method("use", authenticationChecking());
     this.method("use", authorizeUser());
-    this.method("post", this.createNhaCungCap());
+    this.methodHandlers("post", "", this.createNhaCungCap(), ...fileHandler("anh_dai_dien"));
     this.method("get", this.findNhaCungCap(), "/search");
     this.method("get", this.getSoLuong(), "/soluong");
   }

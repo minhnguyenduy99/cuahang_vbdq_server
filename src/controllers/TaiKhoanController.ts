@@ -6,12 +6,13 @@ import { FindTaiKhoanPageDTO, FindTaiKhoanPage } from "@modules/taikhoan/usecase
 import { DeleteTaiKhoan } from "@modules/taikhoan/usecases/DeleteTaiKhoan";
 import { Dependency, DEPConsts } from "@dep";
 import { SearchTaiKhoanDTO, SearchTaiKhoan } from "@modules/taikhoan/usecases/SearchTaiKhoan";
+import { fileHandler } from "@middlewares";
 
 
 export default class TaiKhoanController extends BaseController {
   
   protected initializeRoutes(): void {
-    this.method("put", this.updateTaiKhoan(), "/:id");
+    this.methodHandlers("put", "/:id", this.updateTaiKhoan(), ...fileHandler("anh_dai_dien"));
     this.method("get", this.searchTaiKhoan(), "/search");
     this.method("get", this.getSoLuong(), "/soluong");
     this.method("get", this.findTaiKhoanByPage(), "/page");

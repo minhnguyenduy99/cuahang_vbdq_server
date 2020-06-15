@@ -47,5 +47,15 @@ export default abstract class BaseController {
     }); 
   }
 
+  protected methodHandlers(method: HTTPMethod, subRoute: string = "", handler: RequestHandler, ...middlewares: RequestHandler[]): void {
+    this.router[method](`${this.route}${subRoute}`, ...middlewares, async (req, res, next) => {
+      try {
+        await handler(req, res, next);
+      } catch (err) {
+        next(ErrorFactory.internalServerError());
+      }
+    })
+  }
+
   protected abstract initializeRoutes(): void;
 }

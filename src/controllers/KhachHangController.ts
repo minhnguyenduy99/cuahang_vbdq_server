@@ -1,6 +1,6 @@
 import BaseController from "./BaseController";
 import { RequestHandler } from "express";
-import { authenticationChecking, authorizeUser } from "@middlewares";
+import { authenticationChecking, authorizeUser, fileHandler } from "@middlewares";
 
 import { TaoKhachHang, TimKiemKhachHang, TaoTaiKhoanKhachHang, TimKiemKhachHangDTO } from "@modules/khachhang/usecases";
 import { CapNhatKhachHangDTO, CapNhatKhachHang } from "@modules/khachhang/usecases/CapNhatKhachHang";
@@ -14,7 +14,7 @@ export default class KhachHangController extends BaseController {
   protected initializeRoutes(): void {
     this.method("use", authenticationChecking());
     this.method("use", authorizeUser());
-    this.method("post", this.taoTaiKhoanKhachHang(), "/dangky");
+    this.methodHandlers("post", "/dangky", this.taoTaiKhoanKhachHang(), ...fileHandler("anh_dai_dien"));
     this.method("get", this.getSoLuong(), "/soluong");
     this.method("get", this.findKhachHang(), "/search");
     this.method("get", this.findKhachHangByPage(), "/page");
@@ -36,6 +36,7 @@ export default class KhachHangController extends BaseController {
 
   private taoTaiKhoanKhachHang(): RequestHandler {
     return async (req, res, next) => {
+      req.body.anh_dai_dien = req.file;
       const taoTaiKhoanKH = await this.executeCommand(req.body, new TaoTaiKhoanKhachHang());
       if (taoTaiKhoanKH.isFailure) {
         return next(taoTaiKhoanKH.error);
