@@ -45,6 +45,7 @@
   "dependencies": {
     "@types/acl": "^0.4.37",
     "@types/cors": "^2.8.6",
+    "@types/multer": "^1.4.3",
     "@types/node": "^14.0.13",
     "acl": "^0.4.11",
     "bcrypt": "^4.0.1",
@@ -61,6 +62,7 @@
     "knex": "^0.20.13",
     "module-alias": "^2.2.2",
     "morgan": "^1.10.0",
+    "multer": "^1.4.2",
     "mysql": "^2.18.1",
     "nodemon": "^2.0.2",
     "reflect-metadata": "^0.1.13",

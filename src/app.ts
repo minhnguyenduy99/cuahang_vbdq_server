@@ -81,13 +81,6 @@ export default class App implements IApp {
       origin: "*",
       allowedHeaders: "*"
     }));
-    // Body parser middlewares
-    this.app.use(formData.parse({
-      autoClean: true,
-      autoFiles: true,
-      uploadDir: "tmp"
-    }))
-    this.app.use(formData.union());
     this.app.use(bodyParser.json());
     this.app.use(bodyParser.urlencoded({ extended: true }));
     // this.app.use(cookieParser());

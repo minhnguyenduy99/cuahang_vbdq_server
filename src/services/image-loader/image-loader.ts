@@ -1,10 +1,19 @@
 import URL from "url";
+import fs from "fs";
+import multer from "multer";
 import cloudinary from "cloudinary";
 import { IAppSettings, ApplicationService } from "@core";
 import IImageLoader from "./IImageLoader";
 import { ALLOW_IMAGE_EXT } from "./shared";
+import UploadFile from "./UploadFile";
 
 const cloudinary_v2 = cloudinary.v2;
+
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: "tmp/"
+  })
+});
 
 interface SettingsData {
   url?: string;
@@ -45,25 +54,32 @@ export class ImageLoader extends ApplicationService<SettingsData> implements IIm
     return settings.getValue("remoteImageServer") as SettingsData;
   }
 
-  isFileAllowed(file: any): boolean {
-    if (!file || !file.name) {
+  handlerFile(fieldName: string) {
+    return upload.single(fieldName);
+  }
+
+  isFileAllowed(file: UploadFile | "usedefault"): boolean {
+    if (file === "usedefault") {
+      return true;
+    }
+    if (!file) {
       return false;
     }
-    let parts = file ? file.name.split('.') : [""];
+    let parts = file.originalname.split('.');
     let ext = parts[parts.length - 1];
     return ALLOW_IMAGE_EXT.includes(ext);
   }
 
-  async upload(file: "usedefault" | any, folder: string) {
+  async upload(file: "usedefault" | UploadFile, folder: string) {
     try {
       if (file === "usedefault") {
         return this.loadDefaultImage(folder);
       }
       const result = await cloudinary_v2.uploader.upload(file.path, { folder: folder });
+      this.deleteTempFile(file)
       return result.url;
     } catch (err) {
       console.log(err);
-      throw err;
     }
   }
 
@@ -77,6 +93,14 @@ export class ImageLoader extends ApplicationService<SettingsData> implements IIm
       cloud_name: name, 
       api_key: apiKey, 
       api_secret: apiSecret
+    })
+  }
+
+  private deleteTempFile(file: UploadFile) {
+    fs.unlink(file.path, (err) => {
+      if (err) {
+        console.log("[ImageLoader service]: " + err)
+      }
     })
   }
 }
