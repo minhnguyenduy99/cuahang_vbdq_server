@@ -10,6 +10,8 @@ export default interface ISanPhamRepository {
 
   searchSanPham(tenSP: string, loaiSP: string, limit: LimitResult): Promise<SanPhamDTO[]>;
 
+  getSearchCount(tenSP: string, loaiSP: string): Promise<number>;
+
   getSanPhamById(sanphamId: string, findDeleted?: boolean): Promise<SanPhamDTO>;
 
   persist(sanpham: SanPham): Promise<void>;

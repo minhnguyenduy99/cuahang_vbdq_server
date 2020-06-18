@@ -11,6 +11,19 @@ export default class SanPhamRepository extends BaseKnexRepository<SanPham> imple
     this.useRecordMode(true);
   }
 
+  async getSearchCount(tenSP: string, loaiSP: string): Promise<number> {
+    try {
+      let result = await this.connection.getConnector()
+        .count("*").from(this.tableName)
+        .where("ten", "like", `%${tenSP}%`)
+        .andWhere("loai_sp", "like", `%${loaiSP}%`)
+        .andWhere("record_status", "=", "1").first();
+      return result["count(*)"];
+    } catch (err) {
+      throw this.knexDatabaseFailed(err);
+    }
+  }
+
   async getSoLuong() {
     return this.count();
   }
