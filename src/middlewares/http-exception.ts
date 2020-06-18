@@ -3,7 +3,6 @@ import * as express from "express";
 
 export default function handleError(): express.ErrorRequestHandler {
   return (error, req, res, next) => {
-    console.log(error);
     const errorData = error.getErrorInfo ? error.getErrorInfo() : {
       code: error.code || 500,
       message: error.message || "Unhandled exception"
