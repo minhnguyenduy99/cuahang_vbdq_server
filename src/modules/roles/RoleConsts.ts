@@ -3,29 +3,78 @@ export default [
   {
     role: "khachhang",
     resources: [
-      "khachhang"
+      {
+        resource: "taikhoan",
+        permissions: ["canhan"]
+      },
+      {
+        resource: "khachhang",
+        permissions: ["dangky", "canhan"]
+      },
+      {
+        resource: "sanpham",
+        permissions: ["search", "soluong"]
+      }
     ]
   },
   {
     role: "phucvu",
     resources: [
-      "phieubanhang", "nhacungcap"
+      "phieubanhang",
+      "khachhang",
+      {
+        resource: "taikhoan",
+        permissions: ["canhan"]
+      },
+      {
+        resource: "nhanvien",
+        permissions: ["canhan"]
+      },
+      {
+        resource: "nhacungcap",
+        permissions: ["search", "soluong"] 
+      },
+      {
+        resource: "sanpham",
+        permissions: ["search", "soluong"]
+      }
     ]
   },
   {
     role: "quanlykho",
     resources: [
-      "phieunhapkho", "nhacungcap"
+      {
+        resource: "taikhoan",
+        permissions: ["canhan"]
+      },
+      {
+        resource: "nhanvien",
+        permissions: ["canhan"]
+      },
+      "phieunhapkho", 
+      "nhacungcap",
+      "sanpham"
     ]
   },
   {
     role: "quanlynhansu",
     resources: [
-      "nhanvien"
+      "khachhang",
+      "nhanvien", 
+      "taikhoan"
     ]
   },
   {
     role: "giamdoc",
     resources: "*"
-  }
+  },
+  {
+    role: "visitor",
+    resources: [
+      {
+        resource: "sanpham",
+        permissions: ["search", "soluong"]
+      }
+    ]
+  },
 ]
