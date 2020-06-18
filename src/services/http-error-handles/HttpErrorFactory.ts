@@ -45,7 +45,7 @@ class HttpErrorFactory {
   }
 
   public unauthorized() {
-    return new BaseHttpError("User is unauthorized", HTTP_ERROR_CODE.bad_request);
+    return new BaseHttpError("User is unauthorized", HTTP_ERROR_CODE.unauthorized);
   }
 
   public unauthenticated(message?: string) {
