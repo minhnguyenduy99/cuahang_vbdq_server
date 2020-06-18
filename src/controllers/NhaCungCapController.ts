@@ -11,7 +11,8 @@ export default class NhaCungCapController extends BaseController {
   protected initializeRoutes(): void {
     this.method("use", authenticationChecking());
     this.method("use", authorizeUser());
-    this.methodHandlers("post", "", this.createNhaCungCap(), ...fileHandler("anh_dai_dien"));
+    
+    this.methodHandlers("post", "/tao", this.createNhaCungCap(), ...fileHandler("anh_dai_dien"));
     this.method("get", this.findNhaCungCap(), "/search");
     this.method("get", this.getSoLuong(), "/soluong");
   }

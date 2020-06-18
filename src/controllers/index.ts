@@ -7,3 +7,4 @@ export { default as PhieuBanHangController } from "./PhieuBanHangController";
 export { default as PhieuNhapKhoController } from "./PhieuNhapKhoController";
 export { default as SanPhamController} from "./SanPhamController";
 export { default as TaiKhoanController } from "./TaiKhoanController";
+export { default as FreeController } from "./FreeController";

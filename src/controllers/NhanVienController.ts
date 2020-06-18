@@ -2,7 +2,7 @@ import { RequestHandler } from "express";
 import { Dependency, DEPConsts } from "@dep";
 import { ErrorFactory } from "@services/http-error-handles";
 import BaseController from "./BaseController";
-import { authenticationChecking, authorizeUser, fileHandler } from "@middlewares";
+import { authenticationChecking, authorizeUser, fileHandler, selfAuthorize } from "@middlewares";
 import { GetNhanVien, GetNhanVienRequest } from "@modules/nhanvien/usecases/GetNhanVien";
 import { TaoTaiKhoan } from "@modules/nhanvien/usecases/CreateTaiKhoanNhanVien";
 import { UpdateNhanVienDTO, UpdateNhanVien } from "@modules/nhanvien/usecases/UpdateNhanVien";
@@ -16,13 +16,17 @@ export default class NhanVienController extends BaseController {
   protected initializeRoutes(): void {
     this.method("use", authenticationChecking());
     this.method("use", authorizeUser());
+
+    this.methodHandlers("post", "/tao", this.createNhanVien(), ...fileHandler("anh_dai_dien"));
     this.method("get", this.getSoLuong(), "/soluong");
     this.method("get", this.searchNhanVien(), "/search");
     this.method("get", this.findNhanVienByPage(), "/page");
-    this.method("get", this.getNhanVienById(), "/:nv_id");
-    this.methodHandlers("post", "", this.createNhanVien(), ...fileHandler("anh_dai_dien"));
-    this.method("put", this.updateNhanVien(), "/:nv_id");
-    this.method("delete", this.deleteNhanVien(), "/:nv_id");
+    this.method("get", this.getNhanVienById(), "/getbyid/:nv_id");
+    this.method("put", this.updateNhanVien(), "/capnhat/:nv_id");
+    this.method("delete", this.deleteNhanVien(), "/xoa/:nv_id");
+    
+    this.methodHandlers("get", "/canhan/:nv_id", this.getNhanVienById(), selfAuthorize(req => req.params.nv_id));
+    this.methodHandlers("put", "/canhan/:nv_id", this.updateNhanVien(), selfAuthorize(req => req.params.nv_id));
   }
 
   private getNhanVienById(): RequestHandler {

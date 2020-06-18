@@ -1,6 +1,6 @@
 import BaseController from "./BaseController";
 import { RequestHandler } from "express";
-import { authenticationChecking, authorizeUser, fileHandler } from "@middlewares";
+import { authenticationChecking, authorizeUser, fileHandler, selfAuthorize } from "@middlewares";
 
 import { TaoKhachHang, TimKiemKhachHang, TaoTaiKhoanKhachHang, TimKiemKhachHangDTO } from "@modules/khachhang/usecases";
 import { CapNhatKhachHangDTO, CapNhatKhachHang } from "@modules/khachhang/usecases/CapNhatKhachHang";
@@ -14,14 +14,17 @@ export default class KhachHangController extends BaseController {
   protected initializeRoutes(): void {
     this.method("use", authenticationChecking());
     this.method("use", authorizeUser());
-    this.methodHandlers("post", "/dangky", this.taoTaiKhoanKhachHang(), ...fileHandler("anh_dai_dien"));
+    
+    this.method("post", this.taoKhachHang(), "/tao");
     this.method("get", this.getSoLuong(), "/soluong");
     this.method("get", this.findKhachHang(), "/search");
     this.method("get", this.findKhachHangByPage(), "/page");
-    this.method("get", this.findKhachHangById(), "/:kh_id");
-    this.method("post", this.taoKhachHang());
-    this.method("put", this.updateKhachHang(), "/:kh_id");
-    this.method("delete", this.deleteKhachHang(), "/:kh_id");
+    this.method("get", this.findKhachHangById(), "/getbyid/:kh_id");
+    this.method("put", this.updateKhachHang(), "/capnhat/:kh_id");
+    this.method("delete", this.deleteKhachHang(), "/xoa/:kh_id");
+    
+    this.methodHandlers("get", "/canhan/:kh_id", this.findKhachHangById(), selfAuthorize(req => req.params.kh_id));
+    this.methodHandlers("put", "/canhan/:kh_id", this.updateKhachHang(), selfAuthorize(req => req.params.kh_id));
   }
 
   private taoKhachHang(): RequestHandler {
@@ -31,17 +34,6 @@ export default class KhachHangController extends BaseController {
         return next(taoKhachHangResult.error);
       }
       res.status(201).json(taoKhachHangResult.getValue());
-    }
-  }
-
-  private taoTaiKhoanKhachHang(): RequestHandler {
-    return async (req, res, next) => {
-      req.body.anh_dai_dien = req.file;
-      const taoTaiKhoanKH = await this.executeCommand(req.body, new TaoTaiKhoanKhachHang());
-      if (taoTaiKhoanKH.isFailure) {
-        return next(taoTaiKhoanKH.error);
-      }
-      res.status(201).json(taoTaiKhoanKH.getValue());
     }
   }
 

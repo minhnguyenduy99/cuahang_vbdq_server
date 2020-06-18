@@ -1,13 +1,10 @@
 import { RequestHandler } from "express";
 import { authenticationChecking, authorizeUser, fileHandler } from "@middlewares";
 import { TaoSanPham } from "@modules/sanpham/usecases/TaoSanPham";
-import { TimKiemSanPham } from "@modules/sanpham/usecases/TimKiemSanPham";
 import { UpdateSanPham } from "@modules/sanpham/usecases/UpdateSanPham";
 import { XoaSanPham } from "@modules/sanpham/usecases/XoaSanPham";
 
 import BaseController from "./BaseController";
-import { UpdateAnhSanPhamDTO, UpdateAnhSanPham  } from "@modules/sanpham/usecases/UpdateAnhSanPham";
-import { Dependency, DEPConsts } from "@dep";
 
 export default class SanPhamController extends BaseController {
 
@@ -18,13 +15,10 @@ export default class SanPhamController extends BaseController {
   protected initializeRoutes(): void {
     this.method("use", authenticationChecking());
     this.method("use", authorizeUser());
-    // this.router.post(this.route, fileHandler('anh_dai_dien'), this.createSanPham());
-    this.methodHandlers("post", "", this.createSanPham(), ...fileHandler("anh_dai_dien"));
-    this.method("get", this.searchSanPham());
-    this.method("get", this.getSoLuong(), "/soluong");
-    this.method("put", this.updateSanPham(), "/:sp_id");
-    this.method("delete", this.deleteSanPham(), "/:sp_id");
-    this.method("put", this.updateAnhDaiDien(), "/anhdaidien/:sp_id");
+    
+    this.methodHandlers("post", "/tao", this.createSanPham(), ...fileHandler("anh_dai_dien"));
+    this.method("put", this.updateSanPham(), "/capnhat/:sp_id");
+    this.method("delete", this.deleteSanPham(), "/xoa/:sp_id");
   }
 
   private createSanPham(): RequestHandler {
@@ -34,24 +28,6 @@ export default class SanPhamController extends BaseController {
         return next(createSanPhamResult.error);
       }
       res.status(201).json(createSanPhamResult.getValue());
-    }
-  }
-
-  private searchSanPham(): RequestHandler {
-    return async (req, res, next) => {
-      const { ten_sp, loai_sp, so_luong, from } = req.query;
-      
-      const parseRequest = {
-        ten_sp: ten_sp,
-        loai_sp: loai_sp,
-        from: parseInt(from),
-        so_luong: parseInt(so_luong)
-      }
-      const searchSanPhamResult = await this.executeQuery(parseRequest, new TimKiemSanPham());
-      if (searchSanPhamResult.isFailure) {
-        return next(searchSanPhamResult.error);
-      }
-      res.status(200).json(searchSanPhamResult.getValue());
     }
   }
 
@@ -76,30 +52,6 @@ export default class SanPhamController extends BaseController {
         return next(result.error);
       }
       return res.status(200).json(result.getValue());
-    }
-  }
-
-  private updateAnhDaiDien(): RequestHandler {
-    return async (req, res, next) => {
-      let request = {
-        idsp: req.params.sp_id,
-        imageFile: req.body.anh_dai_dien
-      } as UpdateAnhSanPhamDTO;
-      let result = await this.executeCommand(request, new UpdateAnhSanPham());
-      if (result.isFailure) {
-        return next(result.error);
-      }
-      return res.status(200).json(result.getValue());
-    }
-  }
-
-  private getSoLuong(): RequestHandler {
-    return async (req, res, next) => {
-      let sanphamRepo = Dependency.Instance.getRepository(DEPConsts.SanPhamRepository);
-      let result = await sanphamRepo.count();
-      return res.status(200).json({
-        so_luong: result
-      });
     }
   }
 }

@@ -6,25 +6,31 @@ import { FindTaiKhoanPageDTO, FindTaiKhoanPage } from "@modules/taikhoan/usecase
 import { DeleteTaiKhoan } from "@modules/taikhoan/usecases/DeleteTaiKhoan";
 import { Dependency, DEPConsts } from "@dep";
 import { SearchTaiKhoanDTO, SearchTaiKhoan } from "@modules/taikhoan/usecases/SearchTaiKhoan";
-import { fileHandler } from "@middlewares";
+import { fileHandler, selfAuthorize, authenticationChecking, authorizeUser } from "@middlewares";
 
 
 export default class TaiKhoanController extends BaseController {
   
   protected initializeRoutes(): void {
-    this.methodHandlers("put", "/:id", this.updateTaiKhoan(), ...fileHandler("anh_dai_dien"));
+    this.method("use", authenticationChecking());
+    this.method("use", authorizeUser());
+    
+    this.methodHandlers("put", "/capnhat/:tk_id", this.updateTaiKhoan(), ...fileHandler("anh_dai_dien"));
     this.method("get", this.searchTaiKhoan(), "/search");
     this.method("get", this.getSoLuong(), "/soluong");
     this.method("get", this.findTaiKhoanByPage(), "/page");
-    this.method("get", this.findTaiKhoanById(), "/:tk_id");
-    this.method("delete", this.deleteTaiKhoan(), "/:tk_id");
+    this.method("get", this.findTaiKhoanById(), "/getbyid/:tk_id");
+    this.method("delete", this.deleteTaiKhoan(), "/xoa/:tk_id");
+    
+    this.methodHandlers("get", "/canhan/:tk_id", this.findTaiKhoanById(), selfAuthorize(req => req.params.tk_id), ...fileHandler("anh_dai_dien"));
+    this.methodHandlers("put", "/canhan/:tk_id", this.updateTaiKhoan(), selfAuthorize((req) => req.params.tk_id), ...fileHandler("anh_dai_dien"));
   }
 
   private updateTaiKhoan(): RequestHandler {
     return async (req, res, next) => {
       let request = {
         ...req.body,
-        id: req.params.id
+        id: req.params.tk_id
       };
       let usecaseResult = await this.executeCommand(request, new UpdateTaiKhoan());
       if (usecaseResult.isFailure) {
