@@ -24,7 +24,8 @@ import {
   KhachHangController,
   PhieuNhapKhoController,
   NhaCungCapController,
-  TaiKhoanController
+  TaiKhoanController,
+  FreeController
 } from "@controllers";
 import { ErrorFactory } from "./services";
 
@@ -72,7 +73,7 @@ export default class App implements IApp {
     ]);
 
     // temporarily remove authorization
-    this.dep.getApplicationSerivce(DEPConsts.AuthorizationService).useAuthorization(false);
+    this.dep.getApplicationSerivce(DEPConsts.AuthorizationService).useAuthorization(true);
   }
 
   protected initializeMiddlewares(): void {
@@ -93,7 +94,6 @@ export default class App implements IApp {
   }
 
   protected initializeRepositories() {
-    this.dep.registerRepository(DEPConsts.RoleRepository);
     this.dep.registerRepository(DEPConsts.LoaiTaiKhoanRepository);
     this.dep.registerRepository(DEPConsts.TaiKhoanRepository);
     this.dep.registerRepository(DEPConsts.NhaCungCapRepository);
@@ -107,6 +107,11 @@ export default class App implements IApp {
   }
 
   protected initializeControllers(): void {
+    this.app.get("/visitor_token", async (req, res, next) => {
+      let token = await Dependency.Instance.getDomainService(DEPConsts.RoleService).addVisitor();
+      res.status(200).json({ token: token })
+    });
+    this.app.use(new FreeController("/free").getRouter());
     this.app.use(new NhanVienController("/nhanvien").getRouter());
     this.app.use(new SanPhamController("/sanpham").getRouter());
     this.app.use(new KhachHangController("/khachhang").getRouter());

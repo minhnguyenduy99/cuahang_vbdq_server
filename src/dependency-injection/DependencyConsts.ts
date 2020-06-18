@@ -11,7 +11,7 @@ import { NhanVienRepository, NhanVienService } from "@modules/nhanvien";
 import { SanPhamRepository, SanPhamService } from "@modules/sanpham";
 import { PhieuBHRepository, CTPhieuBHRepository } from "@modules/phieubanhang";
 import { PhieuNhapKhoRepository, CTPhieuNKRepository } from "@modules/phieunhapkho";
-import { RoleRepository, RoleService } from "@modules/roles";
+import { RoleService } from "@modules/roles";
 
 export default {
 
@@ -26,7 +26,6 @@ export default {
   CTPhieuBHRepository,
   PhieuNhapKhoRepository, 
   CTPhieuNKRepository,
-  RoleRepository,
 
   // domain services
   TaiKhoanService,
