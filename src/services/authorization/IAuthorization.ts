@@ -1,3 +1,4 @@
+import Allow from "./Allow";
 
 export default interface IAuthorization {
 
@@ -5,9 +6,9 @@ export default interface IAuthorization {
 
   addUserRole(userId: string, role: string): Promise<void>;
 
-  addRole(role: string, allows: string[] | "*"): Promise<void>;
+  addRole(role: string, allows: (Allow | string)[] | "*"): Promise<void>;
 
-  isUserAllowed(identifier: string, resource: string): Promise<boolean>;
+  isUserAllowed(identifier: string, resource: string, permission: string): Promise<boolean>;
 
   getAllRoles(identifier: string): Promise<string[]>;
 

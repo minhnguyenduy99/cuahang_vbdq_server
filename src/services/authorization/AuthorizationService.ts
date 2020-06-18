@@ -2,7 +2,8 @@
 
 import IAuthorization from "./IAuthorization";
 import { ApplicationService, IAppSettings } from "@core";
-import acl from "acl";
+import acl, { AclSet, AclAllow } from "acl";
+import Allow from "./Allow";
 
 let _acl = new acl(new acl.memoryBackend());
 
@@ -27,11 +28,24 @@ export default class AuthorizationService extends ApplicationService<{}> impleme
     this.isAuthorizationUsed = use;
   }
 
-  public async addRole(role: string, allows: string[] | "*") {
-    await _acl.allow(role, allows, "*", (err) => {
-      if (!err) return
-      console.log(err);
-    });
+  public async addRole(role: string, allows: (Allow | string)[] | "*") {
+    if (allows === "*") {
+      await _acl.allow(role, allows, "*", (err) => {
+        if (err) {
+          console.log(err)
+        }
+      })
+      return;
+    }
+    await _acl.allow([{
+      roles: role,
+      allows: allows.map(allow => {
+        return {
+          resources: (<Allow>allow).resource ?? allow,
+          permissions: (<Allow>allow).permissions ?? ["*"]
+        } as AclAllow;
+      })
+    }])
   }
 
   public async addUserRole(userId: string, role: string) {
@@ -41,8 +55,8 @@ export default class AuthorizationService extends ApplicationService<{}> impleme
     });
   }
 
-  public async isUserAllowed(identifier: string, resource: string) {
-    let isAllowed = await _acl.isAllowed(identifier, resource, "*");
+  public async isUserAllowed(identifier: string, resource: string, permission: string) {
+    let isAllowed = await _acl.isAllowed(identifier, resource, permission);
     return isAllowed || !this.isAuthorizationUsed;
   }
   
