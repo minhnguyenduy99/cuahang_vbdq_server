@@ -2,7 +2,7 @@
 
 export default interface IRoleService {
 
-  addUserRole(userId: string, loaiTK: number): Promise<void>;
+  addUserRole(userId: string, loaiTK: string): Promise<void>;
 
   /**
    * Add a visitor role 
