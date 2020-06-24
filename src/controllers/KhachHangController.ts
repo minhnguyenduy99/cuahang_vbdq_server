@@ -7,9 +7,18 @@ import { CapNhatKhachHangDTO, CapNhatKhachHang } from "@modules/khachhang/usecas
 import { XoaKhachHang } from "@modules/khachhang/usecases/XoaKhachHang";
 import { TimKiemKhachHangPage, TimKiemKhachHangPageDTO } from "@modules/khachhang/usecases/TimKiemKhachHangPage";
 import { Dependency, DEPConsts } from "@dep";
+import { IKhachHangRepository } from "@modules/khachhang/shared";
+import { ErrorFactory } from "@services/http-error-handles";
 
 
 export default class KhachHangController extends BaseController {
+
+  private khachhangRepo: IKhachHangRepository;
+
+  constructor(route: string) {
+    super(route);
+    this.khachhangRepo = Dependency.Instance.getRepository(DEPConsts.KhachHangRepository);
+  }
   
   protected initializeRoutes(): void {
     this.method("use", authenticationChecking());
@@ -23,8 +32,8 @@ export default class KhachHangController extends BaseController {
     this.method("put", this.updateKhachHang(), "/capnhat/:kh_id");
     this.method("delete", this.deleteKhachHang(), "/xoa/:kh_id");
     
-    this.methodHandlers("get", "/canhan/:kh_id", this.findKhachHangById(), selfAuthorize(req => req.params.kh_id));
-    this.methodHandlers("put", "/canhan/:kh_id", this.updateKhachHang(), selfAuthorize(req => req.params.kh_id));
+    this.methodHandlers("get", "/canhan", this.getKhachHangCaNhan());
+    this.methodHandlers("put", "/canhan", this.updateKhachHangCaNhan());
   }
 
   private taoKhachHang(): RequestHandler {
@@ -67,18 +76,6 @@ export default class KhachHangController extends BaseController {
     }
   }
 
-  private findKhachHangById(): RequestHandler {
-    return async (req, res, next) => {
-      const idKH = req.params.kh_id;
-      const timKiemKhachHang = await this.executeQuery({ kh_id: idKH }, new TimKiemKhachHang());
-      if (timKiemKhachHang.isFailure) {
-        return next(timKiemKhachHang.error);
-      }
-      const khachhang = timKiemKhachHang.getValue();
-      return res.status(200).json(khachhang); 
-    }
-  }
-
   private updateKhachHang(): RequestHandler {
     return async (req, res, next) => {
       let request = {
@@ -110,6 +107,48 @@ export default class KhachHangController extends BaseController {
       return res.status(200).json({
         so_luong: result
       });
+    }
+  }
+
+  private findKhachHangById(): RequestHandler {
+    return async (req, res, next) => {
+      const idKH = req.params.kh_id;
+      const timKiemKhachHang = await this.executeQuery({ kh_id: idKH }, new TimKiemKhachHang());
+      if (timKiemKhachHang.isFailure) {
+        return next(timKiemKhachHang.error);
+      }
+      const khachhang = timKiemKhachHang.getValue();
+      return res.status(200).json(khachhang); 
+    }
+  }
+
+  private getKhachHangCaNhan(): RequestHandler {
+    return async (req, res, next) => {
+      let taikhoanId = req.body.authenticate.tk_id;
+      let khachhang = await this.khachhangRepo.findKhachHangByTaiKhoan(taikhoanId);
+      if (!khachhang) {
+        return next(ErrorFactory.unauthorized());
+      }
+      return res.status(200).json(khachhang); 
+    }
+  }
+
+  private updateKhachHangCaNhan(): RequestHandler {
+    return async (req, res, next) => {
+      let taikhoanId = req.body.authenticate.tk_id;
+      let khachhang = await this.khachhangRepo.findKhachHangByTaiKhoan(taikhoanId);
+      if (!khachhang) {
+        return next(ErrorFactory.unauthorized());
+      }
+      let request = {
+        id: khachhang.id,
+        ...req.body
+      } as CapNhatKhachHangDTO;
+      const updateResult = await this.executeCommand(request, new CapNhatKhachHang());
+      if (updateResult.isFailure) {
+        return next(updateResult.error);
+      }
+      return res.status(200).json(updateResult.getValue()); 
     }
   }
 }

@@ -25,8 +25,8 @@ export default class NhanVienController extends BaseController {
     this.method("put", this.updateNhanVien(), "/capnhat/:nv_id");
     this.method("delete", this.deleteNhanVien(), "/xoa/:nv_id");
     
-    this.methodHandlers("get", "/canhan/:nv_id", this.getNhanVienById(), selfAuthorize(req => req.params.nv_id));
-    this.methodHandlers("put", "/canhan/:nv_id", this.updateNhanVien(), selfAuthorize(req => req.params.nv_id));
+    this.methodHandlers("get", "/canhan/", this.getNhanVienCaNhan());
+    this.methodHandlers("put", "/canhan/", this.updateNhanVienCaNhan());
   }
 
   private getNhanVienById(): RequestHandler {
@@ -116,6 +116,35 @@ export default class NhanVienController extends BaseController {
         return next(result.error);
       }
       return res.status(200).json(result.getValue());
+    }
+  } 
+
+  private getNhanVienCaNhan(): RequestHandler {
+    return async (req, res, next) => {
+      let nhanvienRepo = Dependency.Instance.getRepository(DEPConsts.NhanVienRepository);
+      let taikhoanId = req.body.authenticate.tk_id;
+      let nhanvien = await nhanvienRepo.findNhanVienByTaiKhoan(taikhoanId);
+      return res.status(200).json(nhanvien);
+    }
+  }
+
+  private updateNhanVienCaNhan(): RequestHandler {
+    return async (req, res, next) => {
+      let nhanvienRepo = Dependency.Instance.getRepository(DEPConsts.NhanVienRepository);
+      let taikhoanId = req.body.authenticate.tk_id;
+      let nhanvien = await nhanvienRepo.findNhanVienByTaiKhoan(taikhoanId);
+      if (!nhanvien) {
+        return next(ErrorFactory.internalServerError());
+      }
+      let request = {
+        id: nhanvien.id,
+        ...req.body
+      };
+      let nhanvienUpdate = await this.executeCommand(request, new UpdateNhanVien());
+      if (nhanvienUpdate.isFailure) {
+        return next(nhanvienUpdate.error);
+      }
+      return res.status(200).json(nhanvienUpdate.getValue());
     }
   } 
 }

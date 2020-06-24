@@ -22,8 +22,8 @@ export default class TaiKhoanController extends BaseController {
     this.method("get", this.findTaiKhoanById(), "/getbyid/:tk_id");
     this.method("delete", this.deleteTaiKhoan(), "/xoa/:tk_id");
     
-    this.methodHandlers("get", "/canhan/:tk_id", this.findTaiKhoanById(), selfAuthorize(req => req.params.tk_id), ...fileHandler("anh_dai_dien"));
-    this.methodHandlers("put", "/canhan/:tk_id", this.updateTaiKhoan(), selfAuthorize((req) => req.params.tk_id), ...fileHandler("anh_dai_dien"));
+    this.methodHandlers("get", "/canhan", this.getTaiKhoanCaNhan());
+    this.methodHandlers("put", "/canhan", this.updateTaiKhoanCaNhan(), ...fileHandler("anh_dai_dien"));
   }
 
   private updateTaiKhoan(): RequestHandler {
@@ -96,6 +96,31 @@ export default class TaiKhoanController extends BaseController {
       return res.status(200).json({
         so_luong: result
       });
+    }
+  }
+
+  private getTaiKhoanCaNhan(): RequestHandler {
+    return async (req, res, next) => {
+      let taikhoanId = req.body.authenticate.tk_id;
+      let usecaseResult = await this.executeQuery(taikhoanId, new GetTaiKhoanById());
+      if (usecaseResult.isFailure) {
+        return next(usecaseResult.error);
+      }
+      return res.status(201).json(usecaseResult.getValue());
+    }
+  }
+
+  private updateTaiKhoanCaNhan(): RequestHandler {
+    return async (req, res, next) => {
+      let request = {
+        ...req.body,
+        id: JSON.parse(req.headers["X-Authenticate"] as string).tk_id
+      };
+      let usecaseResult = await this.executeCommand(request, new UpdateTaiKhoan());
+      if (usecaseResult.isFailure) {
+        return next(usecaseResult.error);
+      }
+      return res.status(201).json(usecaseResult.getValue());
     }
   }
 }
