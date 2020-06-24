@@ -27,6 +27,7 @@ export default function authenticationChecking(): RequestHandler {
       return next(ErrorFactory.unauthenticated());
     }
     req.body.authenticate = authResult; 
+    req.headers["X-Authenticate"] = JSON.stringify(authResult);
     next();
   }
 }
