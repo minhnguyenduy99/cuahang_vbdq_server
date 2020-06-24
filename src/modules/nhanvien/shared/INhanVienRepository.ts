@@ -7,6 +7,8 @@ export default interface INhanVienRepository {
   getNhanVienById(id: string, findDeleted?: boolean): Promise<NhanVienDTO>;
 
   getNhanVienByCMND(cmnd: string): Promise<NhanVienDTO>;
+  
+  getNhanVienByTaiKhoanId(taikhoanId: string): Promise<NhanVienDTO>;
 
   searchNhanVien(tenNV: string, from: number, count?: number): Promise<NhanVienDTO[]>;
 

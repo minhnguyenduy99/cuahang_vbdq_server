@@ -11,6 +11,18 @@ export default class NhanVienRepository extends BaseKnexRepository<NhanVien> imp
     this.useRecordMode(true);
   }
 
+  async getNhanVienByTaiKhoanId(taikhoanId: string) {
+    try {
+      let result = await this.connection.getConnector()
+        .select("*").from(this.tableName)
+        .where("tk_id", "=", taikhoanId)
+        .limit(1);
+      return result.length === 0 ? null : this.mapper.toDTOFromPersistence(result[0]);
+    } catch (err) {
+      throw this.knexDatabaseFailed(err);
+    }
+  }
+
   async searchNhanVien(tenNV: string, from: number, count?: number): Promise<NhanVienDTO[]> {
     try {
       const searchResult = await this.connection.getConnector()
