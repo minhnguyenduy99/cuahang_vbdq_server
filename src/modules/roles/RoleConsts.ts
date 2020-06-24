@@ -66,7 +66,16 @@ export default [
   },
   {
     role: "giamdoc",
-    resources: "*"
+    resources: [
+      "nhanvien", 
+      "sanpham", 
+      "khachhang", 
+      "taikhoan", 
+      "canhan", 
+      "nhacungcap",
+      "phieubanhang",
+      "phieunhapkho"
+    ]
   },
   {
     role: "visitor",

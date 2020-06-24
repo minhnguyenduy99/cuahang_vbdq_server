@@ -33,8 +33,8 @@ export default class RoleService extends DomainService implements IRoleService {
     }));
   }
 
-  public async addUserRole(userId: string, loaiTK: number) {
-    return this.authService.addUserRole(userId, ROLES[loaiTK].role);
+  public async addUserRole(userId: string, loaiTK: string) {
+    return this.authService.addUserRole(userId, ROLES[Number.parseInt(loaiTK)].role);
   }
 
   public async isUserAllowed(userId: string, resource: string, permission: string) {
