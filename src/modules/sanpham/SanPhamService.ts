@@ -58,6 +58,7 @@ export default class SanPhamService implements ISanPhamService {
       ...sanphamDTO,
       ...updateInfo,
       nhacc_id: sanphamDTO.nhacc_id,
+      anh_dai_dien: updateInfo.anh_dai_dien ?? sanphamDTO.anh_dai_dien,
       idsp: undefined,
       so_luong: undefined
     }, CreateType.getGroups().createNew);
