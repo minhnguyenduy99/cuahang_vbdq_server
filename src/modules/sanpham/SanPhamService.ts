@@ -57,6 +57,7 @@ export default class SanPhamService implements ISanPhamService {
     let createUpdateSanPham = await SanPham.create({
       ...sanphamDTO,
       ...updateInfo,
+      nhacc_id: sanphamDTO.nhacc_id,
       idsp: undefined,
       so_luong: undefined
     }, CreateType.getGroups().createNew);

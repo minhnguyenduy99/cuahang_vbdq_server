@@ -17,7 +17,7 @@ export default class SanPhamController extends BaseController {
     this.method("use", authorizeUser());
     
     this.methodHandlers("post", "/tao", this.createSanPham(), ...fileHandler("anh_dai_dien"));
-    this.method("put", this.updateSanPham(), "/capnhat/:sp_id");
+    this.methodHandlers("put",  "/capnhat/:sp_id", this.updateSanPham(), ...fileHandler("anh_dai_dien"));
     this.method("delete", this.deleteSanPham(), "/xoa/:sp_id");
   }
 
